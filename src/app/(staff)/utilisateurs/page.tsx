@@ -7,6 +7,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Field";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
@@ -106,7 +107,7 @@ export default function UsersPage() {
 
             <div>
               <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" placeholder="Mot de passe initial" {...register("password")} />
+              <PasswordInput id="password" placeholder="Mot de passe initial" {...register("password")} />
               <FieldError>{errors.password?.message}</FieldError>
             </div>
 

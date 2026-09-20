@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Field";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Alert } from "@/components/ui/Alert";
 import { staffLoginSchema, type StaffLoginInput } from "@/lib/validation/auth";
 import { staffLogin } from "@/lib/api/auth";
@@ -55,7 +56,7 @@ export default function StaffLoginPage() {
 
             <div>
               <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" autoComplete="current-password" placeholder="Votre mot de passe" {...register("password")} />
+              <PasswordInput id="password" autoComplete="current-password" placeholder="Votre mot de passe" {...register("password")} />
               <FieldError>{errors.password?.message}</FieldError>
             </div>
 

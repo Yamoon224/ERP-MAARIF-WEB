@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Field";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Alert } from "@/components/ui/Alert";
 import { parentLoginSchema, type ParentLoginInput } from "@/lib/validation/auth";
 import { parentLogin } from "@/lib/api/auth";
@@ -55,7 +56,7 @@ export default function ParentLoginPage() {
 
             <div>
               <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" autoComplete="current-password" placeholder="Votre mot de passe" {...register("password")} />
+              <PasswordInput id="password" autoComplete="current-password" placeholder="Votre mot de passe" {...register("password")} />
               <FieldError>{errors.password?.message}</FieldError>
             </div>
 
