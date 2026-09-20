@@ -72,4 +72,7 @@ export const handlers = [
       meta: { current_page: 1, last_page: 1, per_page: 15, total: filtered.length },
     });
   }),
+
+  // Par défaut aucune année scolaire : les écrans qui la filtrent restent utilisables sans jeu de données.
+  http.get(`${API_URL}/academic-years`, () => HttpResponse.json({ data: [] })),
 ];

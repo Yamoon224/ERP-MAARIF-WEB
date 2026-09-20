@@ -89,7 +89,7 @@ export default function AttendancePage() {
   function markAllPresent() {
     setSavedCount(null);
     setState((current) =>
-      Object.fromEntries(Object.entries(current).map(([id, row]) => [id, { status: "present" as const, justified: false, reason: "" }])),
+      Object.fromEntries(Object.keys(current).map((id) => [id, { status: "present" as const, justified: false, reason: "" }])),
     );
   }
 
