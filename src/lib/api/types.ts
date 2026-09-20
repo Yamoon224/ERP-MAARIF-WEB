@@ -153,10 +153,17 @@ export interface NotificationLog {
   type: "convocation" | "sanction" | "bulletin" | "admission";
   recipient: string;
   subject: string | null;
+  /** Texte complet du message envoyé au tuteur. */
+  body: string;
   status: "pending" | "sent" | "failed";
   error: string | null;
   sent_at: string | null;
   created_at: string;
+}
+
+export interface NotificationSummary {
+  total: number;
+  by_status: Record<NotificationLog["status"], number>;
 }
 
 // --- Périodes : année scolaire, trimestre, mois --------------------------------

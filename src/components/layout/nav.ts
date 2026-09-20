@@ -2,6 +2,7 @@ import {
   Award,
   Banknote,
   BookOpen,
+  Bell,
   CalendarRange,
   ClipboardCheck,
   GraduationCap,
@@ -81,7 +82,10 @@ export const STAFF_NAV: NavGroup[] = [
   },
   {
     label: "Administration",
-    items: [{ href: "/utilisateurs", label: "Utilisateurs", icon: Users, permission: "users.manage" }],
+    items: [
+      { href: "/utilisateurs", label: "Utilisateurs", icon: Users, permission: "users.manage" },
+      { href: "/notifications", label: "Notifications", icon: Bell, permission: "notifications.view" },
+    ],
   },
 ];
 

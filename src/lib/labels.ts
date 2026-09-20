@@ -2,6 +2,7 @@ import type {
   AdmissionStatus,
   AttendanceStatus,
   InstallmentStatus,
+  NotificationLog,
   PaymentMethod,
   PaymentPeriod,
   PromotionDecisionValue,
@@ -105,4 +106,30 @@ export const DECISION_TONE: Record<PromotionDecisionValue, Tone> = {
   admitted: "success",
   repeat: "warning",
   excluded: "danger",
+};
+
+// --- Journal des notifications --------------------------------------------------
+
+export const NOTIFICATION_TYPE_LABEL: Record<NotificationLog["type"], string> = {
+  convocation: "Convocation",
+  sanction: "Sanction",
+  bulletin: "Bulletin",
+  admission: "Admission",
+};
+
+export const NOTIFICATION_CHANNEL_LABEL: Record<NotificationLog["channel"], string> = {
+  email: "E-mail",
+  sms: "SMS",
+};
+
+export const NOTIFICATION_STATUS_LABEL: Record<NotificationLog["status"], string> = {
+  sent: "Envoyé",
+  failed: "Échec",
+  pending: "En attente",
+};
+
+export const NOTIFICATION_STATUS_TONE: Record<NotificationLog["status"], Tone> = {
+  sent: "success",
+  failed: "danger",
+  pending: "warning",
 };
