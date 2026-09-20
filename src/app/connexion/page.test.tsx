@@ -19,7 +19,8 @@ describe("StaffLoginPage", () => {
     const state = useAuthStore.getState();
     expect(state.actorType).toBe("staff");
     expect(state.token).toBe("fake-staff-token");
-    expect(state.user?.name).toBe("Admin Maarif");
+    // Session du personnel : `user` est l'union personnel | élève, seul le premier a un `name`.
+    expect(state.user && "name" in state.user ? state.user.name : undefined).toBe("Admin Maarif");
   });
 
   it("shows the API's error message and keeps the user on the page when credentials are wrong", async () => {
