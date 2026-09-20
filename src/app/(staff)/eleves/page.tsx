@@ -1,30 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { Select } from "@/components/ui/Field";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+import { listAcademicYears } from "@/lib/api/academics";
 import { listStudents } from "@/lib/api/students";
-import type { Student } from "@/lib/api/types";
+import type { AcademicYear, Student } from "@/lib/api/types";
 
 export default function StudentsPage() {
   const [search, setSearch] = useState("");
+  const [academicYear, setAcademicYear] = useState("");
+  const [years, setYears] = useState<AcademicYear[]>([]);
   const debouncedSearch = useDebouncedValue(search);
-  const { page, perPage, setPage, setPerPage } = usePagination(debouncedSearch);
+  const { page, perPage, setPage, setPerPage } = usePagination(`${debouncedSearch}|${academicYear}`);
+
+  useEffect(() => {
+    listAcademicYears()
+      .then(setYears)
+      .catch(() => setYears([]));
+  }, []);
 
   const fetcher = useMemo(
-    () => () => listStudents({ search: debouncedSearch || undefined, page, per_page: perPage }),
-    [debouncedSearch, page, perPage],
+    () => () => listStudents({ search: debouncedSearch || undefined, academic_year: academicYear || undefined, page, per_page: perPage }),
+    [debouncedSearch, academicYear, page, perPage],
   );
 
-  const { data, meta, isLoading } = usePaginatedResource(fetcher, [debouncedSearch, page, perPage]);
+  const { data, meta, isLoading } = usePaginatedResource(fetcher, [debouncedSearch, academicYear, page, perPage]);
 
   const columns: DataTableColumn<Student>[] = [
     { key: "matricule", header: "Matricule", render: (row) => <span className="font-mono text-xs">{row.matricule}</span> },
@@ -61,8 +71,21 @@ export default function StudentsPage() {
         </Link>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un eleve, un matricule..." />
+        <Select
+          aria-label="Année scolaire"
+          className="h-10 w-48"
+          value={academicYear}
+          onChange={(event) => setAcademicYear(event.target.value)}
+        >
+          <option value="">Toutes les années</option>
+          {years.map((year) => (
+            <option key={year.label} value={year.label}>
+              Inscrits en {year.label}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun eleve trouve." />

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Field";
+import { StudentEnrollments } from "@/components/staff/StudentEnrollments";
 import { getStudent, resetStudentPassword } from "@/lib/api/students";
 import { getStudentBulletin } from "@/lib/api/grades";
 import { listAllTerms } from "@/lib/api/academics";
@@ -142,6 +143,8 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
           </CardContent>
         </Card>
       </div>
+
+      <StudentEnrollments studentId={id} onEnrolled={() => getStudent(id).then(setStudent)} />
     </div>
   );
 }
