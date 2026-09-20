@@ -23,7 +23,14 @@ export function RequireAuth({ actorType, redirectTo, children }: RequireAuthProp
   const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
-    if (!token || storedActorType !== actorType) {
+    // La session est lue dans le store au moment de l'effet, pas via les valeurs
+    // du rendu : pendant l'hydratation, zustand ne rend que l'etat initial (sans
+    // jeton) pour rester identique au HTML du serveur. Se fier a ces valeurs
+    // renverrait vers la connexion, a chaque rechargement de page, un
+    // utilisateur pourtant connecte (le jeton est bien dans le stockage local).
+    const session = useAuthStore.getState();
+
+    if (!session.token || session.actorType !== actorType) {
       router.replace(redirectTo);
       return;
     }

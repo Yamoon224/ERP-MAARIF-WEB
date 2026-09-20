@@ -31,6 +31,7 @@ const ACCEPTED: Admission = {
   submitted_on: "2026-01-15",
   decision_note: null,
   decided_at: null,
+  notified_at: null,
   enrolled_at: null,
 };
 
@@ -124,6 +125,29 @@ describe("AdmissionDetailPage", () => {
     expect(statusCalls).toBe(1);
   });
 
+  it("shows whether the guardian was notified, and offers to edit a file that is not enrolled yet", async () => {
+    signIn(["admissions.view", "admissions.manage"]);
+    server.use(
+      http.get(`${API_URL}/admissions/7`, () =>
+        HttpResponse.json({ data: { ...ACCEPTED, decided_at: "2026-02-01T10:00:00Z", notified_at: "2026-02-01T10:00:05Z" } }),
+      ),
+    );
+
+    await renderPage();
+
+    expect(screen.getByText(/Tuteur notifié/).closest("p")).toHaveTextContent(/Oui, le/);
+    expect(screen.getByRole("link", { name: /Modifier le dossier/ })).toHaveAttribute("href", "/admissions/7/modifier");
+  });
+
+  it("says the guardian was not notified when the message did not go through", async () => {
+    signIn(["admissions.view", "admissions.manage"]);
+    server.use(http.get(`${API_URL}/admissions/7`, () => HttpResponse.json({ data: { ...ACCEPTED, decided_at: "2026-02-01T10:00:00Z" } })));
+
+    await renderPage();
+
+    expect(screen.getByText(/Tuteur notifié/).closest("p")).toHaveTextContent("Tuteur notifié : Non");
+  });
+
   it("hides the actions from users who may only view admissions", async () => {
     signIn(["admissions.view"]);
     server.use(http.get(`${API_URL}/admissions/7`, () => HttpResponse.json({ data: ACCEPTED })));
@@ -133,5 +157,6 @@ describe("AdmissionDetailPage", () => {
     expect(screen.queryByRole("button", { name: "Admettre" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Inscrire l'élève/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Supprimer le dossier/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Modifier le dossier/ })).not.toBeInTheDocument();
   });
 });

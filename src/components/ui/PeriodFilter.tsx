@@ -50,7 +50,7 @@ export function PeriodFilter({ filter, modes = ["year", "term", "month"], classN
       <label className="text-xs font-medium text-muted">
         Année scolaire
         <Select
-          className="mt-1 h-9 w-40"
+          className="mt-1 h-9 w-52"
           value={year?.label ?? ""}
           disabled={isLoading}
           onChange={(event) => filter.setYear(event.target.value)}

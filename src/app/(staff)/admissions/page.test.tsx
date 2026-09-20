@@ -31,6 +31,7 @@ function admission(overrides: Partial<Admission>): Admission {
     submitted_on: "2026-01-15",
     decision_note: null,
     decided_at: null,
+    notified_at: null,
     enrolled_at: null,
     ...overrides,
   };

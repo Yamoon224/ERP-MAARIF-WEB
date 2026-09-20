@@ -100,6 +100,7 @@ describe("ResultsPage", () => {
     // Sans le droit de décision, on lit la suggestion sans pouvoir la modifier.
     expect(screen.getAllByText(/Suggéré : Admis en classe supérieure/)).toHaveLength(2);
     expect(screen.queryByRole("button", { name: /Valider les décisions/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Passage à l'année suivante")).not.toBeInTheDocument();
   });
 
   it("requests the first semester (terms 1 and 2), then a chosen term", async () => {
@@ -147,5 +148,10 @@ describe("ResultsPage", () => {
 
     await user.click(screen.getByRole("button", { name: /Valider les décisions suggérées/ }));
     expect(await screen.findByRole("status")).toHaveTextContent("2 décision(s) enregistrée(s).");
+
+    // Le passage à l'année suivante est proposé sur la période annuelle seulement.
+    expect(screen.getByText("Passage à l'année suivante")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Trimestre" }));
+    await waitFor(() => expect(screen.queryByText("Passage à l'année suivante")).not.toBeInTheDocument());
   });
 });
