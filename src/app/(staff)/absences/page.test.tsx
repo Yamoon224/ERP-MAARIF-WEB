@@ -96,7 +96,8 @@ describe("AbsencesPage", () => {
     const user = userEvent.setup();
     render(<AbsencesPage />);
 
-    const row = (await screen.findByRole("link", { name: "Fatoumata Camara", hidden: false })).closest("tr") as HTMLElement;
+    // Le nom apparaît aussi dans le classement des élèves les plus absents : on cible la ligne du tableau.
+    const row = (await within(await screen.findByRole("table")).findByRole("link", { name: "Fatoumata Camara" })).closest("tr") as HTMLElement;
     expect(within(row).getByText("Non justifiée")).toBeInTheDocument();
 
     await user.click(within(row).getByRole("button", { name: /Justifier/ }));
