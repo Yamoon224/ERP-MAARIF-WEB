@@ -1,4 +1,12 @@
-import type { AttendanceStatus, InstallmentStatus, PaymentMethod, PaymentPeriod, SummonStatus } from "@/lib/api/types";
+import type {
+  AdmissionStatus,
+  AttendanceStatus,
+  InstallmentStatus,
+  PaymentMethod,
+  PaymentPeriod,
+  PromotionDecisionValue,
+  SummonStatus,
+} from "@/lib/api/types";
 
 export type Tone = "neutral" | "success" | "warning" | "danger" | "info";
 
@@ -67,4 +75,34 @@ export const INSTALLMENT_TONE: Record<InstallmentStatus, Tone> = {
   overdue: "danger",
   due: "warning",
   upcoming: "neutral",
+};
+
+export const ADMISSION_LABEL: Record<AdmissionStatus, string> = {
+  pending: "En attente",
+  under_review: "En étude",
+  accepted: "Admis",
+  waitlisted: "Liste d'attente",
+  rejected: "Refusé",
+  enrolled: "Inscrit",
+};
+
+export const ADMISSION_TONE: Record<AdmissionStatus, Tone> = {
+  pending: "neutral",
+  under_review: "info",
+  accepted: "success",
+  waitlisted: "warning",
+  rejected: "danger",
+  enrolled: "success",
+};
+
+export const DECISION_LABEL: Record<PromotionDecisionValue, string> = {
+  admitted: "Admis en classe supérieure",
+  repeat: "Redoublant",
+  excluded: "Exclu",
+};
+
+export const DECISION_TONE: Record<PromotionDecisionValue, Tone> = {
+  admitted: "success",
+  repeat: "warning",
+  excluded: "danger",
 };

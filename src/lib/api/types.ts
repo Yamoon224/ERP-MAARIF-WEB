@@ -339,3 +339,130 @@ export interface ArrearsRow {
   amount: number;
   oldest_month: string;
 }
+
+// --- Admissions -----------------------------------------------------------------
+
+/** pending → under_review → accepted | waitlisted | rejected → enrolled (inscription effective). */
+export type AdmissionStatus = "pending" | "under_review" | "accepted" | "waitlisted" | "rejected" | "enrolled";
+
+export interface Admission {
+  id: string;
+  reference: string;
+  academic_year: string;
+  level: string;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  gender: "M" | "F";
+  birth_date: string | null;
+  previous_school: string | null;
+  guardian_name: string;
+  guardian_phone: string;
+  guardian_email: string | null;
+  address: string | null;
+  notes: string | null;
+  status: AdmissionStatus;
+  status_label: string;
+  submitted_on: string;
+  decision_note: string | null;
+  decided_at: string | null;
+  decided_by?: { id: string; name: string } | null;
+  student?: { id: string; matricule: string } | null;
+  enrolled_at: string | null;
+}
+
+export interface AdmissionSummary {
+  total: number;
+  by_status: Record<AdmissionStatus, number>;
+}
+
+/** Réponse de l'inscription : le mot de passe initial n'est lisible qu'une fois. */
+export interface AdmissionEnrollment {
+  application: Admission;
+  student: Student;
+  initial_password: string;
+}
+
+// --- Résultats (trimestre, semestre, année) -------------------------------------
+
+export type ResultPeriodKind = "term" | "semester" | "annual";
+export type PromotionDecisionValue = "admitted" | "repeat" | "excluded";
+
+export interface ResultPeriodInfo {
+  kind: ResultPeriodKind;
+  /** Identifiant du trimestre, `semester-1`, `semester-2` ou `annual`. */
+  key: string;
+  label: string;
+  academic_year: string;
+  term_ids: string[];
+}
+
+export interface SuggestedDecision {
+  value: PromotionDecisionValue;
+  label: string;
+}
+
+export interface SavedDecision extends SuggestedDecision {
+  note: string | null;
+  average: number | null;
+  decided_at: string;
+}
+
+export interface ClassResultRow {
+  enrollment_id: string;
+  student: { id: string; name: string; matricule: string; is_active: boolean };
+  average: number | null;
+  rank: number | null;
+  mention: string | null;
+  grades_count: number;
+  subjects_count: number;
+  /** Renseignées sur la période annuelle seulement. */
+  suggested_decision: SuggestedDecision | null;
+  decision: SavedDecision | null;
+}
+
+export interface ClassResultStats {
+  students: number;
+  ranked: number;
+  average: number | null;
+  highest: number | null;
+  lowest: number | null;
+  passed: number;
+  pass_rate: number | null;
+}
+
+export interface ClassResults {
+  school_class: { id: string; name: string; level: string; academic_year: string };
+  period: ResultPeriodInfo;
+  pass_mark: number;
+  stats: ClassResultStats;
+  rows: ClassResultRow[];
+}
+
+export interface SubjectResult {
+  subject_id: string;
+  subject: string;
+  code: string;
+  coefficient: number;
+  average: number;
+  grades_count: number;
+}
+
+export interface StudentPeriodResult extends ResultPeriodInfo {
+  average: number | null;
+  rank: number | null;
+  /** Nombre d'élèves classés dans la classe ; `null` sans inscription. */
+  ranked_count: number | null;
+  mention: string | null;
+  subjects: SubjectResult[];
+}
+
+export interface StudentResults {
+  student: { id: string; name: string; matricule: string };
+  academic_year: string;
+  school_class: { id: string; name: string; level: string } | null;
+  pass_mark: number;
+  periods: StudentPeriodResult[];
+  suggested_decision: SuggestedDecision | null;
+  decision: SavedDecision | null;
+}

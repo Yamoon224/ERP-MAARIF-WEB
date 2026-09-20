@@ -1,4 +1,5 @@
 import {
+  Award,
   Banknote,
   BookOpen,
   CalendarRange,
@@ -11,6 +12,7 @@ import {
   School,
   ShieldAlert,
   TriangleAlert,
+  UserPlus,
   UserX,
   Users,
   Wallet,
@@ -45,6 +47,7 @@ export const STAFF_NAV: NavGroup[] = [
   {
     label: "Élèves & classes",
     items: [
+      { href: "/admissions", label: "Admissions", icon: UserPlus, permission: "admissions.view" },
       { href: "/eleves", label: "Élèves", icon: GraduationCap, permission: "students.view" },
       { href: "/classes", label: "Classes", icon: School, permission: "academics.view" },
     ],
@@ -55,6 +58,7 @@ export const STAFF_NAV: NavGroup[] = [
       { href: "/matieres", label: "Matières", icon: BookOpen, permission: "academics.view" },
       { href: "/trimestres", label: "Trimestres", icon: CalendarRange, permission: "academics.view" },
       { href: "/notes", label: "Notes", icon: NotebookPen, permission: "grades.manage" },
+      { href: "/resultats", label: "Résultats", icon: Award, permission: "results.view" },
     ],
   },
   {
@@ -90,6 +94,7 @@ export const PARENT_NAV: NavGroup[] = [
     label: "Suivi scolaire",
     items: [
       { href: "/portail/bulletin", label: "Bulletin", icon: NotebookPen },
+      { href: "/portail/resultats", label: "Résultats", icon: Award },
       { href: "/portail/presences", label: "Présences", icon: ClipboardCheck },
       { href: "/portail/convocations", label: "Convocations", icon: Megaphone },
       { href: "/portail/sanctions", label: "Sanctions", icon: ShieldAlert },

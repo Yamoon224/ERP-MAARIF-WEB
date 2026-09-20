@@ -51,7 +51,11 @@ describe("staff navigation", () => {
 
 describe("parent navigation", () => {
   it("shows every entry without permission checks", () => {
-    expect(visibleGroups(PARENT_NAV, null).flatMap((group) => group.items)).toHaveLength(6);
+    const items = PARENT_NAV.flatMap((group) => group.items);
+
+    expect(items.some((item) => item.permission)).toBe(false);
+    expect(visibleGroups(PARENT_NAV, null).flatMap((group) => group.items)).toHaveLength(items.length);
+    expect(items.map((item) => item.href)).toEqual(expect.arrayContaining(["/portail/bulletin", "/portail/presences", "/portail/scolarite"]));
   });
 });
 
