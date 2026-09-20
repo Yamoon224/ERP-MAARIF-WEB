@@ -1,6 +1,18 @@
 @import "tailwindcss";
 
+/*
+ * Deux themes : "light" (defaut) et "blue-dark" (sombre a dominante bleue).
+ * Le theme actif est l'attribut `data-theme` de <html>, pose avant le premier
+ * rendu par le script de components/theme/ThemeScript. Sans attribut (JavaScript
+ * desactive), on suit la preference systeme comme avant.
+ *
+ * Le variant `dark:` de Tailwind suit cet attribut, pas la preference systeme.
+ */
+@custom-variant dark (&:where([data-theme="blue-dark"], [data-theme="blue-dark"] *));
+
 :root {
+  color-scheme: light;
+
   --background: #f6f7f9;
   --surface: #ffffff;
   --foreground: #101828;
@@ -16,6 +28,7 @@
   --accent-discipline: #dc2626;
   --accent-academics: #7c3aed;
   --accent-users: #0891b2;
+  --accent-accounting: #059669;
 
   --success: #16a34a;
   --warning: #d97706;
@@ -38,6 +51,7 @@
   --color-accent-discipline: var(--accent-discipline);
   --color-accent-academics: var(--accent-academics);
   --color-accent-users: var(--accent-users);
+  --color-accent-accounting: var(--accent-accounting);
 
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -47,26 +61,82 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Blue Dark : fonds bleu nuit, texte bleute, accents eclaircis pour garder le contraste. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --background: #0b0f19;
-    --surface: #111827;
-    --foreground: #f2f4f7;
-    --muted: #94a3b8;
-    --border: #1f2937;
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --background: #0a1224;
+    --surface: #101c34;
+    --foreground: #e6edf8;
+    --muted: #8fa3c4;
+    --border: #1e2f4f;
+
+    --primary: #60a5fa;
+    --primary-foreground: #0a1224;
+    --primary-hover: #93c5fd;
+
+    --accent-grades: #60a5fa;
+    --accent-attendance: #fbbf24;
+    --accent-discipline: #f87171;
+    --accent-academics: #a78bfa;
+    --accent-users: #22d3ee;
+    --accent-accounting: #34d399;
+
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
   }
 }
 
-:root[data-theme="dark"] {
-  --background: #0b0f19;
-  --surface: #111827;
-  --foreground: #f2f4f7;
-  --muted: #94a3b8;
-  --border: #1f2937;
+:root[data-theme="blue-dark"] {
+  color-scheme: dark;
+
+  --background: #0a1224;
+  --surface: #101c34;
+  --foreground: #e6edf8;
+  --muted: #8fa3c4;
+  --border: #1e2f4f;
+
+  --primary: #60a5fa;
+  --primary-foreground: #0a1224;
+  --primary-hover: #93c5fd;
+
+  --accent-grades: #60a5fa;
+  --accent-attendance: #fbbf24;
+  --accent-discipline: #f87171;
+  --accent-academics: #a78bfa;
+  --accent-users: #22d3ee;
+  --accent-accounting: #34d399;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Recu de paiement : seule la feuille du recu est imprimee. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    color: #000;
+    border: 0;
+    box-shadow: none;
+  }
 }

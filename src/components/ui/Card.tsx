@@ -1,7 +1,7 @@
 import { type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-type Accent = "primary" | "grades" | "attendance" | "discipline" | "academics" | "users" | "neutral";
+type Accent = "primary" | "grades" | "attendance" | "discipline" | "academics" | "users" | "accounting" | "neutral";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   accent?: Accent;
@@ -14,6 +14,7 @@ const accentBorderClasses: Record<Accent, string> = {
   discipline: "border-t-accent-discipline",
   academics: "border-t-accent-academics",
   users: "border-t-accent-users",
+  accounting: "border-t-accent-accounting",
   neutral: "border-t-border",
 };
 

@@ -17,7 +17,7 @@ export interface ApiError {
   context?: Record<string, unknown>;
 }
 
-export type StaffRole = "admin" | "teacher";
+export type StaffRole = "admin" | "teacher" | "accountant";
 
 export interface StaffUser {
   id: string;
@@ -46,6 +46,8 @@ export interface SchoolClass {
   name: string;
   level: string;
   academic_year: string;
+  /** Scolarité mensuelle de la classe (0 tant qu'elle n'est pas fixée). */
+  monthly_fee: number;
   students_count?: number;
   main_teacher?: { id: string; name: string } | null;
   created_at?: string;
@@ -153,4 +155,187 @@ export interface NotificationLog {
   error: string | null;
   sent_at: string | null;
   created_at: string;
+}
+
+// --- Périodes : année scolaire, trimestre, mois --------------------------------
+
+/** Filtres de période acceptés par les listes et indicateurs de l'API. `month` : `YYYY-MM`. */
+export interface PeriodParams {
+  academic_year?: string;
+  term_id?: string;
+  month?: string;
+}
+
+export interface AcademicYearTerm {
+  id: string;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  is_current: boolean;
+}
+
+/** Une année scolaire compte trois trimestres. */
+export interface AcademicYear {
+  label: string;
+  starts_at: string;
+  ends_at: string;
+  is_current: boolean;
+  terms: AcademicYearTerm[];
+}
+
+// --- Inscriptions ---------------------------------------------------------------
+
+export interface Enrollment {
+  id: string;
+  academic_year: string;
+  enrolled_on: string;
+  student?: { id: string; name: string; matricule: string };
+  school_class: { id: string; name: string; level: string; monthly_fee: number } | null;
+}
+
+// --- Détail d'un trimestre ------------------------------------------------------
+
+export interface TermOverview {
+  classes: number;
+  subjects: number;
+  students: number;
+  grades: number;
+  average: number | null;
+  attendance: { present: number; absent: number; late: number; unjustified_absences: number };
+  /** `null` si l'utilisateur n'a pas accès à la discipline. */
+  sanctions: number | null;
+  summons: number | null;
+}
+
+export interface TermSubject {
+  id: string;
+  name: string;
+  code: string;
+  coefficient: number;
+  classes_count: number;
+  grades_count: number;
+  average: number | null;
+}
+
+export interface TermStudentRow {
+  enrollment_id: string;
+  student: { id: string; name: string; matricule: string; is_active: boolean };
+  school_class: { id: string; name: string } | null;
+  average: number | null;
+  absences: number;
+}
+
+// --- Présences et absences ------------------------------------------------------
+
+export interface AttendanceSummary {
+  total: number;
+  present: number;
+  absent: number;
+  late: number;
+  justified_absences: number;
+  unjustified_absences: number;
+  top_absentees: Array<{
+    student: { id: string; name: string; matricule: string };
+    absences: number;
+    unjustified: number;
+    lates: number;
+  }>;
+}
+
+export interface RollCallRow {
+  student: { id: string; name: string; matricule: string };
+  record: { id: string; status: AttendanceStatus; justified: boolean; reason: string | null } | null;
+}
+
+// --- Tableau de bord --------------------------------------------------------------
+
+export interface DashboardStats {
+  academic_year: string | null;
+  period: { from: string; to: string } | null;
+  students: number;
+  classes: number;
+  grades: { count: number; average: number | null };
+  attendance: { present: number; absent: number; late: number; unjustified_absences: number };
+  discipline: { sanctions: number; summons: number; summons_pending: number } | null;
+  accounting: { collected: number; arrears: number; recovery_rate: number | null } | null;
+}
+
+// --- Comptabilité ---------------------------------------------------------------
+
+export type PaymentPeriod = "monthly" | "quarterly" | "semiannual" | "annual";
+export type PaymentMethod = "cash" | "mobile_money" | "bank_transfer" | "cheque";
+
+export interface Payment {
+  id: string;
+  receipt_number: string;
+  student?: { id: string; name: string; matricule: string } | null;
+  enrollment?: { id: string; academic_year: string; school_class: { id: string; name: string } | null };
+  period_type: PaymentPeriod;
+  period_label: string;
+  /** Mois réglés, au format `YYYY-MM`. */
+  months: string[];
+  months_count: number;
+  amount: number;
+  method: PaymentMethod;
+  method_label: string;
+  reference: string | null;
+  paid_at: string;
+  note: string | null;
+  status: "valid" | "cancelled";
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  received_by?: { id: string; name: string } | null;
+}
+
+/** paid : réglé · overdue : mois terminé non réglé · due : mois en cours · upcoming : mois à venir. */
+export type InstallmentStatus = "paid" | "overdue" | "due" | "upcoming";
+
+export interface Installment {
+  id: string;
+  month: string;
+  amount: number;
+  status: InstallmentStatus;
+  paid_at: string | null;
+  payment: { id: string; receipt_number: string } | null;
+}
+
+export interface TuitionStatement {
+  enrollment: Enrollment;
+  installments: Installment[];
+  totals: {
+    total: number;
+    paid: number;
+    remaining: number;
+    overdue_amount: number;
+    overdue_months: number;
+    months_total: number;
+    months_paid: number;
+  };
+}
+
+export interface PaymentPreview {
+  period: PaymentPeriod;
+  requested_months: number | null;
+  months: string[];
+  amount: number;
+}
+
+export interface AccountingSummary {
+  period: { from: string; to: string } | null;
+  collected: { total: number; count: number };
+  by_period_type: Array<{ key: PaymentPeriod; label: string; total: number; count: number }>;
+  by_method: Array<{ key: PaymentMethod; label: string; total: number; count: number }>;
+  by_month: Array<{ month: string; total: number }>;
+  expected: { total: number; settled: number; rate: number | null };
+  arrears: { amount: number; students: number; months: number };
+}
+
+export interface ArrearsRow {
+  enrollment_id: string;
+  student: { id: string; name: string; matricule: string; guardian_phone: string };
+  academic_year: string;
+  school_class: string | null;
+  months_overdue: number;
+  amount: number;
+  oldest_month: string;
 }

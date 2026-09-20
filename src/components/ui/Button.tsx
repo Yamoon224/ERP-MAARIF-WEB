@@ -18,8 +18,9 @@ const variantClasses: Record<Variant, string> = {
     "bg-surface text-foreground border border-border hover:bg-background focus-visible:outline-primary",
   outline:
     "bg-transparent text-primary border border-primary hover:bg-primary/10 focus-visible:outline-primary",
-  ghost: "bg-transparent text-foreground hover:bg-black/5 focus-visible:outline-primary",
-  danger: "bg-danger text-white hover:opacity-90 focus-visible:outline-danger",
+  ghost: "bg-transparent text-foreground hover:bg-foreground/5 focus-visible:outline-primary",
+  // primary-foreground (et non white) : sur le rouge clair de Blue Dark, le blanc manquerait de contraste.
+  danger: "bg-danger text-primary-foreground hover:opacity-90 focus-visible:outline-danger",
 };
 
 const sizeClasses: Record<Size, string> = {

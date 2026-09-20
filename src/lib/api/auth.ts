@@ -28,3 +28,28 @@ export async function staffLogout() {
 export async function parentLogout() {
   await apiClient.post("/parent/logout");
 }
+
+export interface ProfilePayload {
+  name: string;
+  email: string;
+  phone?: string | null;
+}
+
+export interface ChangePasswordPayload {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export async function updateStaffProfile(payload: ProfilePayload) {
+  const { data } = await apiClient.put<{ data: StaffUser }>("/me", payload);
+  return data.data;
+}
+
+export async function changeStaffPassword(payload: ChangePasswordPayload) {
+  await apiClient.put("/me/password", payload);
+}
+
+export async function changeParentPassword(payload: ChangePasswordPayload) {
+  await apiClient.put("/parent/me/password", payload);
+}

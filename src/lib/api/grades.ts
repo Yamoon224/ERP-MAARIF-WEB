@@ -1,10 +1,10 @@
 import { apiClient } from "@/lib/api/client";
-import type { Bulletin, Grade, GradeType, PaginatedResponse } from "@/lib/api/types";
+import type { Bulletin, Grade, GradeType, PaginatedResponse, PeriodParams } from "@/lib/api/types";
 
-export interface GradeListParams {
+export interface GradeListParams extends PeriodParams {
   student_id?: string;
   subject_id?: string;
-  term_id?: string;
+  school_class_id?: string;
   type?: GradeType;
   page?: number;
   per_page?: number;

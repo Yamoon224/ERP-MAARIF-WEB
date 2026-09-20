@@ -1,9 +1,11 @@
 import { apiClient } from "@/lib/api/client";
-import type { PaginatedResponse, Student } from "@/lib/api/types";
+import type { Enrollment, PaginatedResponse, Student } from "@/lib/api/types";
 
 export interface StudentListParams {
   search?: string;
   school_class_id?: string;
+  /** Élèves inscrits pour cette année scolaire (`2025-2026`). */
+  academic_year?: string;
   is_active?: boolean;
   page?: number;
   per_page?: number;
@@ -47,5 +49,19 @@ export async function deleteStudent(id: string) {
 
 export async function resetStudentPassword(id: string) {
   const { data } = await apiClient.post<{ data: { initial_password: string } }>(`/students/${id}/reset-password`);
+  return data.data;
+}
+
+/** Historique d'inscriptions de l'élève, année la plus récente en premier. */
+export async function listEnrollments(studentId: string) {
+  const { data } = await apiClient.get<{ data: Enrollment[] }>(`/students/${studentId}/enrollments`);
+  return data.data;
+}
+
+/** Réinscrit l'élève dans une classe (nouvelle année scolaire, ou changement de classe). */
+export async function enrollStudent(studentId: string, schoolClassId: string) {
+  const { data } = await apiClient.post<{ data: Enrollment }>(`/students/${studentId}/enrollments`, {
+    school_class_id: schoolClassId,
+  });
   return data.data;
 }

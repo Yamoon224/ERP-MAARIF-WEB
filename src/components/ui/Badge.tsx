@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 type Tone = "neutral" | "success" | "warning" | "danger" | "info";
 
 const toneClasses: Record<Tone, string> = {
-  neutral: "bg-black/5 text-foreground",
+  neutral: "bg-foreground/10 text-foreground",
   success: "bg-success/10 text-success",
   warning: "bg-warning/10 text-warning",
   danger: "bg-danger/10 text-danger",

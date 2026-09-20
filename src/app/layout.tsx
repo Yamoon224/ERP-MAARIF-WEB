@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeSync } from "@/components/theme/ThemeSync";
+import { NO_FLASH_SCRIPT } from "@/lib/theme/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,14 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ERP Maarif",
-  description: "Suivi scolaire des eleves : notes, presences, convocations et sanctions.",
+  title: { default: "ERP Maarif", template: "%s · ERP Maarif" },
+  description: "Suivi scolaire des élèves : notes, présences, convocations, sanctions et scolarité.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+    // suppressHydrationWarning : le script ci-dessous pose `data-theme` sur <html> avant l'hydratation.
+    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: NO_FLASH_SCRIPT }} />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeSync />
+        {children}
+      </body>
     </html>
   );
 }
