@@ -11,6 +11,9 @@ import { Alert } from "@/components/ui/Alert";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { StudentPicker } from "@/components/staff/StudentPicker";
 import { Pagination } from "@/components/ui/Pagination";
+import { PeriodFilter } from "@/components/ui/PeriodFilter";
+import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
+import { emptyPage } from "@/lib/utils/emptyPage";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSubjectOptions } from "@/lib/hooks/useSubjectOptions";
@@ -26,12 +29,16 @@ export default function GradesPage() {
   const subjects = useSubjectOptions();
   const terms = useTermOptions();
 
-  const { page, perPage, setPage, setPerPage } = usePagination(student?.id);
+  const period = usePeriodFilter();
+  const { page, perPage, setPage, setPerPage } = usePagination(`${student?.id}|${JSON.stringify(period.params)}`);
   const fetcher = useMemo(
-    () => () => listGrades({ student_id: student?.id, page, per_page: perPage }),
-    [student, page, perPage],
+    () => () =>
+      period.isReady
+        ? listGrades({ ...period.params, student_id: student?.id, page, per_page: perPage })
+        : Promise.resolve(emptyPage<Grade>(perPage)),
+    [period.isReady, period.params, student, page, perPage],
   );
-  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [student?.id, page, perPage]);
+  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [period.isReady, period.params, student?.id, page, perPage]);
 
   const {
     register,
@@ -88,7 +95,11 @@ export default function GradesPage() {
   return (
     <div>
       <h1 className="mb-1 text-xl font-semibold text-foreground">Notes</h1>
-      <p className="mb-6 text-sm text-muted">Selectionnez un eleve pour consulter et saisir ses notes.</p>
+      <p className="mb-6 text-sm text-muted">
+        Consultez les notes de la période choisie, ou sélectionnez un élève pour voir ses notes et en saisir de nouvelles.
+      </p>
+
+      <PeriodFilter filter={period} className="mb-4" />
 
       <div className="mb-6 max-w-sm">
         <StudentPicker selected={student} onSelect={setStudent} onClear={() => setStudent(null)} />
@@ -167,12 +178,18 @@ export default function GradesPage() {
               </form>
             </CardContent>
           </Card>
-
-          <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune note enregistree pour cet eleve." />
-
-          {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
         </>
       )}
+
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage={student ? "Aucune note pour cet élève sur cette période." : "Aucune note sur cette période."}
+      />
+
+      {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );
 }

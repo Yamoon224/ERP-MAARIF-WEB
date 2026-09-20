@@ -12,6 +12,9 @@ import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { StudentPicker } from "@/components/staff/StudentPicker";
 import { Pagination } from "@/components/ui/Pagination";
+import { PeriodFilter } from "@/components/ui/PeriodFilter";
+import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
+import { emptyPage } from "@/lib/utils/emptyPage";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { summonSchema, type SummonFormInput } from "@/lib/validation/discipline";
@@ -35,12 +38,16 @@ export default function SummonsPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const { page, perPage, setPage, setPerPage } = usePagination(student?.id);
+  const period = usePeriodFilter();
+  const { page, perPage, setPage, setPerPage } = usePagination(`${student?.id}|${JSON.stringify(period.params)}`);
   const fetcher = useMemo(
-    () => () => listSummons({ student_id: student?.id, page, per_page: perPage }),
-    [student, page, perPage],
+    () => () =>
+      period.isReady
+        ? listSummons({ ...period.params, student_id: student?.id, page, per_page: perPage })
+        : Promise.resolve(emptyPage<Summon>(perPage)),
+    [period.isReady, period.params, student, page, perPage],
   );
-  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [student?.id, page, perPage]);
+  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [period.isReady, period.params, student?.id, page, perPage]);
 
   const {
     register,
@@ -76,6 +83,8 @@ export default function SummonsPage() {
       <p className="mb-6 text-sm text-muted">
         La creation d&apos;une convocation notifie immediatement le tuteur par e-mail ou SMS.
       </p>
+
+      <PeriodFilter filter={period} className="mb-4" />
 
       <div className="mb-6 max-w-sm">
         <StudentPicker selected={student} onSelect={setStudent} onClear={() => setStudent(null)} />
@@ -120,12 +129,18 @@ export default function SummonsPage() {
               </form>
             </CardContent>
           </Card>
-
-          <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation pour cet eleve." />
-
-          {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
         </>
       )}
+
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage={student ? "Aucune convocation pour cet élève sur cette période." : "Aucune convocation sur cette période."}
+      />
+
+      {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );
 }

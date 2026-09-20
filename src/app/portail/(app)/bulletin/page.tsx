@@ -2,55 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Select } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { PeriodFilter } from "@/components/ui/PeriodFilter";
 import { getMyBulletin } from "@/lib/api/grades";
-import { listAllTerms } from "@/lib/api/academics";
-import type { Bulletin, Term } from "@/lib/api/types";
+import type { Bulletin } from "@/lib/api/types";
+import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
+import { formatAverage } from "@/lib/utils/format";
 
 export default function ParentBulletinPage() {
-  const [terms, setTerms] = useState<Term[]>([]);
-  const [selectedTermId, setSelectedTermId] = useState("");
+  // Un bulletin est propre à un trimestre : année scolaire, puis trimestre.
+  const period = usePeriodFilter({ source: "parent", forceMode: "term" });
+  const termId = period.params.term_id;
+
   const [bulletin, setBulletin] = useState<Bulletin | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    listAllTerms().then((allTerms) => {
-      setTerms(allTerms);
-      const current = allTerms.find((term) => term.is_current) ?? allTerms[0];
-      if (current) setSelectedTermId(current.id);
-    });
-  }, []);
+    if (!termId) return;
 
-  useEffect(() => {
-    if (!selectedTermId) return;
+    let cancelled = false;
     setError(null);
-    getMyBulletin(selectedTermId)
-      .then(setBulletin)
-      .catch(() => setError("Bulletin indisponible pour ce trimestre."));
-  }, [selectedTermId]);
+    getMyBulletin(termId)
+      .then((loaded) => {
+        if (!cancelled) setBulletin(loaded);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setBulletin(null);
+          setError("Bulletin indisponible pour ce trimestre.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [termId]);
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Bulletin</h1>
-        <Select className="w-56" value={selectedTermId} onChange={(event) => setSelectedTermId(event.target.value)}>
-          {terms.map((term) => (
-            <option key={term.id} value={term.id}>
-              {term.name} ({term.academic_year})
-            </option>
-          ))}
-        </Select>
-      </div>
+      <PageHeader title="Bulletin" description="Notes et moyennes de votre enfant, trimestre par trimestre." />
+
+      <PeriodFilter filter={period} modes={["term"]} className="mb-6" />
 
       <Card accent="grades">
         <CardHeader>
-          <CardTitle>Releve de notes</CardTitle>
+          <CardTitle>Relevé de notes</CardTitle>
         </CardHeader>
         <CardContent>
           {error && <p className="text-sm text-muted">{error}</p>}
 
           {!error && bulletin && bulletin.subjects.length === 0 && (
-            <p className="text-sm text-muted">Aucune note enregistree pour ce trimestre.</p>
+            <p className="text-sm text-muted">Aucune note enregistrée pour ce trimestre.</p>
           )}
 
           {!error && bulletin && bulletin.subjects.length > 0 && (
@@ -58,7 +60,7 @@ export default function ParentBulletinPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="text-xs tracking-wide text-muted uppercase">
-                    <th className="py-1.5 font-medium">Matiere</th>
+                    <th className="py-1.5 font-medium">Matière</th>
                     <th className="py-1.5 font-medium">Coefficient</th>
                     <th className="py-1.5 font-medium">Moyenne</th>
                   </tr>
@@ -74,7 +76,7 @@ export default function ParentBulletinPage() {
                 </tbody>
               </table>
               <div className="rounded-md bg-background p-4 text-base font-semibold text-foreground">
-                Moyenne generale : {bulletin.overall_average}/20
+                Moyenne générale : {formatAverage(bulletin.overall_average)}
               </div>
             </div>
           )}

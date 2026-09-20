@@ -19,7 +19,7 @@ import { createUser, deleteUser, listUsers } from "@/lib/api/users";
 import { getErrorMessage } from "@/lib/api/error";
 import type { StaffUser } from "@/lib/api/types";
 
-const ROLE_LABEL: Record<string, string> = { admin: "Administrateur", teacher: "Enseignant" };
+const ROLE_LABEL: Record<string, string> = { admin: "Administrateur", teacher: "Enseignant", accountant: "Comptable" };
 
 export default function UsersPage() {
   const [serverError, setServerError] = useState<string | null>(null);
@@ -139,6 +139,14 @@ export default function UsersPage() {
                         onChange={() => field.onChange(["teacher"])}
                       />
                       Enseignant
+                    </label>
+                    <label className="flex items-center gap-1.5">
+                      <input
+                        type="radio"
+                        checked={field.value?.[0] === "accountant"}
+                        onChange={() => field.onChange(["accountant"])}
+                      />
+                      Comptable
                     </label>
                   </div>
                 )}
