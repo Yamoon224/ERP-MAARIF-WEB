@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ERP Maarif — Web
 
-## Getting Started
+Interface Next.js (App Router) pour l'ERP Maarif : espace personnel (administrateurs, enseignants) et portail parent, consommant l'[API Laravel](../backend).
 
-First, run the development server:
+## Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+src/
+  app/
+    connexion/                staff login (public)
+    portail/connexion/        parent login (public)
+    (staff)/                  espace personnel, protege par RequireAuth
+      tableau-de-bord/ eleves/ notes/ presences/ discipline/ classes/ matieres/ trimestres/ utilisateurs/
+    portail/(app)/             portail parent, protege par RequireAuth
+      bulletin/ presences/ convocations/ sanctions/
+  components/
+    ui/          design system (Button, Card, SearchInput, DataTable, ...)
+    layout/      sidebars et topbars des deux espaces
+    auth/        RequireAuth (garde de route cote client)
+    staff/       StudentPicker (recherche d'eleve reutilisee par notes/presences/discipline)
+  lib/
+    api/         client Axios + un module par ressource (students, grades, attendance, ...)
+    auth/        store Zustand (session persistee) + verification des permissions
+    validation/  schemas Zod par formulaire
+    hooks/       usePaginatedResource, useDebouncedValue, options de selects
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Design system
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Boutons et champs de recherche : `rounded-full`.
+- Cartes : `rounded-md` avec une bordure superieure de 4px coloree par domaine (`accent="grades" | "attendance" | "discipline" | "academics" | "users"`), pour identifier un contenu d'un coup d'oeil dans un tableau de bord qui melange plusieurs types d'information.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Voir `src/app/globals.css` pour les jetons de couleur et `src/components/ui/`.
 
-## Learn More
+## Mise en route
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install
+cp .env.local.example .env.local   # ajuster NEXT_PUBLIC_API_URL si besoin
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tests
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run test            # Vitest (unitaires + integration, MSW pour l'API)
+npm run test:watch
+npm run test:coverage
+npm run lint
+npm run build            # verifie aussi le typage TypeScript
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les tests d'integration (pages de connexion, liste des eleves) mockent l'API via [MSW](https://mswjs.io) — voir `src/test/msw/`.
+# ERP-MAARIF-WEB
