@@ -141,13 +141,13 @@ export default function GradesPage() {
 
                 <div>
                   <Label htmlFor="value">Note</Label>
-                  <Input id="value" type="number" step="0.01" {...register("value")} />
+                  <Input id="value" type="number" step="0.01" placeholder="14.5" {...register("value")} />
                   <FieldError>{errors.value?.message}</FieldError>
                 </div>
 
                 <div>
                   <Label htmlFor="max_value">Bareme</Label>
-                  <Input id="max_value" type="number" step="0.01" {...register("max_value")} />
+                  <Input id="max_value" type="number" step="0.01" placeholder="20" {...register("max_value")} />
                   <FieldError>{errors.max_value?.message}</FieldError>
                 </div>
 

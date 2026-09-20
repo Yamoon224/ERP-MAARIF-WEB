@@ -82,12 +82,12 @@ export default function NewStudentPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="first_name">Prenom</Label>
-                <Input id="first_name" {...register("first_name")} />
+                <Input id="first_name" placeholder="Prenom de l'eleve" {...register("first_name")} />
                 <FieldError>{errors.first_name?.message}</FieldError>
               </div>
               <div>
                 <Label htmlFor="last_name">Nom</Label>
-                <Input id="last_name" {...register("last_name")} />
+                <Input id="last_name" placeholder="Nom de famille" {...register("last_name")} />
                 <FieldError>{errors.last_name?.message}</FieldError>
               </div>
               <div>
@@ -122,22 +122,22 @@ export default function NewStudentPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="guardian_name">Nom du tuteur</Label>
-                <Input id="guardian_name" {...register("guardian_name")} />
+                <Input id="guardian_name" placeholder="Nom complet du tuteur" {...register("guardian_name")} />
                 <FieldError>{errors.guardian_name?.message}</FieldError>
               </div>
               <div>
                 <Label htmlFor="guardian_phone">Telephone du tuteur</Label>
-                <Input id="guardian_phone" {...register("guardian_phone")} />
+                <Input id="guardian_phone" placeholder="Numero de telephone" {...register("guardian_phone")} />
                 <FieldError>{errors.guardian_phone?.message}</FieldError>
               </div>
               <div>
                 <Label htmlFor="guardian_email">E-mail du tuteur</Label>
-                <Input id="guardian_email" type="email" {...register("guardian_email")} />
+                <Input id="guardian_email" type="email" placeholder="tuteur@exemple.com" {...register("guardian_email")} />
                 <FieldError>{errors.guardian_email?.message}</FieldError>
               </div>
               <div>
                 <Label htmlFor="address">Adresse</Label>
-                <Input id="address" {...register("address")} />
+                <Input id="address" placeholder="Rue, quartier, ville" {...register("address")} />
               </div>
             </div>
 

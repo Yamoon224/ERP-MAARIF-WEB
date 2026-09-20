@@ -55,7 +55,7 @@ export default function ParentLoginPage() {
 
             <div>
               <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" autoComplete="current-password" {...register("password")} />
+              <Input id="password" type="password" autoComplete="current-password" placeholder="Votre mot de passe" {...register("password")} />
               <FieldError>{errors.password?.message}</FieldError>
             </div>
 

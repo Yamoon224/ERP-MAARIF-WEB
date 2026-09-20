@@ -106,7 +106,7 @@ export default function AttendancePage() {
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="reason">Motif (optionnel)</Label>
-                  <Input id="reason" {...register("reason")} />
+                  <Input id="reason" placeholder="Ex. : certificat medical" {...register("reason")} />
                 </div>
 
                 <div className="sm:col-span-4">

@@ -94,19 +94,19 @@ export default function UsersPage() {
 
             <div>
               <Label htmlFor="name">Nom</Label>
-              <Input id="name" {...register("name")} />
+              <Input id="name" placeholder="Nom complet" {...register("name")} />
               <FieldError>{errors.name?.message}</FieldError>
             </div>
 
             <div>
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" {...register("email")} />
+              <Input id="email" type="email" placeholder="nom@exemple.com" {...register("email")} />
               <FieldError>{errors.email?.message}</FieldError>
             </div>
 
             <div>
               <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" {...register("password")} />
+              <Input id="password" type="password" placeholder="Mot de passe initial" {...register("password")} />
               <FieldError>{errors.password?.message}</FieldError>
             </div>
 

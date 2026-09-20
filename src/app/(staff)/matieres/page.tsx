@@ -85,19 +85,19 @@ export default function SubjectsPage() {
 
               <div>
                 <Label htmlFor="name">Nom</Label>
-                <Input id="name" {...register("name")} />
+                <Input id="name" placeholder="Mathematiques" {...register("name")} />
                 <FieldError>{errors.name?.message}</FieldError>
               </div>
 
               <div>
                 <Label htmlFor="code">Code</Label>
-                <Input id="code" {...register("code")} />
+                <Input id="code" placeholder="MATH" {...register("code")} />
                 <FieldError>{errors.code?.message}</FieldError>
               </div>
 
               <div>
                 <Label htmlFor="coefficient">Coefficient</Label>
-                <Input id="coefficient" type="number" step="0.5" {...register("coefficient")} />
+                <Input id="coefficient" type="number" step="0.5" placeholder="2" {...register("coefficient")} />
                 <FieldError>{errors.coefficient?.message}</FieldError>
               </div>
 

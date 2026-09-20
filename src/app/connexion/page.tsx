@@ -49,13 +49,13 @@ export default function StaffLoginPage() {
 
             <div>
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" autoComplete="email" {...register("email")} />
+              <Input id="email" type="email" autoComplete="email" placeholder="nom@exemple.com" {...register("email")} />
               <FieldError>{errors.email?.message}</FieldError>
             </div>
 
             <div>
               <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" autoComplete="current-password" {...register("password")} />
+              <Input id="password" type="password" autoComplete="current-password" placeholder="Votre mot de passe" {...register("password")} />
               <FieldError>{errors.password?.message}</FieldError>
             </div>
 

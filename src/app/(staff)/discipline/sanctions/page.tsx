@@ -89,7 +89,7 @@ export default function SanctionsPage() {
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="reason">Motif</Label>
-                  <Input id="reason" {...register("reason")} />
+                  <Input id="reason" placeholder="Motif de la sanction" {...register("reason")} />
                   <FieldError>{errors.reason?.message}</FieldError>
                 </div>
 

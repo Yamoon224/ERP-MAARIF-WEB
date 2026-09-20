@@ -91,7 +91,7 @@ export default function SummonsPage() {
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="reason">Motif</Label>
-                  <Input id="reason" {...register("reason")} />
+                  <Input id="reason" placeholder="Motif de la convocation" {...register("reason")} />
                   <FieldError>{errors.reason?.message}</FieldError>
                 </div>
 
@@ -103,7 +103,7 @@ export default function SummonsPage() {
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="location">Lieu (optionnel)</Label>
-                  <Input id="location" {...register("location")} />
+                  <Input id="location" placeholder="Bureau de la direction" {...register("location")} />
                 </div>
 
                 <div className="flex items-end sm:col-span-3">
