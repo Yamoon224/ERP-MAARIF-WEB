@@ -56,7 +56,7 @@ describe("AbsencesPage", () => {
     expect(await screen.findByRole("link", { name: "Moussa Diallo" })).toBeInTheDocument();
 
     // Bilan : 3 absences dont 1 justifiée, 2 à régulariser, 1 retard, 60 % de présence.
-    expect(screen.getByText("Non justifiées").closest("div")?.parentElement).toHaveTextContent("2");
+    expect(screen.getByText("À régulariser").closest("div")).toHaveTextContent("2");
     expect(screen.getByText("60 %")).toBeInTheDocument();
     expect(screen.getByText(/2 abs\. \(1 non just\.\)/)).toBeInTheDocument();
 
