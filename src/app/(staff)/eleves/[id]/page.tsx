@@ -7,13 +7,17 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Field";
 import { StudentEnrollments } from "@/components/staff/StudentEnrollments";
+import { StudentResultsCard } from "@/components/results/StudentResultsCard";
+import { hasPermission } from "@/lib/auth/permissions";
+import { useAuthStore } from "@/lib/auth/store";
 import { getStudent, resetStudentPassword } from "@/lib/api/students";
 import { getStudentBulletin } from "@/lib/api/grades";
 import { listAllTerms } from "@/lib/api/academics";
-import type { Bulletin, Student, Term } from "@/lib/api/types";
+import type { Bulletin, StaffUser, Student, Term } from "@/lib/api/types";
 
 export default function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const canViewResults = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "results.view");
 
   const [student, setStudent] = useState<Student | null>(null);
   const [terms, setTerms] = useState<Term[]>([]);
@@ -143,6 +147,8 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
           </CardContent>
         </Card>
       </div>
+
+      {canViewResults && <StudentResultsCard source="staff" studentId={id} />}
 
       <StudentEnrollments studentId={id} onEnrolled={() => getStudent(id).then(setStudent)} />
     </div>
