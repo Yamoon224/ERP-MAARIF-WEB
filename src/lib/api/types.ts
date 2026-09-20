@@ -156,6 +156,8 @@ export interface NotificationLog {
   /** Texte complet du message envoyé au tuteur. */
   body: string;
   status: "pending" | "sent" | "failed";
+  /** Nombre d'envois tentés : plus de 1 après un renvoi depuis le journal. */
+  attempts: number;
   error: string | null;
   sent_at: string | null;
   created_at: string;

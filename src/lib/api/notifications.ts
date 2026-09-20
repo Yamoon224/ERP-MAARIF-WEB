@@ -22,3 +22,13 @@ export async function getNotificationSummary(params: Omit<NotificationLogParams,
   const { data } = await apiClient.get<{ data: NotificationSummary }>("/notification-logs/summary", { params });
   return data.data;
 }
+
+/**
+ * Renvoie un message en échec. Le contact du tuteur est relu à ce moment : un
+ * numéro corrigé depuis l'échec est pris en compte. La réponse dit si le renvoi
+ * a abouti (`sent`) ou a échoué de nouveau (`failed`).
+ */
+export async function resendNotification(id: string) {
+  const { data } = await apiClient.post<{ data: NotificationLog }>(`/notification-logs/${id}/resend`);
+  return data.data;
+}
