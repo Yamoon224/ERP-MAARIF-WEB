@@ -67,7 +67,8 @@ describe("StudentResultsCard", () => {
     render(<StudentResultsCard source="staff" studentId="s1" />);
 
     expect(await screen.findByText("Annuel 2025-2026")).toBeInTheDocument();
-    expect(screen.getByText("14.50/20")).toBeInTheDocument();
+    // La moyenne annuelle figure dans le tableau et dans le détail par matière de la période choisie.
+    expect(screen.getAllByText("14.50/20")).toHaveLength(2);
     expect(screen.getByText("1er / 24")).toBeInTheDocument();
     // Par défaut, le détail suit la dernière période : l'année.
     expect(screen.getByText(/Détail par matière — Annuel 2025-2026/)).toBeInTheDocument();

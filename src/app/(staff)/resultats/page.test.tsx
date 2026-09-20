@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ResultsPage from "@/app/(staff)/resultats/page";
 import { useAuthStore } from "@/lib/auth/store";
@@ -91,7 +91,8 @@ describe("ResultsPage", () => {
 
     expect(await screen.findByText("Awa Camara")).toBeInTheDocument();
     expect(screen.getByText("Bakary Diallo")).toBeInTheDocument();
-    expect(screen.getByText("15.00/20")).toBeInTheDocument();
+    // La meilleure moyenne est aussi celle du premier de la classe : on la lit dans le tableau.
+    expect(within(screen.getByRole("table")).getByText("15.00/20")).toBeInTheDocument();
     expect(screen.getByText("100 %")).toBeInTheDocument();
     expect(screen.getByText("1er")).toBeInTheDocument();
     expect(requests[0].get("period")).toBe("annual");
@@ -117,7 +118,7 @@ describe("ResultsPage", () => {
     await waitFor(() => expect(requests.at(-1)?.get("period")).toBe("term"));
     expect(requests.at(-1)?.get("term_id")).toBe("t1");
 
-    await user.selectOptions(screen.getByLabelText("Trimestre"), "t3");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Trimestre" }), "t3");
     await waitFor(() => expect(requests.at(-1)?.get("term_id")).toBe("t3"));
     // Hors de l'année, la décision de passage n'a pas de sens.
     expect(screen.queryByText("Décision de passage")).not.toBeInTheDocument();

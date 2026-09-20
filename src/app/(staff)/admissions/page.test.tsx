@@ -76,7 +76,8 @@ describe("AdmissionsPage", () => {
     const table = screen.getByRole("table");
     expect(within(table).getByText("En attente")).toBeInTheDocument();
     expect(within(table).getByText("Admis")).toBeInTheDocument();
-    expect(await screen.findByText("Liste d'attente")).toBeInTheDocument();
+    // « Liste d'attente » : une carte de synthèse et une option du filtre de statut.
+    expect(await screen.findAllByText("Liste d'attente")).toHaveLength(2);
   });
 
   it("asks the API for the chosen status only", async () => {

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AdmissionDetailPage from "@/app/(staff)/admissions/[id]/page";
 import { useAuthStore } from "@/lib/auth/store";
@@ -47,11 +47,14 @@ function signIn(permissions: string[]) {
 }
 
 async function renderPage() {
-  render(
-    <Suspense fallback={null}>
-      <AdmissionDetailPage params={Promise.resolve({ id: "7" })} />
-    </Suspense>,
-  );
+  // `use(params)` suspend une fois : act asynchrone laisse la promesse se résoudre avant les assertions.
+  await act(async () => {
+    render(
+      <Suspense fallback={null}>
+        <AdmissionDetailPage params={Promise.resolve({ id: "7" })} />
+      </Suspense>,
+    );
+  });
   await screen.findByRole("heading", { name: "Mariama Barry" });
 }
 
