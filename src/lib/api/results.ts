@@ -1,5 +1,12 @@
 import { apiClient } from "@/lib/api/client";
-import type { ClassResults, PromotionDecisionValue, ResultPeriodKind, SavedDecision, StudentResults } from "@/lib/api/types";
+import type {
+  ClassResults,
+  PromotionDecisionValue,
+  PromotionSummary,
+  ResultPeriodKind,
+  SavedDecision,
+  StudentResults,
+} from "@/lib/api/types";
 
 export interface ClassResultsParams {
   school_class_id: string;
@@ -34,6 +41,18 @@ export async function saveDecision(enrollmentId: string, decision: PromotionDeci
   const { data } = await apiClient.put<{ data: SavedDecision & { enrollment_id: string } }>(`/enrollments/${enrollmentId}/decision`, {
     decision,
     note: note || null,
+  });
+  return data.data;
+}
+
+/**
+ * Réinscrit la classe pour l'année suivante d'après les décisions enregistrées :
+ * admis dans `admittedClassId`, redoublants dans `repeatClassId` (facultatif).
+ */
+export async function promoteClass(schoolClassId: string, payload: { admitted_class_id: string; repeat_class_id?: string | null }) {
+  const { data } = await apiClient.post<{ data: PromotionSummary }>(`/classes/${schoolClassId}/promotions`, {
+    admitted_class_id: payload.admitted_class_id,
+    repeat_class_id: payload.repeat_class_id || null,
   });
   return data.data;
 }

@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { StatCard } from "@/components/ui/StatCard";
 import { TabPanel, Tabs } from "@/components/ui/Tabs";
+import { PromotionCard } from "@/components/results/PromotionCard";
 import { formatRank } from "@/components/results/StudentResultsCard";
 import { listAcademicYears, listClassesOfYear } from "@/lib/api/academics";
 import { getErrorMessage } from "@/lib/api/error";
@@ -329,6 +330,12 @@ export default function ResultsPage() {
               emptyMessage="Aucun élève inscrit dans cette classe."
             />
             {rows.length > 0 && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
+
+            {isAnnual && canManage && results && rows.length > 0 && (
+              <div className="mt-5">
+                <PromotionCard key={results.school_class.id} sourceClass={results.school_class} years={years} />
+              </div>
+            )}
           </>
         )}
       </TabPanel>

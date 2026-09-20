@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Clock, Hourglass, Search, Trash2, UserCheck, X } from "lucide-react";
+import { Check, Clock, Hourglass, Pencil, Search, Trash2, UserCheck, X } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -133,6 +133,11 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
         actions={
           <>
             <Badge tone={ADMISSION_TONE[admission.status]}>{ADMISSION_LABEL[admission.status]}</Badge>
+            {canManage && !isEnrolled && (
+              <Link href={`/admissions/${id}/modifier`} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+                <Pencil className="size-4" aria-hidden="true" /> Modifier le dossier
+              </Link>
+            )}
             <Link href="/admissions" className="text-sm font-medium text-primary hover:underline">
               ← Toutes les candidatures
             </Link>
@@ -178,6 +183,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
             <Info label="Le">{formatDateTime(admission.decided_at)}</Info>
             <Info label="Par">{admission.decided_by?.name}</Info>
             <Info label="Note">{admission.decision_note}</Info>
+            <Info label="Tuteur notifié">{admission.notified_at ? `Oui, le ${formatDateTime(admission.notified_at)}` : "Non"}</Info>
           </CardContent>
         </Card>
       )}
@@ -188,6 +194,9 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Instruire le dossier</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <p className="text-sm text-muted">
+              Admettre, mettre en liste d&apos;attente ou refuser prévient aussitôt le tuteur par e-mail ou SMS. La mise en étude reste interne.
+            </p>
             <div>
               <Label htmlFor="decision-note">Note (obligatoire pour un refus)</Label>
               <Textarea

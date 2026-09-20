@@ -46,6 +46,12 @@ export async function createAdmission(payload: AdmissionPayload) {
   return data.data;
 }
 
+/** Corrige le dossier. Refusé par l'API une fois le candidat inscrit. */
+export async function updateAdmission(id: string, payload: Partial<AdmissionPayload>) {
+  const { data } = await apiClient.put<{ data: Admission }>(`/admissions/${id}`, payload);
+  return data.data;
+}
+
 export async function deleteAdmission(id: string) {
   await apiClient.delete(`/admissions/${id}`);
 }

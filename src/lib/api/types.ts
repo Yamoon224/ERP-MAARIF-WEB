@@ -146,9 +146,11 @@ export interface Bulletin {
 
 export interface NotificationLog {
   id: string;
-  student: { id: string; name: string };
+  /** `null` pour un message d'admission : le candidat n'est pas encore un élève. */
+  student: { id: string; name: string } | null;
+  admission?: { id: string; name: string; reference: string } | null;
   channel: "email" | "sms";
-  type: "convocation" | "sanction" | "bulletin";
+  type: "convocation" | "sanction" | "bulletin" | "admission";
   recipient: string;
   subject: string | null;
   status: "pending" | "sent" | "failed";
@@ -366,6 +368,8 @@ export interface Admission {
   submitted_on: string;
   decision_note: string | null;
   decided_at: string | null;
+  /** Renseignée quand le tuteur a bien reçu la dernière décision. */
+  notified_at: string | null;
   decided_by?: { id: string; name: string } | null;
   student?: { id: string; matricule: string } | null;
   enrolled_at: string | null;
@@ -437,6 +441,19 @@ export interface ClassResults {
   pass_mark: number;
   stats: ClassResultStats;
   rows: ClassResultRow[];
+}
+
+/** Bilan du passage d'une classe à l'année suivante. */
+export interface PromotionSummary {
+  promoted: number;
+  repeated: number;
+  excluded: number;
+  /** Sans décision enregistrée : à valider avant de relancer le passage. */
+  undecided: number;
+  already_enrolled: number;
+  /** Redoublants laissés de côté faute de classe de redoublement choisie. */
+  without_class: number;
+  inactive: number;
 }
 
 export interface SubjectResult {
