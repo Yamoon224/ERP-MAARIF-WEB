@@ -10,7 +10,7 @@ export interface SummonPayload {
   location?: string | null;
 }
 
-export async function listSummons(params: { student_id?: string; status?: string; page?: number }) {
+export async function listSummons(params: { student_id?: string; status?: string; page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<Summon>>("/summons", { params });
   return data;
 }
@@ -29,7 +29,7 @@ export async function deleteSummon(id: string) {
   await apiClient.delete(`/summons/${id}`);
 }
 
-export async function listMySummons(params: { page?: number }) {
+export async function listMySummons(params: { page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<Summon>>("/parent/summons", { params });
   return data;
 }
@@ -44,7 +44,7 @@ export interface SanctionPayload {
   end_date?: string | null;
 }
 
-export async function listSanctions(params: { student_id?: string; type?: string; page?: number }) {
+export async function listSanctions(params: { student_id?: string; type?: string; page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<Sanction>>("/sanctions", { params });
   return data;
 }
@@ -63,7 +63,7 @@ export async function deleteSanction(id: string) {
   await apiClient.delete(`/sanctions/${id}`);
 }
 
-export async function listMySanctions(params: { page?: number }) {
+export async function listMySanctions(params: { page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<Sanction>>("/parent/sanctions", { params });
   return data;
 }

@@ -1,19 +1,49 @@
+"use client";
+
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Field";
+import { PAGE_SIZE_OPTIONS } from "@/lib/hooks/usePagination";
+import type { PaginationMeta } from "@/lib/api/types";
 
 interface PaginationProps {
-  currentPage: number;
-  lastPage: number;
-  total: number;
+  meta: PaginationMeta;
   onPageChange: (page: number) => void;
+  onPerPageChange: (perPage: number) => void;
 }
 
-export function Pagination({ currentPage, lastPage, total, onPageChange }: PaginationProps) {
-  if (lastPage <= 1) return null;
+/**
+ * Barre de pagination : taille de page | precedent - page/total - suivant |
+ * elements parcourus / total d'elements.
+ */
+export function Pagination({ meta, onPageChange, onPerPageChange }: PaginationProps) {
+  const { current_page: currentPage, per_page: perPage, total } = meta;
+  const lastPage = Math.max(meta.last_page, 1);
+  const seen = Math.min(currentPage * perPage, total);
+
+  // Apres une suppression, la page courante peut ne plus exister : on revient a la derniere.
+  useEffect(() => {
+    if (currentPage > lastPage) onPageChange(lastPage);
+  }, [currentPage, lastPage, onPageChange]);
 
   return (
-    <div className="flex items-center justify-between px-1 py-3 text-sm text-muted">
-      <span>{total} resultat{total > 1 ? "s" : ""}</span>
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-1 py-3 text-sm text-muted">
+      <label className="flex items-center gap-2">
+        Elements par page
+        <Select
+          className="h-9 w-20"
+          value={perPage}
+          onChange={(event) => onPerPageChange(Number(event.target.value))}
+        >
+          {PAGE_SIZE_OPTIONS.map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </Select>
+      </label>
+
       <div className="flex items-center gap-2">
         <Button
           type="button"
@@ -23,9 +53,9 @@ export function Pagination({ currentPage, lastPage, total, onPageChange }: Pagin
           disabled={currentPage <= 1}
           onClick={() => onPageChange(currentPage - 1)}
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-4" /> Precedent
         </Button>
-        <span className="text-foreground">
+        <span className="min-w-12 text-center text-foreground">
           {currentPage} / {lastPage}
         </span>
         <Button
@@ -36,9 +66,13 @@ export function Pagination({ currentPage, lastPage, total, onPageChange }: Pagin
           disabled={currentPage >= lastPage}
           onClick={() => onPageChange(currentPage + 1)}
         >
-          <ChevronRight className="size-4" />
+          Suivant <ChevronRight className="size-4" />
         </Button>
       </div>
+
+      <span>
+        {seen} / {total}
+      </span>
     </div>
   );
 }

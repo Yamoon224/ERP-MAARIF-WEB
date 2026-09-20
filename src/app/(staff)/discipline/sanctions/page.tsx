@@ -11,7 +11,9 @@ import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { StudentPicker } from "@/components/staff/StudentPicker";
+import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { sanctionSchema, type SanctionFormInput } from "@/lib/validation/discipline";
 import { createSanction, listSanctions } from "@/lib/api/discipline";
 import { getErrorMessage } from "@/lib/api/error";
@@ -21,8 +23,12 @@ export default function SanctionsPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const fetcher = useMemo(() => () => listSanctions({ student_id: student?.id }), [student]);
-  const { data, isLoading, reload } = usePaginatedResource(fetcher, [student?.id]);
+  const { page, perPage, setPage, setPerPage } = usePagination(student?.id);
+  const fetcher = useMemo(
+    () => () => listSanctions({ student_id: student?.id, page, per_page: perPage }),
+    [student, page, perPage],
+  );
+  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [student?.id, page, perPage]);
 
   const {
     register,
@@ -114,6 +120,8 @@ export default function SanctionsPage() {
           </Card>
 
           <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune sanction pour cet eleve." />
+
+          {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
         </>
       )}
     </div>

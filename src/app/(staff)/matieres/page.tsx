@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Alert";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { useAuthStore } from "@/lib/auth/store";
 import { hasPermission } from "@/lib/auth/permissions";
 import { subjectSchema, type SubjectFormInput } from "@/lib/validation/academics";
@@ -21,7 +23,11 @@ export default function SubjectsPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "academics.manage");
 
-  const { data, isLoading, reload } = usePaginatedResource(() => listSubjects({ per_page: 50 }), []);
+  const { page, perPage, setPage, setPerPage } = usePagination();
+  const { data, meta, isLoading, reload } = usePaginatedResource(
+    () => listSubjects({ page, per_page: perPage }),
+    [page, perPage],
+  );
 
   const {
     register,
@@ -112,6 +118,8 @@ export default function SubjectsPage() {
       )}
 
       <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} />
+
+      {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );
 }

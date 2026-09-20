@@ -37,7 +37,7 @@ export async function deleteAttendance(id: string) {
   await apiClient.delete(`/attendance-records/${id}`);
 }
 
-export async function listMyAttendance(params: { status?: AttendanceStatus; date_from?: string; date_to?: string; page?: number }) {
+export async function listMyAttendance(params: { status?: AttendanceStatus; date_from?: string; date_to?: string; page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<AttendanceRecord>>("/parent/attendance", { params });
   return data;
 }

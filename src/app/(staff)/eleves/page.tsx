@@ -9,21 +9,22 @@ import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { listStudents } from "@/lib/api/students";
 import type { Student } from "@/lib/api/types";
 
 export default function StudentsPage() {
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
+  const { page, perPage, setPage, setPerPage } = usePagination(debouncedSearch);
 
   const fetcher = useMemo(
-    () => () => listStudents({ search: debouncedSearch || undefined, page }),
-    [debouncedSearch, page],
+    () => () => listStudents({ search: debouncedSearch || undefined, page, per_page: perPage }),
+    [debouncedSearch, page, perPage],
   );
 
-  const { data, meta, isLoading } = usePaginatedResource(fetcher, [debouncedSearch, page]);
+  const { data, meta, isLoading } = usePaginatedResource(fetcher, [debouncedSearch, page, perPage]);
 
   const columns: DataTableColumn<Student>[] = [
     { key: "matricule", header: "Matricule", render: (row) => <span className="font-mono text-xs">{row.matricule}</span> },
@@ -61,12 +62,12 @@ export default function StudentsPage() {
       </div>
 
       <div className="mb-4">
-        <SearchInput value={search} onChange={(value) => { setSearch(value); setPage(1); }} placeholder="Rechercher un eleve, un matricule..." />
+        <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un eleve, un matricule..." />
       </div>
 
       <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun eleve trouve." />
 
-      {meta && <Pagination currentPage={meta.current_page} lastPage={meta.last_page} total={meta.total} onPageChange={setPage} />}
+      {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );
 }

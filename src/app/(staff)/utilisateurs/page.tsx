@@ -11,7 +11,9 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { userSchema, type UserFormInput } from "@/lib/validation/users";
 import { createUser, deleteUser, listUsers } from "@/lib/api/users";
 import { getErrorMessage } from "@/lib/api/error";
@@ -22,7 +24,11 @@ const ROLE_LABEL: Record<string, string> = { admin: "Administrateur", teacher: "
 export default function UsersPage() {
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const { data, isLoading, reload } = usePaginatedResource(() => listUsers({ per_page: 50 }), []);
+  const { page, perPage, setPage, setPerPage } = usePagination();
+  const { data, meta, isLoading, reload } = usePaginatedResource(
+    () => listUsers({ page, per_page: perPage }),
+    [page, perPage],
+  );
 
   const {
     register,
@@ -150,6 +156,8 @@ export default function UsersPage() {
       </Card>
 
       <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} />
+
+      {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );
 }

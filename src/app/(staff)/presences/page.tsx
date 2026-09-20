@@ -11,7 +11,9 @@ import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { StudentPicker } from "@/components/staff/StudentPicker";
+import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { attendanceSchema, type AttendanceFormInput } from "@/lib/validation/attendance";
 import { listAttendance, recordAttendance } from "@/lib/api/attendance";
 import { getErrorMessage } from "@/lib/api/error";
@@ -33,8 +35,12 @@ export default function AttendancePage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const fetcher = useMemo(() => () => listAttendance({ student_id: student?.id, per_page: 20 }), [student]);
-  const { data, isLoading, reload } = usePaginatedResource(fetcher, [student?.id]);
+  const { page, perPage, setPage, setPerPage } = usePagination(student?.id);
+  const fetcher = useMemo(
+    () => () => listAttendance({ student_id: student?.id, page, per_page: perPage }),
+    [student, page, perPage],
+  );
+  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [student?.id, page, perPage]);
 
   const {
     register,
@@ -119,6 +125,8 @@ export default function AttendancePage() {
           </Card>
 
           <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun pointage pour cet eleve." />
+
+          {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
         </>
       )}
     </div>

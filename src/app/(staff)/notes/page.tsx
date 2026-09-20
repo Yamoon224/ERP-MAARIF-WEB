@@ -10,7 +10,9 @@ import { Input, Label, Select, FieldError } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Alert";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { StudentPicker } from "@/components/staff/StudentPicker";
+import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { useSubjectOptions } from "@/lib/hooks/useSubjectOptions";
 import { useTermOptions } from "@/lib/hooks/useTermOptions";
 import { gradeSchema, type GradeFormInput } from "@/lib/validation/grades";
@@ -24,11 +26,12 @@ export default function GradesPage() {
   const subjects = useSubjectOptions();
   const terms = useTermOptions();
 
+  const { page, perPage, setPage, setPerPage } = usePagination(student?.id);
   const fetcher = useMemo(
-    () => () => listGrades({ student_id: student?.id, per_page: 20 }),
-    [student],
+    () => () => listGrades({ student_id: student?.id, page, per_page: perPage }),
+    [student, page, perPage],
   );
-  const { data, isLoading, reload } = usePaginatedResource(fetcher, [student?.id]);
+  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [student?.id, page, perPage]);
 
   const {
     register,
@@ -166,6 +169,8 @@ export default function GradesPage() {
           </Card>
 
           <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune note enregistree pour cet eleve." />
+
+          {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
         </>
       )}
     </div>

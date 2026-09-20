@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { listMySummons } from "@/lib/api/discipline";
 import type { Summon, SummonStatus } from "@/lib/api/types";
 
@@ -21,8 +21,8 @@ const STATUS_LABEL: Record<SummonStatus, string> = {
 };
 
 export default function ParentSummonsPage() {
-  const [page, setPage] = useState(1);
-  const { data, meta, isLoading } = usePaginatedResource(() => listMySummons({ page }), [page]);
+  const { page, perPage, setPage, setPerPage } = usePagination();
+  const { data, meta, isLoading } = usePaginatedResource(() => listMySummons({ page, per_page: perPage }), [page, perPage]);
 
   const columns: DataTableColumn<Summon>[] = [
     { key: "reason", header: "Motif", render: (row) => row.reason },
@@ -35,7 +35,7 @@ export default function ParentSummonsPage() {
     <div>
       <h1 className="mb-6 text-xl font-semibold text-foreground">Convocations</h1>
       <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation." />
-      {meta && <Pagination currentPage={meta.current_page} lastPage={meta.last_page} total={meta.total} onPageChange={setPage} />}
+      {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );
 }
