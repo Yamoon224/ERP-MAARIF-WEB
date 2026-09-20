@@ -14,7 +14,7 @@ interface TopbarProps {
 }
 
 const ICON_BUTTON =
-  "inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
+  "size-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
 
 /**
  * Barre du haut. À gauche, le bouton qui réduit la barre latérale à ses icônes
@@ -28,7 +28,7 @@ export function Topbar({ name, subtitle, profileHref, settingsHref, onLogout }: 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface px-4 md:px-6">
       <div className="flex items-center gap-1">
-        <button type="button" onClick={() => setMobileOpen(true)} aria-label="Ouvrir le menu" className={`${ICON_BUTTON} md:hidden`}>
+        <button type="button" onClick={() => setMobileOpen(true)} aria-label="Ouvrir le menu" className={`${ICON_BUTTON} inline-flex md:hidden`}>
           <Menu className="size-5" aria-hidden="true" />
         </button>
 

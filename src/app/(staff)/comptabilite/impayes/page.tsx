@@ -90,7 +90,7 @@ export default function ArrearsPage() {
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <SearchInput value={search} onChange={setSearch} placeholder="Élève ou matricule..." />
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Classe
           <Select className="mt-1 h-9 w-48" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
             <option value="">Toutes les classes</option>

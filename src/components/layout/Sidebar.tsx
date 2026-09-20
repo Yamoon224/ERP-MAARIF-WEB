@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, X } from "lucide-react";
@@ -35,6 +35,13 @@ interface SidebarContentProps extends SidebarProps {
  */
 function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: SidebarContentProps) {
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
+
+  // La navigation défile : la page courante doit rester visible, même en bas de liste.
+  useEffect(() => {
+    const active = navRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (typeof active?.scrollIntoView === "function") active.scrollIntoView({ block: "nearest" });
+  }, [pathname, collapsed]);
 
   return (
     <div className="flex h-full flex-col">
@@ -52,12 +59,12 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
         )}
       </div>
 
-      <nav aria-label="Navigation principale" className="flex-1 overflow-y-auto px-3 py-4">
+      <nav ref={navRef} aria-label="Navigation principale" className="flex-1 overflow-y-auto px-3 py-3">
         {groups.map((group, groupIndex) => {
           const headingId = `nav-group-${groupIndex}`;
 
           return (
-            <div key={group.label} role="group" aria-labelledby={headingId} className={cn(groupIndex > 0 && "mt-5")}>
+            <div key={group.label} role="group" aria-labelledby={headingId} className={cn(groupIndex > 0 && "mt-4")}>
               {collapsed ? (
                 <>
                   <span id={headingId} className="sr-only">
@@ -71,7 +78,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
                 </p>
               )}
 
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 {group.items.map((item) => {
                   const isActive = isNavItemActive(pathname, item);
                   const Icon = item.icon;
@@ -83,7 +90,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
                         title={collapsed ? item.label : undefined}
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
-                          "flex items-center rounded-md py-2 text-sm font-medium transition-colors",
+                          "flex items-center rounded-md py-1.5 text-sm font-medium transition-colors",
                           collapsed ? "justify-center px-0" : "gap-3 px-3",
                           isActive ? "bg-primary/10 text-primary" : "text-muted hover:bg-foreground/5 hover:text-foreground",
                         )}

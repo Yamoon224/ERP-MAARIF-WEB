@@ -243,7 +243,7 @@ export default function AbsencesPage() {
       <div className="mb-6 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="mb-4 flex flex-wrap items-end gap-3">
-            <label className="text-xs font-medium text-muted">
+            <label className="flex flex-col text-xs font-medium text-muted">
               Type
               <Select className="mt-1 h-9 w-40" value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
                 <option value="absent">Absences</option>
@@ -251,7 +251,7 @@ export default function AbsencesPage() {
                 <option value="">Tous les statuts</option>
               </Select>
             </label>
-            <label className="text-xs font-medium text-muted">
+            <label className="flex flex-col text-xs font-medium text-muted">
               Justification
               <Select className="mt-1 h-9 w-44" value={justified} onChange={(event) => setJustified(event.target.value as JustifiedFilter)}>
                 <option value="">Toutes</option>
@@ -259,7 +259,7 @@ export default function AbsencesPage() {
                 <option value="1">Justifiées</option>
               </Select>
             </label>
-            <label className="text-xs font-medium text-muted">
+            <label className="flex flex-col text-xs font-medium text-muted">
               Classe
               <Select className="mt-1 h-9 w-44" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
                 <option value="">Toutes les classes</option>

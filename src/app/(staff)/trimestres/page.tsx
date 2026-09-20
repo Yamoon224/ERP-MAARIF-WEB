@@ -107,7 +107,7 @@ export default function TermsPage() {
             convocations et présences.
           </p>
         </div>
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Année scolaire
           <Select className="mt-1 h-9 w-44" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
             <option value="">Toutes les années</option>

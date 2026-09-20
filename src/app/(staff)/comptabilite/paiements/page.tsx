@@ -120,7 +120,7 @@ export default function PaymentsPage() {
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <SearchInput value={search} onChange={setSearch} placeholder="Élève, matricule ou n° de reçu..." />
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Formule
           <Select className="mt-1 h-9 w-40" value={periodType} onChange={(event) => setPeriodType(event.target.value as typeof periodType)}>
             <option value="">Toutes</option>
@@ -131,7 +131,7 @@ export default function PaymentsPage() {
             ))}
           </Select>
         </label>
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Mode
           <Select className="mt-1 h-9 w-40" value={method} onChange={(event) => setMethod(event.target.value as typeof method)}>
             <option value="">Tous</option>
@@ -142,7 +142,7 @@ export default function PaymentsPage() {
             ))}
           </Select>
         </label>
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Statut
           <Select className="mt-1 h-9 w-36" value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
             <option value="">Tous</option>

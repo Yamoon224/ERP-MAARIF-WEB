@@ -100,7 +100,7 @@ export function PromotionCard({ sourceClass, years, onPromoted }: PromotionCardP
             </p>
 
             <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
-              <label className="text-xs font-medium text-muted">
+              <label className="flex flex-col text-xs font-medium text-muted">
                 Année d&apos;accueil
                 <Select className="mt-1 h-9 w-40" value={targetYear ?? ""} onChange={(event) => setSelectedYear(event.target.value)}>
                   {targetYears.map((label) => (
@@ -111,7 +111,7 @@ export function PromotionCard({ sourceClass, years, onPromoted }: PromotionCardP
                 </Select>
               </label>
 
-              <label className="text-xs font-medium text-muted">
+              <label className="flex flex-col text-xs font-medium text-muted">
                 Classe des admis
                 <Select className="mt-1 h-9 w-48" value={admittedClassId} onChange={(event) => setAdmittedClassId(event.target.value)}>
                   <option value="">Choisir...</option>
@@ -123,7 +123,7 @@ export function PromotionCard({ sourceClass, years, onPromoted }: PromotionCardP
                 </Select>
               </label>
 
-              <label className="text-xs font-medium text-muted">
+              <label className="flex flex-col text-xs font-medium text-muted">
                 Classe des redoublants
                 <Select className="mt-1 h-9 w-56" value={repeatClassId} onChange={(event) => setRepeatClassId(event.target.value)}>
                   <option value="">Ne pas réinscrire</option>

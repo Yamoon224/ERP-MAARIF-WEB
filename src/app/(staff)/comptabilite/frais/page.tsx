@@ -144,7 +144,7 @@ export default function FeesPage() {
         title="Frais de scolarité"
         description="Tarif mensuel par classe. Il s'applique à chaque mois de l'année scolaire, quelle que soit la formule de paiement (mois, trimestre, semestre, année)."
         actions={
-          <label className="text-xs font-medium text-muted">
+          <label className="flex flex-col text-xs font-medium text-muted">
             Année scolaire
             <Select className="mt-1 h-9 w-44" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
               {years.map((year) => (

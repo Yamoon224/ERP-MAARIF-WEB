@@ -211,7 +211,7 @@ export default function ResultsPage() {
       />
 
       <div className="mb-4 flex flex-wrap items-end gap-x-4 gap-y-3 rounded-md border border-border bg-surface px-4 py-3">
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Année scolaire
           <Select
             className="mt-1 h-9 w-40"
@@ -231,7 +231,7 @@ export default function ResultsPage() {
           </Select>
         </label>
 
-        <label className="text-xs font-medium text-muted">
+        <label className="flex flex-col text-xs font-medium text-muted">
           Classe
           <Select
             className="mt-1 h-9 w-48"
@@ -249,7 +249,7 @@ export default function ResultsPage() {
         </label>
 
         {kind === "term" && (
-          <label className="text-xs font-medium text-muted">
+          <label className="flex flex-col text-xs font-medium text-muted">
             Trimestre
             <Select className="mt-1 h-9 w-48" value={termId ?? ""} onChange={(event) => setSelectedTermId(event.target.value)}>
               {terms.map((term) => (
@@ -262,7 +262,7 @@ export default function ResultsPage() {
         )}
 
         {kind === "semester" && (
-          <label className="text-xs font-medium text-muted">
+          <label className="flex flex-col text-xs font-medium text-muted">
             Semestre
             <Select
               className="mt-1 h-9 w-72"

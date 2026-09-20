@@ -150,7 +150,7 @@ export function StudentEnrollments({ studentId, onEnrolled }: StudentEnrollments
 
         {canEnroll && (
           <form onSubmit={handleEnroll} className="flex flex-wrap items-end gap-3" noValidate>
-            <label className="text-xs font-medium text-muted">
+            <label className="flex flex-col text-xs font-medium text-muted">
               Réinscrire dans une classe
               <Select className="mt-1 h-9 w-64" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
                 <option value="">Choisir une classe...</option>
