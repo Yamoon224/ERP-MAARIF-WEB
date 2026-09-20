@@ -61,6 +61,11 @@ function defaultMonth(year: AcademicYear | undefined): string | null {
 export interface UsePeriodFilterOptions {
   /** Portail parent : les années se lisent sur une route dédiée. */
   source?: "staff" | "parent";
+  /**
+   * Impose le niveau de détail, sans toucher à la sélection partagée : un
+   * bulletin n'existe que par trimestre, quel que soit le choix fait ailleurs.
+   */
+  forceMode?: PeriodMode;
 }
 
 /**
@@ -68,10 +73,11 @@ export interface UsePeriodFilterOptions {
  * sélection cohérente (un trimestre ou un mois n'existe que dans son année) et
  * fournit les paramètres de requête à passer aux appels API.
  */
-export function usePeriodFilter({ source = "staff" }: UsePeriodFilterOptions = {}) {
+export function usePeriodFilter({ source = "staff", forceMode }: UsePeriodFilterOptions = {}) {
   const [years, setYears] = useState<AcademicYear[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const state = usePeriodStore();
+  const mode = forceMode ?? state.mode;
 
   useEffect(() => {
     let cancelled = false;
@@ -120,16 +126,16 @@ export function usePeriodFilter({ source = "staff" }: UsePeriodFilterOptions = {
 
   const params = useMemo<PeriodParams>(() => {
     if (!year) return {};
-    if (state.mode === "term" && state.termId) return { academic_year: year.label, term_id: state.termId };
-    if (state.mode === "month" && state.month) return { academic_year: year.label, month: state.month };
+    if (mode === "term" && state.termId) return { academic_year: year.label, term_id: state.termId };
+    if (mode === "month" && state.month) return { academic_year: year.label, month: state.month };
     return { academic_year: year.label };
-  }, [year, state.mode, state.termId, state.month]);
+  }, [year, mode, state.termId, state.month]);
 
   return {
     years,
     year,
     months,
-    mode: state.mode,
+    mode,
     termId: state.termId,
     month: state.month,
     params,
@@ -140,7 +146,9 @@ export function usePeriodFilter({ source = "staff" }: UsePeriodFilterOptions = {
       const next = years.find((candidate) => candidate.label === label);
       state.set({ academicYear: label, termId: defaultTermId(next), month: defaultMonth(next) });
     },
-    setMode: (mode: PeriodMode) => state.set({ mode }),
+    setMode: (next: PeriodMode) => {
+      if (!forceMode) state.set({ mode: next });
+    },
     setTermId: (termId: string) => state.set({ termId }),
     setMonth: (month: string) => state.set({ month }),
   };

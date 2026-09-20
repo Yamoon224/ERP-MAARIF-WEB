@@ -1,133 +1,261 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Input, Label, Select, FieldError } from "@/components/ui/Field";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Check, CheckCheck } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
-import { Badge } from "@/components/ui/Badge";
-import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
-import { StudentPicker } from "@/components/staff/StudentPicker";
-import { Pagination } from "@/components/ui/Pagination";
-import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
-import { usePagination } from "@/lib/hooks/usePagination";
-import { attendanceSchema, type AttendanceFormInput } from "@/lib/validation/attendance";
-import { listAttendance, recordAttendance } from "@/lib/api/attendance";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Input, Select } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusPicker } from "@/components/staff/attendance/StatusPicker";
+import { getRollCall, recordClassAttendance } from "@/lib/api/attendance";
 import { getErrorMessage } from "@/lib/api/error";
-import type { AttendanceRecord, AttendanceStatus, Student } from "@/lib/api/types";
+import type { AttendanceStatus, RollCallRow } from "@/lib/api/types";
+import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
+import { today } from "@/lib/utils/format";
 
-const STATUS_TONE: Record<AttendanceStatus, "success" | "danger" | "warning"> = {
-  present: "success",
-  absent: "danger",
-  retard: "warning",
-};
+interface RowState {
+  status: AttendanceStatus;
+  justified: boolean;
+  reason: string;
+}
 
-const STATUS_LABEL: Record<AttendanceStatus, string> = {
-  present: "Present",
-  absent: "Absent",
-  retard: "Retard",
-};
-
+/**
+ * Appel de classe : on choisit la classe et la date, la feuille liste les
+ * élèves actifs, et tout est enregistré en un seul envoi. Un élève déjà pointé
+ * ce jour-là est prérempli avec son pointage (refaire l'appel le corrige).
+ */
 export default function AttendancePage() {
-  const [student, setStudent] = useState<Student | null>(null);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const classes = useSchoolClassOptions();
+  const [schoolClassId, setSchoolClassId] = useState("");
+  const [date, setDate] = useState(() => today());
+  const [rows, setRows] = useState<RollCallRow[]>([]);
+  const [state, setState] = useState<Record<string, RowState>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [savedCount, setSavedCount] = useState<number | null>(null);
 
-  const { page, perPage, setPage, setPerPage } = usePagination(student?.id);
-  const fetcher = useMemo(
-    () => () => listAttendance({ student_id: student?.id, page, per_page: perPage }),
-    [student, page, perPage],
+  // Classes les plus récentes d'abord : l'appel se fait presque toujours dans l'année en cours.
+  const sortedClasses = useMemo(
+    () => [...classes].sort((a, b) => b.academic_year.localeCompare(a.academic_year) || a.name.localeCompare(b.name)),
+    [classes],
   );
-  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [student?.id, page, perPage]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<AttendanceFormInput>({
-    resolver: zodResolver(attendanceSchema),
-    defaultValues: { status: "present", date: new Date().toISOString().slice(0, 10) },
-  });
+  const loadRollCall = useCallback(async () => {
+    if (!schoolClassId || !date) {
+      setRows([]);
+      setState({});
+      return;
+    }
 
-  async function onSubmit(values: AttendanceFormInput) {
-    if (!student) return;
-    setServerError(null);
+    setIsLoading(true);
+    setError(null);
+    setSavedCount(null);
 
     try {
-      await recordAttendance({ ...values, student_id: student.id, reason: values.reason || null });
-      reset({ status: "present", date: values.date, reason: "" });
-      reload();
-    } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible d'enregistrer ce pointage."));
+      const loaded = await getRollCall(schoolClassId, date);
+      setRows(loaded);
+      setState(
+        Object.fromEntries(
+          loaded.map((row) => [
+            row.student.id,
+            {
+              status: row.record?.status ?? "present",
+              justified: row.record?.justified ?? false,
+              reason: row.record?.reason ?? "",
+            },
+          ]),
+        ),
+      );
+    } catch (failure) {
+      setRows([]);
+      setError(getErrorMessage(failure, "Impossible de charger la feuille d'appel."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [schoolClassId, date]);
+
+  useEffect(() => {
+    loadRollCall();
+  }, [loadRollCall]);
+
+  function update(studentId: string, patch: Partial<RowState>) {
+    setSavedCount(null);
+    setState((current) => ({ ...current, [studentId]: { ...current[studentId], ...patch } }));
+  }
+
+  function markAllPresent() {
+    setSavedCount(null);
+    setState((current) =>
+      Object.fromEntries(Object.entries(current).map(([id, row]) => [id, { status: "present" as const, justified: false, reason: "" }])),
+    );
+  }
+
+  async function handleSave() {
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      await recordClassAttendance({
+        school_class_id: schoolClassId,
+        date,
+        records: rows.map((row) => {
+          const entry = state[row.student.id];
+          const isPresent = entry.status === "present";
+
+          return {
+            student_id: row.student.id,
+            status: entry.status,
+            justified: isPresent ? false : entry.justified,
+            reason: isPresent ? null : entry.reason || null,
+          };
+        }),
+      });
+      // Recharger la feuille remet le compteur à zéro : on l'affiche après.
+      await loadRollCall();
+      setSavedCount(rows.length);
+    } catch (failure) {
+      setError(getErrorMessage(failure, "Impossible d'enregistrer l'appel."));
+    } finally {
+      setIsSaving(false);
     }
   }
 
-  const columns: DataTableColumn<AttendanceRecord>[] = [
-    { key: "date", header: "Date", render: (row) => row.date },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge> },
-    { key: "justified", header: "Justifiee", render: (row) => (row.justified ? "Oui" : "Non") },
-    { key: "reason", header: "Motif", render: (row) => row.reason ?? "—" },
-  ];
+  const counts = useMemo(() => {
+    const values = Object.values(state);
+    return {
+      present: values.filter((row) => row.status === "present").length,
+      absent: values.filter((row) => row.status === "absent").length,
+      late: values.filter((row) => row.status === "retard").length,
+      alreadyPointed: rows.filter((row) => row.record !== null).length,
+    };
+  }, [state, rows]);
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-semibold text-foreground">Presences</h1>
-      <p className="mb-6 text-sm text-muted">Selectionnez un eleve pour pointer sa presence du jour.</p>
+      <PageHeader
+        title="Présences"
+        description="Faites l'appel d'une classe : un clic par élève, un seul enregistrement."
+        actions={
+          <Link href="/absences" className="text-sm font-medium text-primary hover:underline">
+            Suivi et justification des absences →
+          </Link>
+        }
+      />
 
-      <div className="mb-6 max-w-sm">
-        <StudentPicker selected={student} onSelect={setStudent} onClear={() => setStudent(null)} />
-      </div>
+      <Card accent="attendance" className="mb-6">
+        <CardContent className="grid gap-4 pt-4 sm:grid-cols-3">
+          <label className="text-sm font-medium text-foreground">
+            Classe
+            <Select className="mt-1.5" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
+              <option value="">Choisir une classe...</option>
+              {sortedClasses.map((schoolClass) => (
+                <option key={schoolClass.id} value={schoolClass.id}>
+                  {schoolClass.name} ({schoolClass.academic_year})
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="text-sm font-medium text-foreground">
+            Date de l&apos;appel
+            <Input className="mt-1.5" type="date" value={date} max={today()} onChange={(event) => setDate(event.target.value)} />
+          </label>
+        </CardContent>
+      </Card>
 
-      {student && (
-        <>
-          <Card accent="attendance" className="mb-6">
-            <CardHeader>
-              <CardTitle>Pointer une presence</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-4" noValidate>
-                {serverError && (
-                  <div className="sm:col-span-4">
-                    <Alert>{serverError}</Alert>
-                  </div>
+      {error && <Alert className="mb-4">{error}</Alert>}
+
+      {schoolClassId && !isLoading && rows.length === 0 && !error && (
+        <p className="rounded-md border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
+          Aucun élève actif inscrit dans cette classe.
+        </p>
+      )}
+
+      {isLoading && <p className="text-sm text-muted">Chargement de la feuille d&apos;appel...</p>}
+
+      {rows.length > 0 && (
+        <Card accent="attendance">
+          <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+            <CardTitle>
+              Feuille d&apos;appel · {rows.length} élève(s)
+              {counts.alreadyPointed > 0 && <span className="ml-2 font-normal text-muted">({counts.alreadyPointed} déjà pointé(s) ce jour)</span>}
+            </CardTitle>
+            <Button type="button" variant="secondary" size="sm" onClick={markAllPresent}>
+              <CheckCheck className="size-4" /> Tout marquer présent
+            </Button>
+          </CardHeader>
+
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border text-xs tracking-wide text-muted uppercase">
+                    <th className="py-2 pr-4 font-medium">Élève</th>
+                    <th className="py-2 pr-4 font-medium">Statut</th>
+                    <th className="py-2 pr-4 font-medium">Justifiée</th>
+                    <th className="py-2 font-medium">Motif</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => {
+                    const entry = state[row.student.id];
+                    if (!entry) return null;
+                    const isPresent = entry.status === "present";
+
+                    return (
+                      <tr key={row.student.id} className="border-b border-border last:border-0">
+                        <td className="py-2.5 pr-4">
+                          <span className="font-medium text-foreground">{row.student.name}</span>
+                          <span className="ml-2 font-mono text-xs text-muted">{row.student.matricule}</span>
+                        </td>
+                        <td className="py-2.5 pr-4">
+                          <StatusPicker value={entry.status} onChange={(status) => update(row.student.id, { status })} label={row.student.name} />
+                        </td>
+                        <td className="py-2.5 pr-4">
+                          <input
+                            type="checkbox"
+                            aria-label={`Absence justifiée pour ${row.student.name}`}
+                            disabled={isPresent}
+                            checked={!isPresent && entry.justified}
+                            onChange={(event) => update(row.student.id, { justified: event.target.checked })}
+                            className="size-4 rounded border-border"
+                          />
+                        </td>
+                        <td className="py-2.5">
+                          <Input
+                            aria-label={`Motif pour ${row.student.name}`}
+                            className="h-8 min-w-48"
+                            placeholder={isPresent ? "" : "Motif (optionnel)"}
+                            disabled={isPresent}
+                            value={isPresent ? "" : entry.reason}
+                            maxLength={255}
+                            onChange={(event) => update(row.student.id, { reason: event.target.value })}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+              <p className="text-sm text-muted" aria-live="polite">
+                {counts.present} présent(s) · {counts.absent} absent(s) · {counts.late} en retard
+                {savedCount !== null && (
+                  <span className="ml-3 inline-flex items-center gap-1 font-medium text-success">
+                    <Check className="size-4" aria-hidden="true" /> Appel enregistré ({savedCount} élèves)
+                  </span>
                 )}
-
-                <div>
-                  <Label htmlFor="date">Date</Label>
-                  <Input id="date" type="date" {...register("date")} />
-                  <FieldError>{errors.date?.message}</FieldError>
-                </div>
-
-                <div>
-                  <Label htmlFor="status">Statut</Label>
-                  <Select id="status" {...register("status")}>
-                    <option value="present">Present</option>
-                    <option value="absent">Absent</option>
-                    <option value="retard">Retard</option>
-                  </Select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <Label htmlFor="reason">Motif (optionnel)</Label>
-                  <Input id="reason" placeholder="Ex. : certificat medical" {...register("reason")} />
-                </div>
-
-                <div className="sm:col-span-4">
-                  <Button type="submit" loading={isSubmitting}>
-                    <Check className="size-4" /> Enregistrer
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun pointage pour cet eleve." />
-
-          {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
-        </>
+              </p>
+              <Button type="button" onClick={handleSave} loading={isSaving}>
+                <Check className="size-4" /> Enregistrer l&apos;appel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

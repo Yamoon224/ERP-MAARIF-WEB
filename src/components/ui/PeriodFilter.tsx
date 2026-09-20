@@ -64,23 +64,25 @@ export function PeriodFilter({ filter, modes = ["year", "term", "month"], classN
         </Select>
       </label>
 
-      <div role="radiogroup" aria-label="Niveau de détail" className="inline-flex overflow-hidden rounded-full border border-border">
-        {availableModes.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            role="radio"
-            aria-checked={mode === option.value}
-            onClick={() => filter.setMode(option.value)}
-            className={cn(
-              "h-9 px-4 text-sm font-medium transition-colors",
-              mode === option.value ? "bg-primary text-primary-foreground" : "text-muted hover:bg-foreground/5 hover:text-foreground",
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      {availableModes.length > 1 && (
+        <div role="radiogroup" aria-label="Niveau de détail" className="inline-flex overflow-hidden rounded-full border border-border">
+          {availableModes.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={mode === option.value}
+              onClick={() => filter.setMode(option.value)}
+              className={cn(
+                "h-9 px-4 text-sm font-medium transition-colors",
+                mode === option.value ? "bg-primary text-primary-foreground" : "text-muted hover:bg-foreground/5 hover:text-foreground",
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {mode === "term" && (
         <label className="text-xs font-medium text-muted">

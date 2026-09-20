@@ -59,7 +59,7 @@ export async function listAllTerms() {
   return data.data;
 }
 
-export async function listTermsPaginated(params: { page?: number; per_page?: number }) {
+export async function listTermsPaginated(params: { academic_year?: string; page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<Term>>("/terms/paginated", { params });
   return data;
 }
