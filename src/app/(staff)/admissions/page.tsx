@@ -102,7 +102,7 @@ export default function AdmissionsPage() {
         description="Candidatures des futurs élèves : dépôt, étude du dossier, décision, puis inscription dans une classe."
         actions={
           canManage && (
-            <Link href="/admissions/nouveau">
+            <Link href="/admissions/new">
               <Button>
                 <Plus className="size-4" /> Nouvelle candidature
               </Button>

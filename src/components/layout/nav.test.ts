@@ -55,24 +55,24 @@ describe("parent navigation", () => {
 
     expect(items.some((item) => item.permission)).toBe(false);
     expect(visibleGroups(PARENT_NAV, null).flatMap((group) => group.items)).toHaveLength(items.length);
-    expect(items.map((item) => item.href)).toEqual(expect.arrayContaining(["/portail/bulletin", "/portail/presences", "/portail/scolarite"]));
+    expect(items.map((item) => item.href)).toEqual(expect.arrayContaining(["/portal/report-card", "/portal/attendance", "/portal/tuition"]));
   });
 });
 
 describe("isNavItemActive", () => {
-  const item = { href: "/comptabilite", label: "Vue d'ensemble", icon: STAFF_NAV[0].items[0].icon, exact: true };
+  const item = { href: "/accounting", label: "Vue d'ensemble", icon: STAFF_NAV[0].items[0].icon, exact: true };
 
   it("matches a section and its sub-pages", () => {
-    expect(isNavItemActive("/eleves", { ...item, href: "/eleves", exact: false })).toBe(true);
-    expect(isNavItemActive("/eleves/abc", { ...item, href: "/eleves", exact: false })).toBe(true);
+    expect(isNavItemActive("/students", { ...item, href: "/students", exact: false })).toBe(true);
+    expect(isNavItemActive("/students/abc", { ...item, href: "/students", exact: false })).toBe(true);
   });
 
   it("does not confuse two pages sharing a prefix", () => {
-    expect(isNavItemActive("/elevesX", { ...item, href: "/eleves", exact: false })).toBe(false);
+    expect(isNavItemActive("/studentsX", { ...item, href: "/students", exact: false })).toBe(false);
   });
 
   it("keeps an exact entry from lighting up on its sub-pages", () => {
-    expect(isNavItemActive("/comptabilite", item)).toBe(true);
-    expect(isNavItemActive("/comptabilite/paiements", item)).toBe(false);
+    expect(isNavItemActive("/accounting", item)).toBe(true);
+    expect(isNavItemActive("/accounting/payments", item)).toBe(false);
   });
 });

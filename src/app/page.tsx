@@ -24,7 +24,7 @@ export default function HomePage() {
               <p className="mb-4 text-sm text-muted">
                 Administrateurs et enseignants : gestion des eleves, des notes, des presences et de la discipline.
               </p>
-              <Link href="/connexion">
+              <Link href="/login">
                 <Button className="w-full">Se connecter</Button>
               </Link>
             </CardContent>
@@ -41,7 +41,7 @@ export default function HomePage() {
               <p className="mb-4 text-sm text-muted">
                 Connectez-vous avec le matricule de votre enfant pour suivre sa scolarite.
               </p>
-              <Link href="/portail/connexion">
+              <Link href="/portal/login">
                 <Button variant="outline" className="w-full">
                   Acceder au portail
                 </Button>

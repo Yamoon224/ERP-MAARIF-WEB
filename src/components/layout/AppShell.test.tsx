@@ -22,8 +22,8 @@ function renderShell(onLogout = vi.fn()) {
       groups={visibleGroups(STAFF_NAV, admin)}
       brandSubtitle="Espace personnel"
       user={{ name: "Admin Maarif", subtitle: "Administrateur" }}
-      profileHref="/profil"
-      settingsHref="/parametres"
+      profileHref="/profile"
+      settingsHref="/settings"
       onLogout={onLogout}
     >
       <p>Contenu de la page</p>
@@ -47,7 +47,7 @@ describe("AppShell", () => {
     expect(groups.map((group) => group.getAttribute("aria-labelledby"))).toHaveLength(6);
     expect(within(nav).getByText("Vie scolaire")).toBeInTheDocument();
     expect(within(nav).getByRole("link", { name: "Absences" })).toHaveAttribute("href", "/absences");
-    expect(within(nav).getByRole("link", { name: "Impayés" })).toHaveAttribute("href", "/comptabilite/impayes");
+    expect(within(nav).getByRole("link", { name: "Impayés" })).toHaveAttribute("href", "/accounting/unpaid");
   });
 
   it("pins the profile icon at the bottom of a sidebar that only scrolls its navigation", () => {
@@ -62,7 +62,7 @@ describe("AppShell", () => {
     // Seule la navigation défile ; le profil est hors de la zone défilante.
     expect(nav).toHaveClass("overflow-y-auto");
     expect(nav).not.toContainElement(profile);
-    expect(profile).toHaveAttribute("href", "/profil");
+    expect(profile).toHaveAttribute("href", "/profile");
   });
 
   it("collapses the sidebar to its icons from the button on the left of the top bar", async () => {
@@ -111,8 +111,8 @@ describe("AppShell", () => {
     await user.click(screen.getByRole("button", { name: "Menu du profil" }));
 
     const menu = screen.getByRole("menu", { name: "Profil" });
-    expect(within(menu).getByRole("menuitem", { name: "Profil" })).toHaveAttribute("href", "/profil");
-    expect(within(menu).getByRole("menuitem", { name: "Paramètres" })).toHaveAttribute("href", "/parametres");
+    expect(within(menu).getByRole("menuitem", { name: "Profil" })).toHaveAttribute("href", "/profile");
+    expect(within(menu).getByRole("menuitem", { name: "Paramètres" })).toHaveAttribute("href", "/settings");
 
     await user.click(within(menu).getByRole("menuitem", { name: "Déconnexion" }));
 

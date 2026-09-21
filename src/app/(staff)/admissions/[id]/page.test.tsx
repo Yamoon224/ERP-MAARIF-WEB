@@ -136,7 +136,7 @@ describe("AdmissionDetailPage", () => {
     await renderPage();
 
     expect(screen.getByText(/Tuteur notifié/).closest("p")).toHaveTextContent(/Oui, le/);
-    expect(screen.getByRole("link", { name: /Modifier le dossier/ })).toHaveAttribute("href", "/admissions/7/modifier");
+    expect(screen.getByRole("link", { name: /Modifier le dossier/ })).toHaveAttribute("href", "/admissions/7/edit");
   });
 
   it("says the guardian was not notified when the message did not go through", async () => {

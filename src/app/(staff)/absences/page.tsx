@@ -131,7 +131,7 @@ export default function AbsencesPage() {
       key: "student",
       header: "Élève",
       render: (row) => (
-        <Link href={`/eleves/${row.student.id}`} className="font-medium hover:text-primary hover:underline">
+        <Link href={`/students/${row.student.id}`} className="font-medium hover:text-primary hover:underline">
           {row.student.name}
         </Link>
       ),
@@ -218,7 +218,7 @@ export default function AbsencesPage() {
         title="Absences"
         description="Suivi, justification et signalement des absences et retards."
         actions={
-          <Link href="/presences">
+          <Link href="/attendance">
             <Button variant="secondary">Faire l&apos;appel d&apos;une classe</Button>
           </Link>
         }
@@ -304,7 +304,7 @@ export default function AbsencesPage() {
                     <li key={entry.student.id} className="flex items-start justify-between gap-3 text-sm">
                       <span>
                         <span className="mr-2 text-muted">{index + 1}.</span>
-                        <Link href={`/eleves/${entry.student.id}`} className="font-medium hover:text-primary hover:underline">
+                        <Link href={`/students/${entry.student.id}`} className="font-medium hover:text-primary hover:underline">
                           {entry.student.name}
                         </Link>
                       </span>

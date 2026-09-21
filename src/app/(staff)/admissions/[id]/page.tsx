@@ -134,7 +134,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
           <>
             <Badge tone={ADMISSION_TONE[admission.status]}>{ADMISSION_LABEL[admission.status]}</Badge>
             {canManage && !isEnrolled && (
-              <Link href={`/admissions/${id}/modifier`} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+              <Link href={`/admissions/${id}/edit`} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
                 <Pencil className="size-4" aria-hidden="true" /> Modifier le dossier
               </Link>
             )}
@@ -278,7 +278,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
           <CardContent className="flex flex-wrap items-center gap-3 pt-5 text-sm">
             <Clock className="size-4 text-muted" aria-hidden="true" />
             Inscrit le {formatDateTime(admission.enrolled_at)} · matricule <span className="font-mono">{admission.student.matricule}</span>
-            <Link href={`/eleves/${admission.student.id}`} className="font-medium text-primary hover:underline">
+            <Link href={`/students/${admission.student.id}`} className="font-medium text-primary hover:underline">
               Ouvrir le dossier de l&apos;élève
             </Link>
           </CardContent>

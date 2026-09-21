@@ -176,12 +176,12 @@ export function StudentEnrollments({ studentId, onEnrolled }: StudentEnrollments
                 Scolarité {statement.enrollment.academic_year}
               </h3>
               {hasPermission(user, "accounting.manage") && statement.totals.remaining > 0 && (
-                <Link href="/comptabilite/paiements/nouveau" className="text-sm font-medium text-primary hover:underline">
+                <Link href="/accounting/payments/new" className="text-sm font-medium text-primary hover:underline">
                   Encaisser un paiement →
                 </Link>
               )}
             </div>
-            <TuitionStatementView statement={statement} receiptHref={(paymentId) => `/comptabilite/paiements/${paymentId}`} />
+            <TuitionStatementView statement={statement} receiptHref={(paymentId) => `/accounting/payments/${paymentId}`} />
           </section>
         )}
       </CardContent>

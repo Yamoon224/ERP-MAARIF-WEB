@@ -113,6 +113,6 @@ describe("AdmissionsPage", () => {
     });
     render(<AdmissionsPage />);
 
-    expect(await screen.findByRole("link", { name: /Nouvelle candidature/ })).toHaveAttribute("href", "/admissions/nouveau");
+    expect(await screen.findByRole("link", { name: /Nouvelle candidature/ })).toHaveAttribute("href", "/admissions/new");
   });
 });

@@ -36,7 +36,7 @@ const STATUSES = Object.keys(NOTIFICATION_STATUS_LABEL) as NotificationLog["stat
 function Concerned({ log }: { log: NotificationLog }) {
   if (log.student) {
     return (
-      <Link href={`/eleves/${log.student.id}`} className="font-medium text-primary hover:underline">
+      <Link href={`/students/${log.student.id}`} className="font-medium text-primary hover:underline">
         {log.student.name}
       </Link>
     );

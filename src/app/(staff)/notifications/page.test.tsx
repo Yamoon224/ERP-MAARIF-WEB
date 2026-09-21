@@ -64,7 +64,7 @@ describe("NotificationsPage", () => {
     render(<NotificationsPage />);
 
     const table = await screen.findByRole("table");
-    expect(await within(table).findByText("Awa Camara")).toHaveAttribute("href", "/eleves/s1");
+    expect(await within(table).findByText("Awa Camara")).toHaveAttribute("href", "/students/s1");
     // Un candidat pas encore inscrit renvoie vers son dossier, avec sa référence.
     expect(within(table).getByText("Mariama Barry")).toHaveAttribute("href", "/admissions/a1");
     expect(within(table).getByText("ADM-2026-000001")).toBeInTheDocument();

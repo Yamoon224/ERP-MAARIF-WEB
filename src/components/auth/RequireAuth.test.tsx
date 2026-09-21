@@ -15,7 +15,7 @@ describe("RequireAuth", () => {
   it("shows the protected content to a session of the right type", async () => {
     signIn("staff");
     render(
-      <RequireAuth actorType="staff" redirectTo="/connexion">
+      <RequireAuth actorType="staff" redirectTo="/login">
         <p>Contenu protégé</p>
       </RequireAuth>,
     );
@@ -26,31 +26,31 @@ describe("RequireAuth", () => {
 
   it("sends a visitor without session to the login page", async () => {
     render(
-      <RequireAuth actorType="staff" redirectTo="/connexion">
+      <RequireAuth actorType="staff" redirectTo="/login">
         <p>Contenu protégé</p>
       </RequireAuth>,
     );
 
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith("/connexion"));
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith("/login"));
     expect(screen.queryByText("Contenu protégé")).not.toBeInTheDocument();
   });
 
   it("does not let a parent session into the staff area", async () => {
     signIn("parent");
     render(
-      <RequireAuth actorType="staff" redirectTo="/connexion">
+      <RequireAuth actorType="staff" redirectTo="/login">
         <p>Contenu protégé</p>
       </RequireAuth>,
     );
 
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith("/connexion"));
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith("/login"));
   });
 
   it("keeps a signed-in user on the page when the page is reloaded", async () => {
     // Rechargement : le serveur rend "Chargement...", puis le client s'hydrate. Pendant l'hydratation
     // zustand ne montre que l'état initial (sans jeton) ; la session déjà stockée ne doit pas être ignorée.
     const tree = (
-      <RequireAuth actorType="staff" redirectTo="/connexion">
+      <RequireAuth actorType="staff" redirectTo="/login">
         <p>Contenu protégé</p>
       </RequireAuth>
     );

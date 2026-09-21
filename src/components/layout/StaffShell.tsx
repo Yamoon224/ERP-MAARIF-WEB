@@ -20,7 +20,7 @@ export function StaffShell({ children }: { children: ReactNode }) {
       await staffLogout();
     } finally {
       clear();
-      router.replace("/connexion");
+      router.replace("/login");
     }
   }
 
@@ -29,8 +29,8 @@ export function StaffShell({ children }: { children: ReactNode }) {
       groups={visibleGroups(STAFF_NAV, user)}
       brandSubtitle="Espace personnel"
       user={{ name: user?.name ?? "Utilisateur", subtitle: formatRoles(user?.roles) }}
-      profileHref="/profil"
-      settingsHref="/parametres"
+      profileHref="/profile"
+      settingsHref="/settings"
       onLogout={handleLogout}
     >
       {children}

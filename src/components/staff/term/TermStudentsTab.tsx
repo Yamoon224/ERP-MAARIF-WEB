@@ -153,7 +153,7 @@ export function TermStudentsTab({ term }: { term: Term }) {
                       <td className="px-4 py-3 font-medium">{formatAverage(row.average)}</td>
                       <td className="px-4 py-3">{row.absences}</td>
                       <td className="px-4 py-3">
-                        <Link href={`/eleves/${row.student.id}`} className="text-sm font-medium text-primary hover:underline">
+                        <Link href={`/students/${row.student.id}`} className="text-sm font-medium text-primary hover:underline">
                           Dossier
                         </Link>
                       </td>

@@ -19,7 +19,7 @@ export function ParentShell({ children }: { children: ReactNode }) {
       await parentLogout();
     } finally {
       clear();
-      router.replace("/portail/connexion");
+      router.replace("/portal/login");
     }
   }
 
@@ -31,8 +31,8 @@ export function ParentShell({ children }: { children: ReactNode }) {
         name: student ? `${student.first_name} ${student.last_name}` : "Élève",
         subtitle: student?.matricule ?? "",
       }}
-      profileHref="/portail/profil"
-      settingsHref="/portail/parametres"
+      profileHref="/portal/profile"
+      settingsHref="/portal/settings"
       onLogout={handleLogout}
     >
       {children}
