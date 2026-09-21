@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ClipboardCheck, GraduationCap, Megaphone, NotebookPen, ShieldAlert, TriangleAlert, Wallet } from "lucide-react";
+import { ClipboardCheck, GraduationCap, Megaphone, NotebookPen, PiggyBank, Receipt, ShieldAlert, TriangleAlert, Wallet } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PeriodFilter } from "@/components/ui/PeriodFilter";
 import { StatCard } from "@/components/ui/StatCard";
+import { DashboardCharts } from "@/components/staff/DashboardCharts";
 import { getDashboardStats } from "@/lib/api/dashboard";
 import type { DashboardStats, StaffUser } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
@@ -92,12 +93,16 @@ export default function StaffDashboardPage() {
             )}
           </div>
 
-          {stats.accounting && (
+          <DashboardCharts stats={stats} />
+
+          {(stats.accounting || stats.expenses) && (
             <section className="mt-8" aria-labelledby="accounting-heading">
               <h2 id="accounting-heading" className="mb-3 text-base font-semibold text-foreground">
                 Comptabilité
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {stats.accounting && (
+                  <>
                 <StatCard
                   label="Encaissements"
                   value={formatMoney(stats.accounting.collected)}
@@ -121,11 +126,34 @@ export default function StaffDashboardPage() {
                   hint="Réglé / dû sur les mois de la période"
                   accent="accounting"
                 />
+                  </>
+                )}
+                {stats.expenses && (
+                  <Link href="/expenses" className="block">
+                    <StatCard
+                      label="Dépenses"
+                      value={formatMoney(stats.expenses.total)}
+                      hint={`${stats.expenses.count} achat(s) et dépense(s) sur la période`}
+                      icon={<Receipt className="size-4" />}
+                      accent="attendance"
+                      className="h-full transition-shadow hover:shadow-md"
+                    />
+                  </Link>
+                )}
+                {stats.accounting && stats.expenses && (
+                  <StatCard
+                    label="Solde"
+                    value={formatMoney(stats.accounting.collected - stats.expenses.total)}
+                    hint="Encaissé moins dépensé sur la période"
+                    icon={<PiggyBank className="size-4" />}
+                    accent={stats.accounting.collected - stats.expenses.total < 0 ? "discipline" : "accounting"}
+                  />
+                )}
               </div>
             </section>
           )}
 
-          {!stats.discipline && !stats.accounting && (
+          {!stats.discipline && !stats.accounting && !stats.expenses && (
             <p className="mt-6 flex items-center gap-2 text-sm text-muted">
               <Megaphone className="size-4" aria-hidden="true" /> Les indicateurs affichés dépendent de vos droits d&apos;accès.
             </p>

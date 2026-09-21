@@ -277,7 +277,7 @@ export interface DashboardStats {
     by_month: Array<{ month: string; total: number }>;
     by_method: Array<{ key: PaymentMethod; label: string; total: number; count: number }>;
   } | null;
-  /** Dépenses valides de la période (annulées exclues) ;  sans le droit expenses.view. */
+  /** Dépenses valides de la période (annulées exclues) ; null sans le droit expenses.view. */
   expenses: {
     total: number;
     count: number;
