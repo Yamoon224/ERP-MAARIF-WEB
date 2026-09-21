@@ -49,18 +49,19 @@ export function DonutChart({
   }
 
   const focus = slices.find((slice) => slice.key === hovered) ?? null;
-  let offset = 0;
+  // Début et longueur de chaque arc sur la circonférence, calculés d'avance : le rendu ne modifie aucune variable.
+  const arcs = slices.reduce<Array<{ slice: Slice; start: number; length: number }>>((acc, slice) => {
+    const start = acc.length === 0 ? 0 : acc[acc.length - 1].start + acc[acc.length - 1].length;
+    return [...acc, { slice, start, length: (slice.value / total) * CIRCUMFERENCE }];
+  }, []);
 
   return (
     <figure className={cn("flex flex-col items-center gap-6 sm:flex-row", className)}>
       <div className="relative size-40 shrink-0">
         <svg viewBox="0 0 120 120" role="img" aria-label={ariaLabel} className="size-full -rotate-90" onPointerLeave={() => setHovered(null)}>
           <circle cx="60" cy="60" r={RADIUS} fill="none" stroke="var(--border)" strokeWidth={STROKE} opacity={0.4} />
-          {slices.map((slice) => {
-            const length = (slice.value / total) * CIRCUMFERENCE;
-            const visible = slices.length > 1 ? Math.max(length - GAP, 0.5) : length;
-            const dashOffset = -offset;
-            offset += length;
+          {arcs.map(({ slice, start, length }) => {
+            const visible = arcs.length > 1 ? Math.max(length - GAP, 0.5) : length;
 
             return (
               <circle
@@ -72,7 +73,7 @@ export function DonutChart({
                 stroke={slice.color}
                 strokeWidth={STROKE}
                 strokeDasharray={`${visible} ${CIRCUMFERENCE - visible}`}
-                strokeDashoffset={dashOffset}
+                strokeDashoffset={-start}
                 opacity={hovered === null || hovered === slice.key ? 1 : 0.35}
                 className="transition-opacity"
                 onPointerEnter={() => setHovered(slice.key)}

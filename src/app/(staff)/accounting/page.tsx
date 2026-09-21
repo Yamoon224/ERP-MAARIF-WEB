@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { HandCoins, Plus, Receipt, TrendingUp, TriangleAlert } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
-import { BarChart } from "@/components/ui/BarChart";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { ColumnChart } from "@/components/ui/charts/ColumnChart";
+import { seriesColor } from "@/components/ui/charts/chartUtils";
 import { Select } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PeriodFilter } from "@/components/ui/PeriodFilter";
@@ -18,7 +19,7 @@ import { useAuthStore } from "@/lib/auth/store";
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
 import { PAYMENT_METHOD_LABEL, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
-import { formatDate, formatMoney, formatMonthShort, formatPercent } from "@/lib/utils/format";
+import { formatDate, formatMoney, formatMonth, formatMonthShort, formatPercent } from "@/lib/utils/format";
 
 /** Part de chaque ligne par rapport au total encaissé, pour la barre de proportion. */
 function Breakdown({ rows, total }: { rows: Array<{ key: string; label: string; total: number; count: number }>; total: number }) {
@@ -161,13 +162,15 @@ export default function AccountingOverviewPage() {
                 {summary.by_month.length === 0 ? (
                   <p className="text-sm text-muted">Aucun encaissement.</p>
                 ) : (
-                  <BarChart
+                  <ColumnChart
                     ariaLabel="Encaissements par mois"
+                    series={[{ key: "collected", label: "Encaissements", color: seriesColor(0) }]}
                     data={summary.by_month.map((entry) => ({
                       label: formatMonthShort(entry.month),
-                      value: entry.total,
-                      title: formatMoney(entry.total),
+                      fullLabel: formatMonth(entry.month),
+                      values: { collected: entry.total },
                     }))}
+                    formatValue={formatMoney}
                   />
                 )}
               </CardContent>

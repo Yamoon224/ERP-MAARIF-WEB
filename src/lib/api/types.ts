@@ -265,10 +265,25 @@ export interface DashboardStats {
   period: { from: string; to: string } | null;
   students: number;
   classes: number;
+  /** Effectif de chaque classe de l'année, par ordre alphabétique. */
+  students_by_class: Array<{ id: string; name: string; count: number }>;
   grades: { count: number; average: number | null };
   attendance: { present: number; absent: number; late: number; unjustified_absences: number };
   discipline: { sanctions: number; summons: number; summons_pending: number } | null;
-  accounting: { collected: number; arrears: number; recovery_rate: number | null } | null;
+  accounting: {
+    collected: number;
+    arrears: number;
+    recovery_rate: number | null;
+    by_month: Array<{ month: string; total: number }>;
+    by_method: Array<{ key: PaymentMethod; label: string; total: number; count: number }>;
+  } | null;
+  /** Dépenses valides de la période (annulées exclues) ;  sans le droit expenses.view. */
+  expenses: {
+    total: number;
+    count: number;
+    by_category: Array<{ id: string; name: string; total: number; count: number }>;
+    by_month: Array<{ month: string; total: number }>;
+  } | null;
 }
 
 // --- Comptabilité ---------------------------------------------------------------
@@ -349,6 +364,46 @@ export interface ArrearsRow {
   months_overdue: number;
   amount: number;
   oldest_month: string;
+}
+
+// --- Dépenses et approvisionnements ---------------------------------------------
+
+export interface ExpenseCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  expenses_count: number;
+}
+
+export interface Expense {
+  id: string;
+  number: string;
+  category?: { id: string; name: string };
+  label: string;
+  supplier_name: string | null;
+  quantity: number;
+  unit: string | null;
+  unit_price: number;
+  /** Quantité × prix unitaire, calculé par le serveur. */
+  amount: number;
+  method: PaymentMethod;
+  method_label: string;
+  invoice_reference: string | null;
+  spent_at: string;
+  note: string | null;
+  status: "valid" | "cancelled";
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  recorded_by?: { id: string; name: string } | null;
+}
+
+export interface ExpenseSummary {
+  period: { from: string; to: string } | null;
+  total: { total: number; count: number };
+  by_category: Array<{ id: string; name: string; total: number; count: number }>;
+  by_method: Array<{ key: PaymentMethod; label: string; total: number; count: number }>;
+  by_month: Array<{ month: string; total: number }>;
 }
 
 // --- Admissions -----------------------------------------------------------------
