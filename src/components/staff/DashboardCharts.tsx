@@ -3,7 +3,7 @@ import { ColumnChart, type ColumnDatum, type ColumnSeries } from "@/components/u
 import { DonutChart } from "@/components/ui/charts/DonutChart";
 import { formatTick, seriesColor, toSlices, type Slice } from "@/components/ui/charts/chartUtils";
 import type { DashboardStats } from "@/lib/api/types";
-import { formatMoney, formatMonth, formatMonthShort } from "@/lib/utils/format";
+import { formatMoney, formatMonth, formatMonthAxis } from "@/lib/utils/format";
 
 const COLLECTED: ColumnSeries = { key: "collected", label: "Encaissements", color: seriesColor(0) };
 const SPENT: ColumnSeries = { key: "spent", label: "Dépenses", color: seriesColor(1) };
@@ -24,8 +24,8 @@ function monthlyMoney(stats: DashboardStats): { series: ColumnSeries[]; data: Co
   return {
     series,
     title,
-    data: months.map((month) => ({
-      label: formatMonthShort(month),
+    data: months.map((month, index) => ({
+      label: formatMonthAxis(month, index),
       fullLabel: formatMonth(month),
       values: { collected: totalOf(collected, month), spent: totalOf(spent, month) },
     })),

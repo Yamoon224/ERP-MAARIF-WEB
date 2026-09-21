@@ -61,10 +61,10 @@ export function ColumnChart({ series, data, ariaLabel, formatValue, integer = fa
         </ul>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-2">
         <div className="relative w-10 shrink-0 text-right text-[11px] text-muted" style={{ height }} aria-hidden="true">
           {scale.ticks.map((tick) => (
-            <span key={tick} className="absolute right-0 -translate-y-1/2 tabular-nums" style={{ bottom: `${(tick / scale.max) * 100}%` }}>
+            <span key={tick} className="absolute right-0 translate-y-1/2 tabular-nums" style={{ bottom: `${(tick / scale.max) * 100}%` }}>
               {formatTick(tick)}
             </span>
           ))}

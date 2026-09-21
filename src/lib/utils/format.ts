@@ -43,6 +43,15 @@ export function formatMonthShort(month: string): string {
   return shortMonthFormatter.format(monthToDate(month));
 }
 
+/**
+ * Libellé d'axe d'un mois `YYYY-MM` : « sept. 25 » pour le premier et à chaque janvier, « oct. » sinon.
+ * Sans l'année, septembre 2025 et septembre 2026 se confondraient sur un axe qui déborde d'une année.
+ */
+export function formatMonthAxis(month: string, index: number): string {
+  const short = formatMonthShort(month);
+  return index === 0 || month.endsWith("-01") ? `${short} ${month.slice(2, 4)}` : short;
+}
+
 /** Tous les mois `YYYY-MM` entre deux dates (bornes incluses), dans l'ordre. */
 export function monthsBetween(from: string, to: string): string[] {
   const [startYear, startMonth] = from.slice(0, 7).split("-").map(Number);

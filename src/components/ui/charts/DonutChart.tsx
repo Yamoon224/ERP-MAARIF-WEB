@@ -56,7 +56,7 @@ export function DonutChart({
   }, []);
 
   return (
-    <figure className={cn("flex flex-col items-center gap-6 sm:flex-row", className)}>
+    <figure className={cn("flex flex-col items-center gap-5", className)}>
       <div className="relative size-40 shrink-0">
         <svg viewBox="0 0 120 120" role="img" aria-label={ariaLabel} className="size-full -rotate-90" onPointerLeave={() => setHovered(null)}>
           <circle cx="60" cy="60" r={RADIUS} fill="none" stroke="var(--border)" strokeWidth={STROKE} opacity={0.4} />

@@ -27,7 +27,7 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { PAYMENT_METHOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
-import { formatDate, formatMoney, formatMonth, formatMonthShort } from "@/lib/utils/format";
+import { formatDate, formatMoney, formatMonth, formatMonthAxis } from "@/lib/utils/format";
 
 type StatusFilter = "" | "valid" | "cancelled";
 
@@ -100,7 +100,7 @@ export default function ExpensesPage() {
       key: "number",
       header: "N°",
       render: (row) => (
-        <Link href={`/expenses/${row.id}`} className="font-mono text-xs text-primary hover:underline">
+        <Link href={`/expenses/${row.id}`} className="font-mono text-xs whitespace-nowrap text-primary hover:underline">
           {row.number}
         </Link>
       ),
@@ -195,8 +195,8 @@ export default function ExpensesPage() {
                   <ColumnChart
                     ariaLabel="Dépenses par mois"
                     series={[{ key: "spent", label: "Dépenses", color: seriesColor(1) }]}
-                    data={summary.by_month.map((entry) => ({
-                      label: formatMonthShort(entry.month),
+                    data={summary.by_month.map((entry, index) => ({
+                      label: formatMonthAxis(entry.month, index),
                       fullLabel: formatMonth(entry.month),
                       values: { spent: entry.total },
                     }))}
@@ -218,7 +218,6 @@ export default function ExpensesPage() {
                   formatCenter={formatTick}
                   totalLabel="dépensés"
                   emptyMessage="Aucune dépense sur la période."
-                  className="sm:flex-col"
                 />
               </CardContent>
             </Card>

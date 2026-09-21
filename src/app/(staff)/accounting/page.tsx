@@ -19,7 +19,7 @@ import { useAuthStore } from "@/lib/auth/store";
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
 import { PAYMENT_METHOD_LABEL, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
-import { formatDate, formatMoney, formatMonth, formatMonthShort, formatPercent } from "@/lib/utils/format";
+import { formatDate, formatMoney, formatMonth, formatMonthAxis, formatPercent } from "@/lib/utils/format";
 
 /** Part de chaque ligne par rapport au total encaissé, pour la barre de proportion. */
 function Breakdown({ rows, total }: { rows: Array<{ key: string; label: string; total: number; count: number }>; total: number }) {
@@ -165,8 +165,8 @@ export default function AccountingOverviewPage() {
                   <ColumnChart
                     ariaLabel="Encaissements par mois"
                     series={[{ key: "collected", label: "Encaissements", color: seriesColor(0) }]}
-                    data={summary.by_month.map((entry) => ({
-                      label: formatMonthShort(entry.month),
+                    data={summary.by_month.map((entry, index) => ({
+                      label: formatMonthAxis(entry.month, index),
                       fullLabel: formatMonth(entry.month),
                       values: { collected: entry.total },
                     }))}
