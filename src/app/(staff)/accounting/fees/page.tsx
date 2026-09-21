@@ -159,7 +159,7 @@ export default function FeesPage() {
 
       {error && <Alert className="mb-4">{error}</Alert>}
 
-      <DataTable columns={columns} rows={classes} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune classe pour cette année." />
+      <DataTable exportName="Frais de scolarité" columns={columns} rows={classes} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune classe pour cette année." />
     </div>
   );
 }

@@ -172,7 +172,7 @@ export default function TermsPage() {
         </Card>
       )}
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} />
+      <DataTable exportName="Trimestres" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>

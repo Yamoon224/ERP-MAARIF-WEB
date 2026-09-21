@@ -13,6 +13,7 @@ import {
   Receipt,
   School,
   ShieldAlert,
+  ShieldCheck,
   TriangleAlert,
   UserPlus,
   UserX,
@@ -86,6 +87,7 @@ export const STAFF_NAV: NavGroup[] = [
     label: "Administration",
     items: [
       { href: "/users", label: "Utilisateurs", icon: Users, permission: "users.manage" },
+      { href: "/roles", label: "Rôles", icon: ShieldCheck, permission: "roles.manage" },
       { href: "/notifications", label: "Notifications", icon: Bell, permission: "notifications.view" },
     ],
   },

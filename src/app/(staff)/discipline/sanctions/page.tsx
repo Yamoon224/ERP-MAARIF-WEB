@@ -130,7 +130,7 @@ export default function SanctionsPage() {
         </>
       )}
 
-      <DataTable
+      <DataTable exportName="Sanctions"
         columns={columns}
         rows={data}
         rowKey={(row) => row.id}

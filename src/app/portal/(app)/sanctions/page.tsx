@@ -34,7 +34,7 @@ export default function ParentSanctionsPage() {
     <div>
       <PageHeader title="Sanctions" />
       <PeriodFilter filter={period} className="mb-4" />
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune sanction sur cette période." />
+      <DataTable exportName="Sanctions" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune sanction sur cette période." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

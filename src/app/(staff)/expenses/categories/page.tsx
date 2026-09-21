@@ -199,7 +199,7 @@ export default function ExpenseCategoriesPage() {
         </CardContent>
       </Card>
 
-      <DataTable columns={columns} rows={categories} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune catégorie." />
+      <DataTable exportName="Catégories de dépenses" columns={columns} rows={categories} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune catégorie." />
     </div>
   );
 }

@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { GraduationCap, Plus } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClasses } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Select } from "@/components/ui/Field";
@@ -12,6 +12,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { listAcademicYears } from "@/lib/api/academics";
 import { listStudents } from "@/lib/api/students";
 import type { AcademicYear, Student } from "@/lib/api/types";
@@ -29,10 +30,12 @@ export default function StudentsPage() {
       .catch(() => setYears([]));
   }, []);
 
-  const fetcher = useMemo(
-    () => () => listStudents({ search: debouncedSearch || undefined, academic_year: academicYear || undefined, page, per_page: perPage }),
-    [debouncedSearch, academicYear, page, perPage],
+  const filters = useMemo(
+    () => ({ search: debouncedSearch || undefined, academic_year: academicYear || undefined }),
+    [debouncedSearch, academicYear],
   );
+
+  const fetcher = useMemo(() => () => listStudents({ ...filters, page, per_page: perPage }), [filters, page, perPage]);
 
   const { data, meta, isLoading } = usePaginatedResource(fetcher, [debouncedSearch, academicYear, page, perPage]);
 
@@ -49,9 +52,11 @@ export default function StudentsPage() {
     {
       key: "actions",
       header: "",
+      className: "text-right",
       render: (row) => (
-        <Link href={`/students/${row.id}`} className="text-sm font-medium text-primary hover:underline">
-          Voir le dossier
+        <Link href={`/students/${row.id}`} className={buttonClasses({ variant: "gradient", size: "sm" })}>
+          <GraduationCap className="size-4" aria-hidden="true" />
+          Dossier scolaire
         </Link>
       ),
     },
@@ -88,7 +93,15 @@ export default function StudentsPage() {
         </Select>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun eleve trouve." />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucun eleve trouve."
+        exportName="Élèves"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listStudents({ ...filters, page: exportPage, per_page: exportPerPage }))}
+      />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>

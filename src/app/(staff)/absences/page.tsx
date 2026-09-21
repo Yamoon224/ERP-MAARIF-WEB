@@ -280,7 +280,7 @@ export default function AbsencesPage() {
 
           {error && <Alert className="mb-4">{error}</Alert>}
 
-          <DataTable
+          <DataTable exportName="Absences"
             columns={columns}
             rows={data}
             rowKey={(row) => row.id}

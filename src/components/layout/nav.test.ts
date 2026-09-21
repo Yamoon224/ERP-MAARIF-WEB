@@ -9,6 +9,13 @@ function staff(permissions: string[]): StaffUser {
 const labels = (user: StaffUser) => visibleGroups(STAFF_NAV, user).map((group) => group.label);
 
 describe("staff navigation", () => {
+  it("shows the roles page only to whoever may manage roles", () => {
+    const hrefs = (user: StaffUser) => visibleGroups(STAFF_NAV, user).flatMap((group) => group.items.map((item) => item.href));
+
+    expect(hrefs(staff(["roles.manage"]))).toContain("/roles");
+    expect(hrefs(staff(["users.manage"]))).not.toContain("/roles");
+  });
+
   it("groups the menu by domain", () => {
     expect(STAFF_NAV.map((group) => group.label)).toEqual([
       "Général",

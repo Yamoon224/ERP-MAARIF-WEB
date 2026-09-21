@@ -69,7 +69,7 @@ export function TermGradesTab({ term }: { term: Term }) {
         </Select>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune note pour ce trimestre." />
+      <DataTable exportName="Notes du trimestre" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune note pour ce trimestre." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

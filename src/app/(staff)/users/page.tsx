@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
@@ -16,19 +16,30 @@ import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { userSchema, type UserFormInput } from "@/lib/validation/users";
 import { createUser, deleteUser, listUsers } from "@/lib/api/users";
+import { listRoles } from "@/lib/api/roles";
+import { roleLabel, ROLE_LABELS } from "@/lib/auth/roles";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { getErrorMessage } from "@/lib/api/error";
-import type { StaffUser } from "@/lib/api/types";
+import type { Role, StaffUser } from "@/lib/api/types";
 
-const ROLE_LABEL: Record<string, string> = { admin: "Administrateur", teacher: "Enseignant", accountant: "Comptable" };
+// Repli si la liste des rôles ne charge pas : les trois rôles système existent toujours.
+const SYSTEM_ROLES = Object.entries(ROLE_LABELS).map(([name, label]) => ({ name, label }));
 
 export default function UsersPage() {
   const [serverError, setServerError] = useState<string | null>(null);
+  const [roles, setRoles] = useState<Pick<Role, "name" | "label">[]>(SYSTEM_ROLES);
 
   const { page, perPage, setPage, setPerPage } = usePagination();
   const { data, meta, isLoading, reload } = usePaginatedResource(
     () => listUsers({ page, per_page: perPage }),
     [page, perPage],
   );
+
+  useEffect(() => {
+    listRoles({ per_page: 100 })
+      .then((response) => setRoles(response.data))
+      .catch(() => setRoles(SYSTEM_ROLES));
+  }, []);
 
   const {
     register,
@@ -60,12 +71,12 @@ export default function UsersPage() {
     { key: "email", header: "E-mail", render: (row) => row.email },
     {
       key: "roles",
-      header: "Roles",
+      header: "Rôles",
       render: (row) => (
         <div className="flex gap-1.5">
           {row.roles.map((role) => (
             <Badge key={role} tone="info">
-              {ROLE_LABEL[role] ?? role}
+              {roleLabel(role)}
             </Badge>
           ))}
         </div>
@@ -118,36 +129,23 @@ export default function UsersPage() {
             </div>
 
             <div>
-              <Label>Role</Label>
+              <Label>Rôle</Label>
               <Controller
                 control={control}
                 name="roles"
                 render={({ field }) => (
-                  <div className="flex h-10 items-center gap-4 text-sm">
-                    <label className="flex items-center gap-1.5">
-                      <input
-                        type="radio"
-                        checked={field.value?.[0] === "admin"}
-                        onChange={() => field.onChange(["admin"])}
-                      />
-                      Admin
-                    </label>
-                    <label className="flex items-center gap-1.5">
-                      <input
-                        type="radio"
-                        checked={field.value?.[0] === "teacher"}
-                        onChange={() => field.onChange(["teacher"])}
-                      />
-                      Enseignant
-                    </label>
-                    <label className="flex items-center gap-1.5">
-                      <input
-                        type="radio"
-                        checked={field.value?.[0] === "accountant"}
-                        onChange={() => field.onChange(["accountant"])}
-                      />
-                      Comptable
-                    </label>
+                  <div className="flex min-h-10 flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                    {roles.map((role) => (
+                      <label key={role.name} className="flex items-center gap-1.5">
+                        <input
+                          type="radio"
+                          name="role"
+                          checked={field.value?.[0] === role.name}
+                          onChange={() => field.onChange([role.name])}
+                        />
+                        {role.label}
+                      </label>
+                    ))}
                   </div>
                 )}
               />
@@ -163,7 +161,14 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        exportName="Comptes du personnel"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listUsers({ page: exportPage, per_page: exportPerPage }))}
+      />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>

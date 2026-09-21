@@ -26,7 +26,7 @@ export function TermClassesTab({ term }: { term: Term }) {
   ];
 
   return (
-    <DataTable
+    <DataTable exportName="Classes du trimestre"
       columns={columns}
       rows={classes}
       rowKey={(row) => row.id}

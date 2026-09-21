@@ -22,6 +22,7 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { PAYMENT_METHOD_LABEL, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { formatDate, formatMoney, formatMonth } from "@/lib/utils/format";
 
 type StatusFilter = "" | "valid" | "cancelled";
@@ -155,7 +156,15 @@ export default function PaymentsPage() {
         </label>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun paiement sur cette période." />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucun paiement sur cette période."
+        exportName="Paiements"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listPayments({ ...filters, page: exportPage, per_page: exportPerPage }))}
+      />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

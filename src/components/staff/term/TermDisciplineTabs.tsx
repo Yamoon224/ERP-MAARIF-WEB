@@ -27,7 +27,7 @@ export function TermSanctionsTab({ termId }: { termId: string }) {
 
   return (
     <>
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune sanction pour ce trimestre." />
+      <DataTable exportName="Sanctions du trimestre" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune sanction pour ce trimestre." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </>
   );
@@ -48,7 +48,7 @@ export function TermSummonsTab({ termId }: { termId: string }) {
 
   return (
     <>
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation pour ce trimestre." />
+      <DataTable exportName="Convocations du trimestre" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation pour ce trimestre." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </>
   );

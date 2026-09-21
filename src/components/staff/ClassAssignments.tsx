@@ -133,7 +133,7 @@ export function ClassAssignments({ schoolClassId, canManage, teachers, currentUs
           </div>
         )}
 
-        <DataTable
+        <DataTable exportName="Enseignants de la classe"
           columns={columns}
           rows={subjects}
           rowKey={(subject) => subject.id}

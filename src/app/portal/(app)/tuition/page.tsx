@@ -119,7 +119,7 @@ export default function ParentTuitionPage() {
             <h2 id="payments-heading" className="mb-3 text-base font-semibold text-foreground">
               Paiements enregistrés
             </h2>
-            <DataTable columns={columns} rows={payments} rowKey={(row) => row.id} emptyMessage="Aucun paiement enregistré pour cette année." />
+            <DataTable exportName="Paiements de scolarité" columns={columns} rows={payments} rowKey={(row) => row.id} emptyMessage="Aucun paiement enregistré pour cette année." />
           </section>
         </div>
       )}

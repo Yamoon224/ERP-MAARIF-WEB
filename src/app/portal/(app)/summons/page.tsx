@@ -35,7 +35,7 @@ export default function ParentSummonsPage() {
     <div>
       <PageHeader title="Convocations" />
       <PeriodFilter filter={period} className="mb-4" />
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation sur cette période." />
+      <DataTable exportName="Convocations" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation sur cette période." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

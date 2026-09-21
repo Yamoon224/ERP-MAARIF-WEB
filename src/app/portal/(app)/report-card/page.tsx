@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BulletinExportButtons } from "@/components/grades/BulletinExportButtons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PeriodFilter } from "@/components/ui/PeriodFilter";
-import { getMyBulletin } from "@/lib/api/grades";
+import { downloadMyBulletin, getMyBulletin } from "@/lib/api/grades";
 import type { Bulletin } from "@/lib/api/types";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { formatAverage } from "@/lib/utils/format";
@@ -45,8 +46,13 @@ export default function ParentBulletinPage() {
       <PeriodFilter filter={period} modes={["term"]} className="mb-6" />
 
       <Card accent="grades">
-        <CardHeader>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
           <CardTitle>Relevé de notes</CardTitle>
+          <BulletinExportButtons
+            fileName="bulletin"
+            load={(format) => downloadMyBulletin(termId, format)}
+            disabled={!bulletin || !!error}
+          />
         </CardHeader>
         <CardContent>
           {error && <p className="text-sm text-muted">{error}</p>}

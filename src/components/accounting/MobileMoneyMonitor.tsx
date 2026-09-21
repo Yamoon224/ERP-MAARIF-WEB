@@ -91,7 +91,7 @@ export function MobileMoneyMonitor() {
       <h2 id="mobile-money-heading" className="mb-3 text-base font-semibold text-foreground">
         Paiements mobile money des parents
       </h2>
-      <DataTable columns={columns} rows={transactions} rowKey={(row) => row.id} />
+      <DataTable exportName="Paiements mobile money" columns={columns} rows={transactions} rowKey={(row) => row.id} />
     </section>
   );
 }

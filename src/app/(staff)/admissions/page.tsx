@@ -17,6 +17,7 @@ import type { AcademicYear, Admission, AdmissionStatus, AdmissionSummary, StaffU
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { ADMISSION_LABEL, ADMISSION_TONE } from "@/lib/labels";
@@ -55,18 +56,12 @@ export default function AdmissionsPage() {
       .catch(() => setSummary(null));
   }, [academicYear]);
 
-  const fetcher = useMemo(
-    () => () =>
-      listAdmissions({
-        search: debouncedSearch || undefined,
-        status: status || undefined,
-        academic_year: academicYear || undefined,
-        page,
-        per_page: perPage,
-      }),
-    [debouncedSearch, status, academicYear, page, perPage],
+  const filters = useMemo(
+    () => ({ search: debouncedSearch || undefined, status: status || undefined, academic_year: academicYear || undefined }),
+    [debouncedSearch, status, academicYear],
   );
-  const { data, meta, isLoading } = usePaginatedResource(fetcher, [debouncedSearch, status, academicYear, page, perPage]);
+  const fetcher = useMemo(() => () => listAdmissions({ ...filters, page, per_page: perPage }), [filters, page, perPage]);
+  const { data, meta, isLoading } = usePaginatedResource(fetcher, [filters, page, perPage]);
 
   const columns: DataTableColumn<Admission>[] = [
     { key: "reference", header: "Référence", render: (row) => <span className="font-mono text-xs">{row.reference}</span> },
@@ -144,7 +139,15 @@ export default function AdmissionsPage() {
         </Select>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune candidature trouvée." />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucune candidature trouvée."
+        exportName="Candidatures"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listAdmissions({ ...filters, page: exportPage, per_page: exportPerPage }))}
+      />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>

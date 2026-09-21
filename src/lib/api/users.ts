@@ -1,9 +1,9 @@
 import { apiClient } from "@/lib/api/client";
-import type { PaginatedResponse, StaffRole, StaffUser } from "@/lib/api/types";
+import type { PaginatedResponse, StaffUser } from "@/lib/api/types";
 
 export interface UserListParams {
   search?: string;
-  role?: StaffRole;
+  role?: string;
   is_active?: boolean;
   page?: number;
   per_page?: number;
@@ -14,7 +14,7 @@ export interface UserPayload {
   email: string;
   phone?: string | null;
   password?: string;
-  roles: StaffRole[];
+  roles: string[];
   is_active?: boolean;
 }
 

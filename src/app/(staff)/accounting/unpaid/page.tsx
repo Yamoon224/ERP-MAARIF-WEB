@@ -20,6 +20,7 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { formatMoney, formatMonth } from "@/lib/utils/format";
 
 /** Élèves dont au moins un mois de scolarité, déjà terminé, n'est pas réglé — les plus endettés d'abord. */
@@ -105,7 +106,15 @@ export default function ArrearsPage() {
         </label>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.enrollment_id} isLoading={isLoading} emptyMessage="Aucun impayé sur cette période." />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.enrollment_id}
+        isLoading={isLoading}
+        emptyMessage="Aucun impayé sur cette période."
+        exportName="Impayés"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listArrears({ ...filters, page: exportPage, per_page: exportPerPage }))}
+      />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

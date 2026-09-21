@@ -173,12 +173,26 @@
     transparent 100%
   );
   --gradient-brand-vertical: linear-gradient(180deg, var(--grad-2) 0%, var(--grad-3) 65%, var(--grad-end) 100%);
+
+  /*
+   * Bleu clair vers blanc : en-têtes de tableau et boutons « dossier ». Le dégradé plein (--gradient-brand)
+   * part d'un bleu trop sombre pour un texte foncé et finit trop clair pour un texte blanc ; celui-ci reste
+   * clair d'un bout à l'autre dans les deux thèmes, d'où un texte bleu nuit unique (--on-brand-fade).
+   */
+  --gradient-brand-fade: linear-gradient(90deg, var(--grad-3) 0%, var(--grad-end) 100%);
+  --on-brand-fade: #0b1b3a;
 }
 
 /* Surface bleue : bouton, onglet actif, pastille. Le texte posé dessus reste `text-primary-foreground`. */
 @utility bg-brand {
   background-image: var(--gradient-brand);
   text-shadow: var(--brand-text-shadow);
+}
+
+/* Bleu clair vers blanc, texte bleu nuit : en-tête de tableau, bouton « dossier scolaire ». */
+@utility bg-brand-fade {
+  background-image: var(--gradient-brand-fade);
+  color: var(--on-brand-fade);
 }
 
 /* Teinte bleue légère qui s'efface vers le blanc : élément actif ou survolé. */

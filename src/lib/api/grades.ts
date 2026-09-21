@@ -54,3 +54,23 @@ export async function getMyBulletin(termId?: string) {
   });
   return data.data;
 }
+
+export type BulletinFormat = "pdf" | "xlsx";
+
+/** Bulletin d'un élève au format PDF ou Excel, tel que généré par le serveur (mêmes chiffres qu'à l'écran). */
+export async function downloadStudentBulletin(studentId: string, termId: string, format: BulletinFormat) {
+  const { data } = await apiClient.get<Blob>(`/students/${studentId}/bulletin/export`, {
+    params: { term_id: termId, format },
+    responseType: "blob",
+  });
+  return data;
+}
+
+/** Bulletin de l'enfant du parent connecté au format PDF ou Excel. */
+export async function downloadMyBulletin(termId: string | undefined, format: BulletinFormat) {
+  const { data } = await apiClient.get<Blob>("/parent/bulletin/export", {
+    params: { term_id: termId, format },
+    responseType: "blob",
+  });
+  return data;
+}

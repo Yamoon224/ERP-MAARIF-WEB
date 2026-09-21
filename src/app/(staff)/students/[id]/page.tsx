@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Field";
+import { BulletinExportButtons } from "@/components/grades/BulletinExportButtons";
 import { StudentEnrollments } from "@/components/staff/StudentEnrollments";
 import { StudentResultsCard } from "@/components/results/StudentResultsCard";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
 import { getStudent, resetStudentPassword } from "@/lib/api/students";
-import { getStudentBulletin } from "@/lib/api/grades";
+import { downloadStudentBulletin, getStudentBulletin } from "@/lib/api/grades";
+import { slugify } from "@/lib/export/tableExport";
 import { listAllTerms } from "@/lib/api/academics";
 import type { Bulletin, StaffUser, Student, Term } from "@/lib/api/types";
 
@@ -102,19 +104,26 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
         </Card>
 
         <Card accent="grades" className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
             <CardTitle>Bulletin</CardTitle>
-            <Select
-              className="w-48"
-              value={selectedTermId}
-              onChange={(event) => setSelectedTermId(event.target.value)}
-            >
-              {terms.map((term) => (
-                <option key={term.id} value={term.id}>
-                  {term.name} ({term.academic_year})
-                </option>
-              ))}
-            </Select>
+            <div className="flex flex-wrap items-center gap-3">
+              <BulletinExportButtons
+                fileName={slugify(`bulletin ${student.matricule} ${terms.find((term) => term.id === selectedTermId)?.name ?? ""}`)}
+                load={(format) => downloadStudentBulletin(id, selectedTermId, format)}
+                disabled={!selectedTermId || !bulletin}
+              />
+              <Select
+                className="w-48"
+                value={selectedTermId}
+                onChange={(event) => setSelectedTermId(event.target.value)}
+              >
+                {terms.map((term) => (
+                  <option key={term.id} value={term.id}>
+                    {term.name} ({term.academic_year})
+                  </option>
+                ))}
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             {!bulletin || bulletin.subjects.length === 0 ? (

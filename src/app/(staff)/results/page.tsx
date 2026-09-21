@@ -322,7 +322,7 @@ export default function ResultsPage() {
 
         {classId && (
           <>
-            <DataTable
+            <DataTable exportName="Résultats"
               columns={columns}
               rows={pageRows}
               rowKey={(row) => row.enrollment_id}

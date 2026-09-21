@@ -27,6 +27,7 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { PAYMENT_METHOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { formatDate, formatMoney, formatMonth, formatMonthAxis } from "@/lib/utils/format";
 
 type StatusFilter = "" | "valid" | "cancelled";
@@ -259,7 +260,15 @@ export default function ExpensesPage() {
         </label>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune dépense sur cette période." />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucune dépense sur cette période."
+        exportName="Dépenses"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listExpenses({ ...filters, page: exportPage, per_page: exportPerPage }))}
+      />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

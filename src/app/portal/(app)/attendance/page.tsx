@@ -35,7 +35,7 @@ export default function ParentAttendancePage() {
     <div>
       <PageHeader title="Présences" description="Historique des présences, absences et retards de votre enfant." />
       <PeriodFilter filter={period} className="mb-4" />
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun enregistrement sur cette période." />
+      <DataTable exportName="Présences" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun enregistrement sur cette période." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

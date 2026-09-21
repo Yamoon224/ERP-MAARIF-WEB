@@ -18,6 +18,7 @@ import type { NotificationLog, NotificationSummary, StaffUser } from "@/lib/api/
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import {
@@ -82,19 +83,17 @@ export default function NotificationsPage() {
       .catch(() => setSummary(null));
   }, [debouncedSearch, type, channel, summaryToken]);
 
-  const fetcher = useMemo(
-    () => () =>
-      listNotificationLogs({
-        search: debouncedSearch || undefined,
-        type: type || undefined,
-        channel: channel || undefined,
-        status: status || undefined,
-        page,
-        per_page: perPage,
-      }),
-    [debouncedSearch, type, channel, status, page, perPage],
+  const filters = useMemo(
+    () => ({
+      search: debouncedSearch || undefined,
+      type: type || undefined,
+      channel: channel || undefined,
+      status: status || undefined,
+    }),
+    [debouncedSearch, type, channel, status],
   );
-  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [debouncedSearch, type, channel, status, page, perPage]);
+  const fetcher = useMemo(() => () => listNotificationLogs({ ...filters, page, per_page: perPage }), [filters, page, perPage]);
+  const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [filters, page, perPage]);
 
   async function handleResend(log: NotificationLog) {
     setResendingId(log.id);
@@ -234,7 +233,15 @@ export default function NotificationsPage() {
         </Select>
       </div>
 
-      <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun message dans le journal." />
+      <DataTable
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucun message dans le journal."
+        exportName="Journal des notifications"
+        exportAll={() => fetchAllPages((exportPage, exportPerPage) => listNotificationLogs({ ...filters, page: exportPage, per_page: exportPerPage }))}
+      />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>

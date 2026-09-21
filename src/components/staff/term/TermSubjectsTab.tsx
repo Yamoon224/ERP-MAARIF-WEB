@@ -28,5 +28,5 @@ export function TermSubjectsTab({ termId }: { termId: string }) {
     { key: "average", header: "Moyenne", render: (row) => formatAverage(row.average) },
   ];
 
-  return <DataTable columns={columns} rows={subjects} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune matière pour ce trimestre." />;
+  return <DataTable exportName="Matières du trimestre" columns={columns} rows={subjects} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune matière pour ce trimestre." />;
 }

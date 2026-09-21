@@ -17,7 +17,32 @@ export interface ApiError {
   context?: Record<string, unknown>;
 }
 
+/** Les trois rôles système, référencés par le code. Un administrateur peut en créer d'autres : voir `Role`. */
 export type StaffRole = "admin" | "teacher" | "accountant";
+
+/** Rôle configurable depuis l'écran d'administration des rôles. */
+export interface Role {
+  id: string;
+  /** Nom technique, celui que portent les comptes (`teacher`, ou le nom saisi pour un rôle personnalisé). */
+  name: string;
+  /** Libellé affiché : « Enseignant » pour `teacher`, le nom lui-même pour un rôle personnalisé. */
+  label: string;
+  /** Rôle système : ni renommable ni supprimable. */
+  is_system: boolean;
+  /** Présent sur le détail d'un rôle, pas sur la liste. */
+  permissions?: string[];
+  permissions_count?: number;
+  users_count?: number;
+  created_at?: string;
+}
+
+export interface Permission {
+  id: string;
+  name: string;
+  description: string | null;
+  group: string;
+  group_label: string;
+}
 
 export interface StaffUser {
   id: string;
@@ -25,7 +50,8 @@ export interface StaffUser {
   email: string;
   phone: string | null;
   type: "staff";
-  roles: StaffRole[];
+  /** Noms de rôles : les trois rôles système, ou un rôle personnalisé. */
+  roles: string[];
   permissions: string[];
   is_active?: boolean;
   last_login_at?: string | null;

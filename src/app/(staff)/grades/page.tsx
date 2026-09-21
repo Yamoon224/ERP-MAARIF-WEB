@@ -211,7 +211,7 @@ export default function GradesPage() {
         </>
       )}
 
-      <DataTable
+      <DataTable exportName="Notes"
         columns={columns}
         rows={data}
         rowKey={(row) => row.id}

@@ -46,7 +46,7 @@ export function TermAttendanceTab({ termId }: { termId: string }) {
       )}
 
       <div>
-        <DataTable columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun pointage pour ce trimestre." />
+        <DataTable exportName="Présences du trimestre" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun pointage pour ce trimestre." />
         {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
       </div>
     </div>

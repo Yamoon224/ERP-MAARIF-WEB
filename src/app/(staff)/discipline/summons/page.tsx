@@ -132,7 +132,7 @@ export default function SummonsPage() {
         </>
       )}
 
-      <DataTable
+      <DataTable exportName="Convocations"
         columns={columns}
         rows={data}
         rowKey={(row) => row.id}

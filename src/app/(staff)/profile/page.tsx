@@ -14,7 +14,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { changeStaffPassword, updateStaffProfile } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
 import type { StaffUser } from "@/lib/api/types";
-import { ROLE_LABELS } from "@/lib/auth/roles";
+import { roleLabel } from "@/lib/auth/roles";
 import { useAuthStore } from "@/lib/auth/store";
 import { profileSchema, type ProfileFormInput } from "@/lib/validation/profile";
 
@@ -90,7 +90,7 @@ export default function StaffProfilePage() {
                 <div className="flex h-10 flex-wrap items-center gap-2">
                   {user.roles.map((role) => (
                     <Badge key={role} tone="info">
-                      {ROLE_LABELS[role] ?? role}
+                      {roleLabel(role)}
                     </Badge>
                   ))}
                 </div>
