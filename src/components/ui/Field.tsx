@@ -10,8 +10,14 @@ import {
 import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
-export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
-  return <label className={cn("mb-1.5 block text-sm font-medium text-foreground", className)} {...props} />;
+export function Label({ className, children, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
+  const { t } = useT();
+
+  return (
+    <label className={cn("mb-1.5 block text-sm font-medium text-foreground", className)} {...props}>
+      {typeof children === "string" ? t(children) : children}
+    </label>
+  );
 }
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(

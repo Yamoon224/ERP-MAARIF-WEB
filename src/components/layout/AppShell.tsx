@@ -1,9 +1,12 @@
 "use client";
 
 import { type ReactNode } from "react";
+import { ConfigBar } from "@/components/layout/ConfigBar";
+import { HorizontalNav } from "@/components/layout/HorizontalNav";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar, type TopbarNotifications } from "@/components/layout/Topbar";
 import { shortcutItems, type NavGroup } from "@/components/layout/nav";
+import { useAppearanceStore } from "@/lib/appearance/store";
 
 interface AppShellProps {
   groups: NavGroup[];
@@ -26,11 +29,15 @@ interface AppShellProps {
  * défiler dans sa propre zone au lieu d'élargir toute la page.
  */
 export function AppShell({ groups, shortcutHrefs = [], notifications, brandSubtitle, user, profileHref, settingsHref, onLogout, children }: AppShellProps) {
+  const horizontal = useAppearanceStore((state) => state.navLayout) === "horizontal";
+
   return (
     <div className="flex min-h-screen">
-      <Sidebar groups={groups} brandSubtitle={brandSubtitle} profile={{ ...user, href: profileHref, settingsHref, onLogout }} />
+      <Sidebar groups={groups} brandSubtitle={brandSubtitle} profile={{ ...user, href: profileHref, settingsHref, onLogout }} horizontal={horizontal} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
+          horizontal={horizontal}
+          brandSubtitle={brandSubtitle}
           shortcuts={shortcutItems(groups, shortcutHrefs)}
           notifications={notifications}
           name={user.name}
@@ -39,8 +46,10 @@ export function AppShell({ groups, shortcutHrefs = [], notifications, brandSubti
           settingsHref={settingsHref}
           onLogout={onLogout}
         />
+        {horizontal && <HorizontalNav groups={groups} />}
         <main className="flex-1 bg-background p-4 md:p-6">{children}</main>
       </div>
+      <ConfigBar />
     </div>
   );
 }

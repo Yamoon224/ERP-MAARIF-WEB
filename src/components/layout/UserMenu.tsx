@@ -3,6 +3,7 @@
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronsUpDown, CircleUser, LogOut, Settings, User } from "lucide-react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 interface UserMenuProps {
@@ -28,6 +29,7 @@ const ITEM_CLASS =
  * et depuis le profil épinglé en bas de la barre latérale ; seuls le déclencheur et le sens d'ouverture changent.
  */
 export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle, profileHref, settingsHref, onLogout }: UserMenuProps) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -75,8 +77,8 @@ export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle
           type="button"
           aria-haspopup="menu"
           aria-expanded={open}
-          aria-label={`Menu du profil : ${name}`}
-          title={collapsed ? `${name} — Menu du profil` : undefined}
+          aria-label={`${t("Menu du profil")} : ${name}`}
+          title={collapsed ? `${name} — ${t("Menu du profil")}` : undefined}
           onClick={() => setOpen((current) => !current)}
           className={cn(
             "flex w-full items-center rounded-md py-2 text-left transition-colors hover:bg-foreground/5",
@@ -104,7 +106,7 @@ export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle
           type="button"
           aria-haspopup="menu"
           aria-expanded={open}
-          aria-label="Menu du profil"
+          aria-label={t("Menu du profil")}
           onClick={() => setOpen((current) => !current)}
           className={cn(
             "inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors",
@@ -119,7 +121,7 @@ export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle
       {open && (
         <div
           role="menu"
-          aria-label="Profil"
+          aria-label={t("Profil")}
           onKeyDown={handleMenuKeyDown}
           className={cn(
             "absolute z-50 overflow-hidden rounded-md border border-border bg-surface py-1 shadow-lg",
@@ -135,10 +137,10 @@ export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle
           </div>
 
           <Link role="menuitem" href={profileHref} onClick={() => close()} className={ITEM_CLASS}>
-            <User className="size-4 text-muted" aria-hidden="true" /> Profil
+            <User className="size-4 text-muted" aria-hidden="true" /> {t("Profil")}
           </Link>
           <Link role="menuitem" href={settingsHref} onClick={() => close()} className={ITEM_CLASS}>
-            <Settings className="size-4 text-muted" aria-hidden="true" /> Paramètres
+            <Settings className="size-4 text-muted" aria-hidden="true" /> {t("Paramètres")}
           </Link>
 
           <div className="my-1 border-t border-border" />
@@ -152,7 +154,7 @@ export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle
             }}
             className={cn(ITEM_CLASS, "text-danger")}
           >
-            <LogOut className="size-4" aria-hidden="true" /> Déconnexion
+            <LogOut className="size-4" aria-hidden="true" /> {t("Déconnexion")}
           </button>
         </div>
       )}

@@ -1,4 +1,7 @@
+"use client";
+
 import { type HTMLAttributes } from "react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 type Accent = "primary" | "grades" | "attendance" | "discipline" | "academics" | "users" | "accounting" | "neutral";
@@ -51,8 +54,14 @@ export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return <div className={cn("px-5 pt-4 pb-2", className)} {...props} />;
 }
 
-export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-sm font-semibold text-foreground", className)} {...props} />;
+export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
+  const { t } = useT();
+
+  return (
+    <h3 className={cn("text-sm font-semibold text-foreground", className)} {...props}>
+      {typeof children === "string" ? t(children) : children}
+    </h3>
+  );
 }
 
 export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

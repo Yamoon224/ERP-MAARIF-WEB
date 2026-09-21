@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, Settings } from "lucide-react";
 import { NotificationBell, type NotificationFeed } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { BrandMark } from "@/components/layout/Logo";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { isNavItemActive, type NavItem } from "@/components/layout/nav";
+import { useT } from "@/lib/i18n/store";
 import { useLayoutStore } from "@/lib/layout/store";
 import { cn } from "@/lib/utils/cn";
 
@@ -18,6 +20,9 @@ export interface TopbarNotifications {
 
 interface TopbarProps {
   shortcuts?: NavItem[];
+  /** Disposition horizontale : le logo passe dans cette barre, et le menu est sous elle. */
+  horizontal?: boolean;
+  brandSubtitle?: string;
   notifications?: TopbarNotifications;
   name: string;
   subtitle: string;
@@ -38,32 +43,41 @@ const ICON_BUTTON =
  * infobulle et pour les lecteurs d'écran), avec leur libellé sur grand écran.
  * Sur mobile la place manque, le tiroir du menu fait le travail.
  */
-export function Topbar({ shortcuts = [], notifications, name, subtitle, profileHref, settingsHref, onLogout }: TopbarProps) {
+export function Topbar({ shortcuts = [], horizontal = false, brandSubtitle, notifications, name, subtitle, profileHref, settingsHref, onLogout }: TopbarProps) {
+  const { t } = useT();
   const pathname = usePathname();
   const collapsed = useLayoutStore((state) => state.collapsed);
+  const setConfigOpen = useLayoutStore((state) => state.setConfigOpen);
+  const configOpen = useLayoutStore((state) => state.configOpen);
   const toggleCollapsed = useLayoutStore((state) => state.toggleCollapsed);
   const setMobileOpen = useLayoutStore((state) => state.setMobileOpen);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface px-4 md:px-6">
+    <header className="region-topbar sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border px-4 md:px-6">
       <div className="flex items-center gap-1">
-        <button type="button" onClick={() => setMobileOpen(true)} aria-label="Ouvrir le menu" className={`${ICON_BUTTON} inline-flex md:hidden`}>
+        <button type="button" onClick={() => setMobileOpen(true)} aria-label={t("Ouvrir le menu")} className={`${ICON_BUTTON} inline-flex md:hidden`}>
           <Menu className="size-5" aria-hidden="true" />
         </button>
 
-        <button
-          type="button"
-          onClick={toggleCollapsed}
-          aria-label={collapsed ? "Déplier la barre latérale" : "Réduire la barre latérale en icônes"}
-          aria-pressed={collapsed}
-          title={collapsed ? "Déplier la barre latérale" : "Réduire la barre latérale"}
-          className={`${ICON_BUTTON} hidden md:inline-flex`}
-        >
-          {collapsed ? <PanelLeftOpen className="size-5" aria-hidden="true" /> : <PanelLeftClose className="size-5" aria-hidden="true" />}
-        </button>
+        {horizontal ? (
+          <span className="ml-1 hidden md:inline-flex">
+            <BrandMark subtitle={brandSubtitle ? t(brandSubtitle) : undefined} />
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? t("Déplier la barre latérale") : t("Réduire la barre latérale en icônes")}
+            aria-pressed={collapsed}
+            title={collapsed ? t("Déplier la barre latérale") : t("Réduire la barre latérale")}
+            className={`${ICON_BUTTON} hidden md:inline-flex`}
+          >
+            {collapsed ? <PanelLeftOpen className="size-5" aria-hidden="true" /> : <PanelLeftClose className="size-5" aria-hidden="true" />}
+          </button>
+        )}
 
-        {shortcuts.length > 0 && (
-          <nav aria-label="Raccourcis" className="ml-2 hidden items-center gap-0.5 border-l border-border pl-3 md:flex">
+        {!horizontal && shortcuts.length > 0 && (
+          <nav aria-label={t("Raccourcis")} className="ml-2 hidden items-center gap-0.5 border-l border-border pl-3 md:flex">
             {shortcuts.map((item) => {
               const active = isNavItemActive(pathname, item);
 
@@ -71,9 +85,9 @@ export function Topbar({ shortcuts = [], notifications, name, subtitle, profileH
                 <Link
                   key={item.href}
                   href={item.href}
-                  aria-label={item.label}
+                  aria-label={t(item.label)}
                   aria-current={active ? "page" : undefined}
-                  title={item.label}
+                  title={t(item.label)}
                   className={cn(
                     "inline-flex h-10 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors",
                     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
@@ -81,7 +95,7 @@ export function Topbar({ shortcuts = [], notifications, name, subtitle, profileH
                   )}
                 >
                   <item.icon className="size-5" aria-hidden="true" />
-                  <span className="hidden xl:inline">{item.label}</span>
+                  <span className="hidden xl:inline">{t(item.label)}</span>
                 </Link>
               );
             })}
@@ -92,6 +106,17 @@ export function Topbar({ shortcuts = [], notifications, name, subtitle, profileH
       <div className="flex items-center gap-1">
         {notifications && <NotificationBell load={notifications.load} footer={notifications.footer} />}
         <ThemeToggle />
+        <button
+          type="button"
+          onClick={() => setConfigOpen(true)}
+          aria-label={t("Configuration de l'application")}
+          aria-haspopup="dialog"
+          aria-expanded={configOpen}
+          title={t("Configuration")}
+          className={`${ICON_BUTTON} inline-flex`}
+        >
+          <Settings className="size-5" aria-hidden="true" />
+        </button>
         <UserMenu name={name} subtitle={subtitle} profileHref={profileHref} settingsHref={settingsHref} onLogout={onLogout} />
       </div>
     </header>

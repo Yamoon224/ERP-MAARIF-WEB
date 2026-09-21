@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
 import { PAGE_SIZE_OPTIONS } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import type { PaginationMeta } from "@/lib/api/types";
 
 interface PaginationProps {
@@ -18,6 +19,7 @@ interface PaginationProps {
  * elements parcourus / total d'elements.
  */
 export function Pagination({ meta, onPageChange, onPerPageChange }: PaginationProps) {
+  const { t } = useT();
   const { current_page: currentPage, per_page: perPage, total } = meta;
   const lastPage = Math.max(meta.last_page, 1);
   const seen = Math.min(currentPage * perPage, total);
@@ -30,7 +32,7 @@ export function Pagination({ meta, onPageChange, onPerPageChange }: PaginationPr
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-1 py-3 text-sm text-muted">
       <label className="flex items-center gap-2">
-        Elements par page
+        {t("Elements par page")}
         <Select
           className="h-9 w-20"
           value={perPage}
@@ -49,11 +51,11 @@ export function Pagination({ meta, onPageChange, onPerPageChange }: PaginationPr
           type="button"
           variant="secondary"
           size="sm"
-          aria-label="Page precedente"
+          aria-label={t("Page precedente")}
           disabled={currentPage <= 1}
           onClick={() => onPageChange(currentPage - 1)}
         >
-          <ChevronLeft className="size-4" /> Precedent
+          <ChevronLeft className="size-4" /> {t("Precedent")}
         </Button>
         <span className="min-w-12 text-center text-foreground">
           {currentPage} / {lastPage}
@@ -62,11 +64,11 @@ export function Pagination({ meta, onPageChange, onPerPageChange }: PaginationPr
           type="button"
           variant="secondary"
           size="sm"
-          aria-label="Page suivante"
+          aria-label={t("Page suivante")}
           disabled={currentPage >= lastPage}
           onClick={() => onPageChange(currentPage + 1)}
         >
-          Suivant <ChevronRight className="size-4" />
+          {t("Suivant")} <ChevronRight className="size-4" />
         </Button>
       </div>
 

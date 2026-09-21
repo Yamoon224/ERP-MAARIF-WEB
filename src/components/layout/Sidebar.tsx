@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { BrandMark } from "@/components/layout/Logo";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { isNavItemActive, type NavGroup } from "@/components/layout/nav";
+import { useT } from "@/lib/i18n/store";
 import { useLayoutStore } from "@/lib/layout/store";
 import { cn } from "@/lib/utils/cn";
 
@@ -23,6 +24,8 @@ interface SidebarProps {
   groups: NavGroup[];
   brandSubtitle: string;
   profile: SidebarProfile;
+  /** Disposition horizontale : la barre latérale n'existe plus sur bureau, seul le tiroir mobile reste. */
+  horizontal?: boolean;
 }
 
 interface SidebarContentProps extends SidebarProps {
@@ -38,6 +41,7 @@ interface SidebarContentProps extends SidebarProps {
  * profil restent toujours visibles.
  */
 function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: SidebarContentProps) {
+  const { t } = useT();
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
 
@@ -49,13 +53,13 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
 
   return (
     <div className="flex h-full flex-col">
-      <div className={cn("flex h-16 shrink-0 items-center border-b border-border", collapsed ? "justify-center" : "justify-between px-5")}>
-        <BrandMark subtitle={brandSubtitle} showText={!collapsed} />
+      <div className={cn("region-sidebar-header flex h-16 shrink-0 items-center border-b border-border", collapsed ? "justify-center" : "justify-between px-5")}>
+        <BrandMark subtitle={t(brandSubtitle)} showText={!collapsed} />
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer le menu"
+            aria-label={t("Fermer le menu")}
             className="inline-flex size-9 items-center justify-center rounded-full text-muted hover:bg-foreground/5 hover:text-foreground"
           >
             <X className="size-5" aria-hidden="true" />
@@ -63,7 +67,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
         )}
       </div>
 
-      <nav ref={navRef} aria-label="Navigation principale" className="flex-1 overflow-y-auto px-3 py-3">
+      <nav ref={navRef} aria-label={t("Navigation principale")} className="flex-1 overflow-y-auto px-3 py-3">
         {groups.map((group, groupIndex) => {
           const headingId = `nav-group-${groupIndex}`;
 
@@ -72,13 +76,13 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
               {collapsed ? (
                 <>
                   <span id={headingId} className="sr-only">
-                    {group.label}
+                    {t(group.label)}
                   </span>
                   {groupIndex > 0 && <div className="mx-3 mb-3 border-t border-border" aria-hidden="true" />}
                 </>
               ) : (
                 <p id={headingId} className="mb-1.5 px-3 text-xs font-semibold tracking-wider text-muted uppercase">
-                  {group.label}
+                  {t(group.label)}
                 </p>
               )}
 
@@ -91,7 +95,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        title={collapsed ? item.label : undefined}
+                        title={collapsed ? t(item.label) : undefined}
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
                           "flex items-center rounded-md py-1.5 text-sm font-medium transition-colors",
@@ -100,7 +104,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
                         )}
                       >
                         <Icon className="size-5 shrink-0" aria-hidden="true" />
-                        <span className={cn(collapsed && "sr-only")}>{item.label}</span>
+                        <span className={cn(collapsed && "sr-only")}>{t(item.label)}</span>
                       </Link>
                     </li>
                   );
@@ -130,7 +134,8 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
  * Barre latérale de l'application : fixe et réductible en icônes sur bureau,
  * tiroir plein écran sur mobile (ouvert depuis la barre du haut).
  */
-export function Sidebar(props: SidebarProps) {
+export function Sidebar({ horizontal = false, ...props }: SidebarProps) {
+  const { t } = useT();
   const pathname = usePathname();
   const collapsed = useLayoutStore((state) => state.collapsed);
   const mobileOpen = useLayoutStore((state) => state.mobileOpen);
@@ -153,21 +158,23 @@ export function Sidebar(props: SidebarProps) {
 
   return (
     <>
-      <aside
-        aria-label="Barre latérale"
-        data-collapsed={collapsed}
-        className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-border bg-surface transition-[width] duration-200 md:block",
-          collapsed ? "w-[72px]" : "w-64",
-        )}
-      >
-        <SidebarContent {...props} collapsed={collapsed} />
-      </aside>
+      {!horizontal && (
+        <aside
+          aria-label={t("Barre latérale")}
+          data-collapsed={collapsed}
+          className={cn(
+            "region-sidebar sticky top-0 hidden h-screen shrink-0 border-r border-border transition-[width] duration-200 md:block",
+            collapsed ? "w-[72px]" : "w-64",
+          )}
+        >
+          <SidebarContent {...props} collapsed={collapsed} />
+        </aside>
+      )}
 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} aria-hidden="true" />
-          <aside aria-label="Menu" className="absolute inset-y-0 left-0 w-72 max-w-[85vw] border-r border-border bg-surface shadow-xl">
+          <aside aria-label={t("Menu")} className="region-sidebar absolute inset-y-0 left-0 w-72 max-w-[85vw] border-r border-border shadow-xl">
             <SidebarContent {...props} collapsed={false} onClose={() => setMobileOpen(false)} />
           </aside>
         </div>

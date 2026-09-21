@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Database, FileSpreadsheet, FileText, Printer } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/lib/i18n/store";
 import { exportPdf, exportSql, exportXlsx, printTable, slugify } from "@/lib/export/tableExport";
 import { cn } from "@/lib/utils/cn";
 import { nodeToText, sortRows, type CellValue, type ExportTable, type SortDirection } from "@/lib/utils/tableData";
@@ -72,6 +73,7 @@ export function DataTable<T>({
   exportable = true,
   exportAll,
 }: DataTableProps<T>) {
+  const { t } = useT();
   const [sort, setSort] = useState<SortState | null>(null);
   const [runningExport, setRunningExport] = useState<ExportAction | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -102,18 +104,18 @@ export function DataTable<T>({
       const exported = columns.filter(isExportable);
 
       const table: ExportTable = {
-        title: exportName,
-        headers: exported.map((column) => column.header),
+        title: t(exportName),
+        headers: exported.map((column) => t(column.header)),
         rows: ordered.map((row) => exported.map((column) => cellValue(column, row) ?? null)),
       };
-      const fileName = slugify(exportName);
+      const fileName = slugify(t(exportName));
 
       if (action === "pdf") await exportPdf(table, fileName);
       if (action === "xlsx") await exportXlsx(table, fileName);
-      if (action === "sql") exportSql(table, fileName, slugify(exportName, "_"));
+      if (action === "sql") exportSql(table, fileName, slugify(t(exportName), "_"));
       if (action === "print") printTable(table);
     } catch {
-      setExportError("L'export a échoué. Veuillez réessayer.");
+      setExportError(t("L'export a échoué. Veuillez réessayer."));
     } finally {
       setRunningExport(null);
     }
@@ -130,7 +132,7 @@ export function DataTable<T>({
   return (
     <div>
       {exportable && (
-        <div className="mb-2 flex flex-wrap items-center justify-end gap-2" role="group" aria-label="Exporter le tableau">
+        <div className="mb-2 flex flex-wrap items-center justify-end gap-2" role="group" aria-label={t("Exporter le tableau")}>
           {exportError && (
             <span role="alert" className="mr-auto text-sm text-danger">
               {exportError}
@@ -144,11 +146,11 @@ export function DataTable<T>({
               size="sm"
               disabled={!canExport || runningExport !== null}
               loading={runningExport === action}
-              title={exportAll ? `${label} : toutes les lignes` : `${label} : lignes affichées`}
+              title={exportAll ? `${t(label)} : ${t("toutes les lignes")}` : `${t(label)} : ${t("lignes affichées")}`}
               onClick={() => runExport(action)}
             >
               {runningExport !== action && <Icon className="size-4" aria-hidden="true" />}
-              {label}
+              {t(label)}
             </Button>
           ))}
         </div>
@@ -176,18 +178,18 @@ export function DataTable<T>({
                         onClick={() => toggleSort(column.key)}
                         title={
                           direction === "asc"
-                            ? "Tri croissant : cliquer pour trier en décroissant"
+                            ? t("Tri croissant : cliquer pour trier en décroissant")
                             : direction === "desc"
-                              ? "Tri décroissant : cliquer pour désactiver le tri"
-                              : "Cliquer pour trier"
+                              ? t("Tri décroissant : cliquer pour désactiver le tri")
+                              : t("Cliquer pour trier")
                         }
                         className="inline-flex items-center gap-1.5 rounded uppercase hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
-                        {column.header}
+                        {t(column.header)}
                         <SortIcon className={cn("size-3.5 shrink-0", direction ? "opacity-100" : "opacity-50")} aria-hidden="true" />
                       </button>
                     ) : (
-                      column.header
+                      t(column.header)
                     )}
                   </th>
                 );
@@ -198,14 +200,14 @@ export function DataTable<T>({
             {isLoading && (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-8 text-center text-muted">
-                  Chargement...
+                  {t("Chargement...")}
                 </td>
               </tr>
             )}
             {!isLoading && rows.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-8 text-center text-muted">
-                  {emptyMessage}
+                  {t(emptyMessage)}
                 </td>
               </tr>
             )}

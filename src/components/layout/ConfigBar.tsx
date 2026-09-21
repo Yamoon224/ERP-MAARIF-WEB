@@ -6,8 +6,7 @@ import { Flag } from "@/components/ui/Flag";
 import { ACCENT_OPTIONS, BACKGROUND_PRESETS, DEFAULT_APPEARANCE, toneOf, type BackgroundRegion } from "@/lib/appearance/palettes";
 import { useAppearanceStore } from "@/lib/appearance/store";
 import { useFullscreen } from "@/lib/hooks/useFullscreen";
-import { useT } from "@/lib/i18n/store";
-import { useLocaleStore } from "@/lib/i18n/store";
+import { useLocaleStore, useT } from "@/lib/i18n/store";
 import { LOCALES } from "@/lib/i18n/translate";
 import { useLayoutStore } from "@/lib/layout/store";
 import { THEME_OPTIONS } from "@/lib/theme/theme";
@@ -225,8 +224,8 @@ export function ConfigBar() {
             <div role="radiogroup" aria-label={t("Disposition du menu")} className="grid grid-cols-2 gap-3">
               {(
                 [
-                  { value: "vertical", label: "Barre latérale", icon: PanelLeft },
-                  { value: "horizontal", label: "Barre horizontale", icon: PanelTop },
+                  { value: "vertical", label: "Menu latéral", icon: PanelLeft },
+                  { value: "horizontal", label: "Menu horizontal", icon: PanelTop },
                 ] as const
               ).map((option) => {
                 const selected = appearance.navLayout === option.value;

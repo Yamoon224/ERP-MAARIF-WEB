@@ -1,6 +1,7 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useT } from "@/lib/i18n/store";
 import { useTheme } from "@/lib/theme/useTheme";
 import { cn } from "@/lib/utils/cn";
 
@@ -11,13 +12,14 @@ import { cn } from "@/lib/utils/cn";
  */
 export function ThemeToggle({ className }: { className?: string }) {
   const { toggle } = useTheme();
+  const { t } = useT();
 
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label="Changer de thème (Light / Blue Dark)"
-      title="Changer de thème"
+      aria-label={t("Changer de thème (Light / Blue Dark)")}
+      title={t("Changer de thème")}
       className={cn(
         "inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors",
         "hover:bg-foreground/5 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",

@@ -3,6 +3,7 @@
 import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 type Tone = "danger" | "warning" | "success" | "info" | "neutral";
@@ -54,6 +55,7 @@ function formatWhen(value: string): string {
  * l'API laisse la cloche telle quelle : elle ne doit jamais gêner la page.
  */
 export function NotificationBell({ load, footer, refreshMs = 60_000 }: NotificationBellProps) {
+  const { t } = useT();
   const [feed, setFeed] = useState<NotificationFeed>({ items: [], attention: 0 });
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,7 +99,7 @@ export function NotificationBell({ load, footer, refreshMs = 60_000 }: Notificat
     setOpen((current) => !current);
   }
 
-  const label = feed.attention > 0 ? `Notifications, ${feed.attention} à traiter` : "Notifications";
+  const label = feed.attention > 0 ? t("Notifications, {count} à traiter", { count: feed.attention }) : t("Notifications");
 
   return (
     <div ref={containerRef} className="relative" onKeyDown={handleKeyDown}>
@@ -107,7 +109,7 @@ export function NotificationBell({ load, footer, refreshMs = 60_000 }: Notificat
         aria-label={label}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        title="Notifications"
+        title={t("Notifications")}
         onClick={toggle}
         className={cn(
           "relative inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors",
@@ -130,16 +132,16 @@ export function NotificationBell({ load, footer, refreshMs = 60_000 }: Notificat
         <div
           id={panelId}
           role="region"
-          aria-label="Notifications"
+          aria-label={t("Notifications")}
           className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border border-border bg-surface shadow-lg sm:w-96"
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <p className="text-sm font-semibold text-foreground">Notifications</p>
+            <p className="text-sm font-semibold text-foreground">{t("Notifications")}</p>
             {feed.attention > 0 && <span className="text-xs font-medium text-danger">{feed.attention} à traiter</span>}
           </div>
 
           {feed.items.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">Rien de nouveau pour le moment.</p>
+            <p className="px-4 py-8 text-center text-sm text-muted">{t("Rien de nouveau pour le moment.")}</p>
           ) : (
             <ul className="max-h-96 divide-y divide-border overflow-y-auto">
               {feed.items.map((item) => {
