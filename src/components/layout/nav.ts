@@ -110,6 +110,21 @@ export const PARENT_NAV: NavGroup[] = [
   },
 ];
 
+/**
+ * Raccourcis de la barre du haut : les pages les plus utilisées au quotidien,
+ * désignées par leur URL pour réutiliser libellé, icône et permission du menu
+ * (une seule source de vérité, pas de doublon à tenir à jour).
+ */
+export const STAFF_SHORTCUTS = ["/dashboard", "/students", "/grades", "/attendance", "/accounting/payments"];
+export const PARENT_SHORTCUTS = ["/portal", "/portal/report-card", "/portal/attendance", "/portal/tuition"];
+
+/** Retrouve les entrées demandées dans le menu déjà filtré, dans l'ordre demandé ; celles qui ne sont pas autorisées disparaissent. */
+export function shortcutItems(groups: NavGroup[], hrefs: string[]): NavItem[] {
+  const items = groups.flatMap((group) => group.items);
+
+  return hrefs.flatMap((href) => items.find((item) => item.href === href) ?? []);
+}
+
 /** Ne garde que les entrées autorisées, et les groupes qu'il en reste quelque chose. */
 export function visibleGroups(groups: NavGroup[], user: StaffUser | null): NavGroup[] {
   return groups

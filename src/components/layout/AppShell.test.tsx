@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppShell } from "@/components/layout/AppShell";
-import { STAFF_NAV, visibleGroups } from "@/components/layout/nav";
+import { STAFF_NAV, STAFF_SHORTCUTS, visibleGroups } from "@/components/layout/nav";
 import { useLayoutStore } from "@/lib/layout/store";
 import type { StaffUser } from "@/lib/api/types";
 
@@ -16,10 +16,11 @@ const admin: StaffUser = {
   permissions: ["students.view", "academics.view", "grades.manage", "attendance.manage", "discipline.manage", "accounting.view", "users.manage"],
 };
 
-function renderShell(onLogout = vi.fn()) {
+function renderShell(onLogout = vi.fn(), user: StaffUser = admin) {
   render(
     <AppShell
-      groups={visibleGroups(STAFF_NAV, admin)}
+      groups={visibleGroups(STAFF_NAV, user)}
+      shortcutHrefs={STAFF_SHORTCUTS}
       brandSubtitle="Espace personnel"
       user={{ name: "Admin Maarif", subtitle: "Administrateur" }}
       profileHref="/profile"
@@ -48,6 +49,28 @@ describe("AppShell", () => {
     expect(within(nav).getByText("Vie scolaire")).toBeInTheDocument();
     expect(within(nav).getByRole("link", { name: "Absences" })).toHaveAttribute("href", "/absences");
     expect(within(nav).getByRole("link", { name: "Impayés" })).toHaveAttribute("href", "/accounting/unpaid");
+  });
+
+  it("puts shortcuts to the essential pages in the top bar", () => {
+    renderShell();
+
+    const shortcuts = screen.getByRole("navigation", { name: "Raccourcis" });
+
+    expect(within(shortcuts).getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual(STAFF_SHORTCUTS);
+    expect(within(shortcuts).getByRole("link", { name: "Notes" })).toHaveAttribute("title", "Notes");
+    expect(shortcuts.closest("header")).not.toBeNull();
+  });
+
+  it("only offers the shortcuts the user may open", () => {
+    renderShell(vi.fn(), { ...admin, roles: ["teacher"], permissions: ["students.view", "grades.manage"] });
+
+    const shortcuts = screen.getByRole("navigation", { name: "Raccourcis" });
+
+    expect(within(shortcuts).getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+      "/dashboard",
+      "/students",
+      "/grades",
+    ]);
   });
 
   it("pins the profile icon at the bottom of a sidebar that only scrolls its navigation", () => {

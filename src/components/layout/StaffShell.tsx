@@ -3,7 +3,7 @@
 import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
-import { STAFF_NAV, visibleGroups } from "@/components/layout/nav";
+import { STAFF_NAV, STAFF_SHORTCUTS, visibleGroups } from "@/components/layout/nav";
 import { staffLogout } from "@/lib/api/auth";
 import type { StaffUser } from "@/lib/api/types";
 import { formatRoles } from "@/lib/auth/roles";
@@ -27,6 +27,7 @@ export function StaffShell({ children }: { children: ReactNode }) {
   return (
     <AppShell
       groups={visibleGroups(STAFF_NAV, user)}
+      shortcutHrefs={STAFF_SHORTCUTS}
       brandSubtitle="Espace personnel"
       user={{ name: user?.name ?? "Utilisateur", subtitle: formatRoles(user?.roles) }}
       profileHref="/profile"

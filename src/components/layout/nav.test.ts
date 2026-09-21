@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PARENT_NAV, STAFF_NAV, isNavItemActive, visibleGroups } from "@/components/layout/nav";
+import { PARENT_NAV, PARENT_SHORTCUTS, STAFF_NAV, STAFF_SHORTCUTS, isNavItemActive, shortcutItems, visibleGroups } from "@/components/layout/nav";
 import type { StaffUser } from "@/lib/api/types";
 
 function staff(permissions: string[]): StaffUser {
@@ -74,5 +74,22 @@ describe("isNavItemActive", () => {
   it("keeps an exact entry from lighting up on its sub-pages", () => {
     expect(isNavItemActive("/accounting", item)).toBe(true);
     expect(isNavItemActive("/accounting/payments", item)).toBe(false);
+  });
+});
+
+describe("top bar shortcuts", () => {
+  it("only point at pages that exist in the menu", () => {
+    const staffHrefs = STAFF_NAV.flatMap((group) => group.items.map((item) => item.href));
+    const parentHrefs = PARENT_NAV.flatMap((group) => group.items.map((item) => item.href));
+
+    expect(STAFF_SHORTCUTS.every((href) => staffHrefs.includes(href))).toBe(true);
+    expect(PARENT_SHORTCUTS.every((href) => parentHrefs.includes(href))).toBe(true);
+  });
+
+  it("keeps the requested order and drops what the user may not open", () => {
+    const teacher = staff(["students.view", "grades.manage", "attendance.manage"]);
+    const items = shortcutItems(visibleGroups(STAFF_NAV, teacher), STAFF_SHORTCUTS);
+
+    expect(items.map((item) => item.href)).toEqual(["/dashboard", "/students", "/grades", "/attendance"]);
   });
 });

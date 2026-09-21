@@ -3,7 +3,7 @@
 import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
-import { PARENT_NAV, visibleGroups } from "@/components/layout/nav";
+import { PARENT_NAV, PARENT_SHORTCUTS, visibleGroups } from "@/components/layout/nav";
 import { parentLogout } from "@/lib/api/auth";
 import type { StudentAccount } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
@@ -26,6 +26,7 @@ export function ParentShell({ children }: { children: ReactNode }) {
   return (
     <AppShell
       groups={visibleGroups(PARENT_NAV, null)}
+      shortcutHrefs={PARENT_SHORTCUTS}
       brandSubtitle="Espace parent"
       user={{
         name: student ? `${student.first_name} ${student.last_name}` : "Élève",
