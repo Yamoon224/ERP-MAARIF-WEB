@@ -6,9 +6,12 @@ interface LayoutState {
   collapsed: boolean;
   /** Tiroir de navigation ouvert (mobile). Jamais mémorisé. */
   mobileOpen: boolean;
+  /** Panneau de configuration de l'application ouvert. Jamais mémorisé. */
+  configOpen: boolean;
   toggleCollapsed: () => void;
   setCollapsed: (collapsed: boolean) => void;
   setMobileOpen: (open: boolean) => void;
+  setConfigOpen: (open: boolean) => void;
 }
 
 export const useLayoutStore = create<LayoutState>()(
@@ -16,9 +19,11 @@ export const useLayoutStore = create<LayoutState>()(
     (set) => ({
       collapsed: false,
       mobileOpen: false,
+      configOpen: false,
       toggleCollapsed: () => set((state) => ({ collapsed: !state.collapsed })),
       setCollapsed: (collapsed) => set({ collapsed }),
       setMobileOpen: (mobileOpen) => set({ mobileOpen }),
+      setConfigOpen: (configOpen) => set({ configOpen }),
     }),
     {
       name: "erp-maarif-layout",

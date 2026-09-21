@@ -1,39 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Input, Label, FieldError } from "@/components/ui/Field";
-import { PasswordInput } from "@/components/ui/PasswordInput";
+import { Check, KeyRound, Pencil, Plus, Trash2 } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
+import { ResetPasswordModal } from "@/components/staff/users/ResetPasswordModal";
+import { UserFormModal } from "@/components/staff/users/UserFormModal";
+import { getErrorMessage } from "@/lib/api/error";
+import { listRoles } from "@/lib/api/roles";
+import type { Role, StaffUser } from "@/lib/api/types";
+import { deleteUser, listUsers } from "@/lib/api/users";
+import { roleLabel, ROLE_LABELS } from "@/lib/auth/roles";
+import { useT } from "@/lib/i18n/store";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
-import { userSchema, type UserFormInput } from "@/lib/validation/users";
-import { createUser, deleteUser, listUsers } from "@/lib/api/users";
-import { listRoles } from "@/lib/api/roles";
-import { roleLabel, ROLE_LABELS } from "@/lib/auth/roles";
 import { fetchAllPages } from "@/lib/utils/fetchAllPages";
-import { getErrorMessage } from "@/lib/api/error";
-import type { Role, StaffUser } from "@/lib/api/types";
 
 // Repli si la liste des rôles ne charge pas : les trois rôles système existent toujours.
 const SYSTEM_ROLES = Object.entries(ROLE_LABELS).map(([name, label]) => ({ name, label }));
 
+type Dialog = { kind: "create" } | { kind: "edit"; user: StaffUser } | { kind: "password"; user: StaffUser } | null;
+
+/**
+ * Comptes du personnel. Création, modification et réinitialisation du mot de passe se font dans une fenêtre ;
+ * la suppression demande confirmation. Un compte ne peut pas supprimer le sien (refusé par le serveur).
+ */
 export default function UsersPage() {
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { t } = useT();
+  const [dialog, setDialog] = useState<Dialog>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [roles, setRoles] = useState<Pick<Role, "name" | "label">[]>(SYSTEM_ROLES);
 
   const { page, perPage, setPage, setPerPage } = usePagination();
-  const { data, meta, isLoading, reload } = usePaginatedResource(
-    () => listUsers({ page, per_page: perPage }),
-    [page, perPage],
-  );
+  const { data, meta, isLoading, reload } = usePaginatedResource(() => listUsers({ page, per_page: perPage }), [page, perPage]);
 
   useEffect(() => {
     listRoles({ per_page: 100 })
@@ -41,136 +46,142 @@ export default function UsersPage() {
       .catch(() => setRoles(SYSTEM_ROLES));
   }, []);
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<UserFormInput>({ resolver: zodResolver(userSchema), defaultValues: { roles: ["teacher"] } });
+  async function handleDelete(user: StaffUser) {
+    if (!window.confirm(t("Supprimer le compte de {name} ?", { name: user.name }))) return;
 
-  async function onSubmit(values: UserFormInput) {
-    setServerError(null);
+    setBusyId(user.id);
+    setError(null);
+    setNotice(null);
 
     try {
-      await createUser(values);
-      reset({ roles: ["teacher"], name: "", email: "", password: "" });
+      await deleteUser(user.id);
+      setNotice(t("Le compte de {name} a été supprimé.", { name: user.name }));
       reload();
-    } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible de creer ce compte."));
+    } catch (failure) {
+      setError(getErrorMessage(failure, t("Impossible de supprimer ce compte.")));
+    } finally {
+      setBusyId(null);
     }
   }
 
-  async function handleDelete(user: StaffUser) {
-    await deleteUser(user.id);
-    reload();
-  }
-
   const columns: DataTableColumn<StaffUser>[] = [
-    { key: "name", header: "Nom", render: (row) => row.name },
-    { key: "email", header: "E-mail", render: (row) => row.email },
+    { key: "name", header: t("Nom"), render: (row) => row.name },
+    { key: "email", header: t("E-mail"), render: (row) => row.email },
     {
       key: "roles",
-      header: "Rôles",
+      header: t("Rôles"),
       render: (row) => (
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           {row.roles.map((role) => (
             <Badge key={role} tone="info">
-              {roleLabel(role)}
+              {t(roleLabel(role))}
             </Badge>
           ))}
         </div>
       ),
     },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={row.is_active ? "success" : "neutral"}>{row.is_active ? "Actif" : "Inactif"}</Badge> },
+    {
+      key: "status",
+      header: t("Statut"),
+      render: (row) => <Badge tone={row.is_active ? "success" : "neutral"}>{row.is_active ? t("Actif") : t("Inactif")}</Badge>,
+    },
     {
       key: "actions",
       header: "",
+      className: "text-right",
       render: (row) => (
-        <button onClick={() => handleDelete(row)} aria-label="Supprimer le compte" className="text-muted hover:text-danger">
-          <Trash2 className="size-4" />
-        </button>
+        <div className="flex justify-end gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-label={t("Modifier {name}", { name: row.name })}
+            title={t("Modifier")}
+            disabled={busyId !== null}
+            onClick={() => setDialog({ kind: "edit", user: row })}
+          >
+            <Pencil className="size-4" aria-hidden="true" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-label={t("Réinitialiser le mot de passe de {name}", { name: row.name })}
+            title={t("Réinitialiser le mot de passe")}
+            disabled={busyId !== null}
+            onClick={() => setDialog({ kind: "password", user: row })}
+          >
+            <KeyRound className="size-4" aria-hidden="true" />
+          </Button>
+          <Button
+            size="sm"
+            variant="danger"
+            aria-label={t("Supprimer le compte de {name}", { name: row.name })}
+            title={t("Supprimer")}
+            loading={busyId === row.id}
+            disabled={busyId !== null}
+            onClick={() => void handleDelete(row)}
+          >
+            {busyId !== row.id && <Trash2 className="size-4" aria-hidden="true" />}
+          </Button>
+        </div>
       ),
     },
   ];
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-foreground">Comptes du personnel</h1>
+      <PageHeader
+        title={t("Comptes du personnel")}
+        description={t("Créez les comptes, attribuez-leur des rôles et réinitialisez les mots de passe.")}
+        actions={
+          <Button onClick={() => setDialog({ kind: "create" })}>
+            <Plus className="size-4" aria-hidden="true" /> {t("Nouvel utilisateur")}
+          </Button>
+        }
+      />
 
-      <Card accent="users" className="mb-6">
-        <CardHeader>
-          <CardTitle>Nouveau compte</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-4" noValidate>
-            {serverError && (
-              <div className="sm:col-span-4">
-                <Alert>{serverError}</Alert>
-              </div>
-            )}
-
-            <div>
-              <Label htmlFor="name">Nom</Label>
-              <Input id="name" placeholder="Nom complet" {...register("name")} />
-              <FieldError>{errors.name?.message}</FieldError>
-            </div>
-
-            <div>
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" placeholder="nom@exemple.com" {...register("email")} />
-              <FieldError>{errors.email?.message}</FieldError>
-            </div>
-
-            <div>
-              <Label htmlFor="password">Mot de passe</Label>
-              <PasswordInput id="password" placeholder="Mot de passe initial" {...register("password")} />
-              <FieldError>{errors.password?.message}</FieldError>
-            </div>
-
-            <div>
-              <Label>Rôle</Label>
-              <Controller
-                control={control}
-                name="roles"
-                render={({ field }) => (
-                  <div className="flex min-h-10 flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                    {roles.map((role) => (
-                      <label key={role.name} className="flex items-center gap-1.5">
-                        <input
-                          type="radio"
-                          name="role"
-                          checked={field.value?.[0] === role.name}
-                          onChange={() => field.onChange([role.name])}
-                        />
-                        {role.label}
-                      </label>
-                    ))}
-                  </div>
-                )}
-              />
-              <FieldError>{errors.roles?.message}</FieldError>
-            </div>
-
-            <div className="sm:col-span-4">
-              <Button type="submit" loading={isSubmitting}>
-                <Plus className="size-4" /> Creer le compte
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      {error && <Alert className="mb-4">{error}</Alert>}
+      {notice && (
+        <p role="status" className="mb-4 flex items-center gap-2 text-sm text-success">
+          <Check className="size-4" aria-hidden="true" /> {notice}
+        </p>
+      )}
 
       <DataTable
         columns={columns}
         rows={data}
         rowKey={(row) => row.id}
         isLoading={isLoading}
-        exportName="Comptes du personnel"
+        exportName={t("Comptes du personnel")}
         exportAll={() => fetchAllPages((exportPage, exportPerPage) => listUsers({ page: exportPage, per_page: exportPerPage }))}
       />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
+
+      {(dialog?.kind === "create" || dialog?.kind === "edit") && (
+        <UserFormModal
+          user={dialog.kind === "edit" ? dialog.user : null}
+          roles={roles}
+          onClose={() => setDialog(null)}
+          onSaved={(saved, created) => {
+            setDialog(null);
+            setError(null);
+            setNotice(created ? t("Le compte de {name} a été créé.", { name: saved.name }) : t("Le compte de {name} a été modifié.", { name: saved.name }));
+            reload();
+          }}
+        />
+      )}
+
+      {dialog?.kind === "password" && (
+        <ResetPasswordModal
+          user={dialog.user}
+          onClose={() => setDialog(null)}
+          onDone={(done) => {
+            setDialog(null);
+            setError(null);
+            setNotice(t("Le mot de passe de {name} a été réinitialisé.", { name: done.name }));
+          }}
+        />
+      )}
     </div>
   );
 }
