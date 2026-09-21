@@ -30,6 +30,14 @@
   --accent-users: #0891b2;
   --accent-accounting: #059669;
 
+  /* Palette catégorielle des graphiques (validée : voir components/ui/charts). Ordre fixe, jamais permuté. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+
   --success: #16a34a;
   --warning: #d97706;
   --danger: #dc2626;
@@ -52,6 +60,13 @@
   --color-accent-academics: var(--accent-academics);
   --color-accent-users: var(--accent-users);
   --color-accent-accounting: var(--accent-accounting);
+
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-series-6: var(--series-6);
 
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -83,6 +98,13 @@
     --accent-users: #22d3ee;
     --accent-accounting: #34d399;
 
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+
     --success: #4ade80;
     --warning: #fbbf24;
     --danger: #f87171;
@@ -108,6 +130,13 @@
   --accent-academics: #a78bfa;
   --accent-users: #22d3ee;
   --accent-accounting: #34d399;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
 
   --success: #4ade80;
   --warning: #fbbf24;
