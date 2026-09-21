@@ -7,14 +7,14 @@ Interface Next.js (App Router) pour l'ERP Maarif : espace personnel (administrat
 ```
 src/
   app/
-    connexion/                staff login (public)
-    portail/connexion/        parent login (public)
+    login/                    staff login (public)
+    portal/login/             parent login (public)
     (staff)/                  espace personnel, protege par RequireAuth
-      tableau-de-bord/ eleves/ classes/ matieres/ trimestres/ (+ [id] : detail d'un trimestre) notes/
-      presences/ (appel de classe) absences/ discipline/ comptabilite/ (paiements, impayes, frais)
-      utilisateurs/ profil/ parametres/
-    portail/(app)/             portail parent, protege par RequireAuth
-      bulletin/ presences/ convocations/ sanctions/ scolarite/ profil/ parametres/
+      dashboard/ students/ (+ new, [id]) classes/ subjects/ terms/ (+ [id] : detail d'un trimestre) grades/
+      attendance/ (appel de classe) absences/ discipline/ (sanctions, summons) admissions/ (+ new, [id], [id]/edit)
+      accounting/ (payments, unpaid, fees) results/ notifications/ users/ profile/ settings/
+    portal/(app)/              portail parent, protege par RequireAuth
+      report-card/ attendance/ summons/ sanctions/ tuition/ results/ profile/ settings/
   components/
     ui/          design system (Button, Card, DataTable, Tabs, PeriodFilter, StatCard, ...)
     layout/      AppShell = Sidebar (groupee, reductible) + Topbar (bascule, theme, menu du profil)
