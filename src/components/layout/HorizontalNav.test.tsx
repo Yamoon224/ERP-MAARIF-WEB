@@ -16,10 +16,10 @@ const admin: StaffUser = {
   permissions: ["students.view", "academics.view", "grades.manage", "attendance.manage", "discipline.manage", "accounting.view", "users.manage", "roles.manage"],
 };
 
-function renderBar() {
+function renderBar(name = "Navigation principale") {
   render(<HorizontalNav groups={visibleGroups(STAFF_NAV, admin)} />);
 
-  return screen.getByRole("navigation", { name: "Navigation principale" });
+  return screen.getByRole("navigation", { name });
 }
 
 describe("HorizontalNav", () => {
@@ -70,7 +70,7 @@ describe("HorizontalNav", () => {
 
   it("follows the language", async () => {
     useLocaleStore.setState({ locale: "en" });
-    const bar = renderBar();
+    const bar = renderBar("Main navigation");
 
     expect(within(bar).getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
     expect(within(bar).getByRole("button", { name: "Teaching" })).toBeInTheDocument();

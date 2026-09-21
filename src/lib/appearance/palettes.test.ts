@@ -133,7 +133,6 @@ describe("applyAppearance", () => {
 
 describe("APPEARANCE_SCRIPT (applied before the first render)", () => {
   function runScript() {
-    // eslint-disable-next-line no-new-func
     new Function(APPEARANCE_SCRIPT)();
   }
 
