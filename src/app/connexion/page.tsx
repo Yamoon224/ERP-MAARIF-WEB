@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { AuthShell } from "@/components/auth/AuthShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Field";
@@ -39,7 +40,7 @@ export default function StaffLoginPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
+    <AuthShell image="/auth/admin.jpg" imageClassName="object-[35%_center]">
       <Card accent="primary" className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-lg">Connexion personnel</CardTitle>
@@ -73,6 +74,6 @@ export default function StaffLoginPage() {
           </p>
         </CardContent>
       </Card>
-    </main>
+    </AuthShell>
   );
 }
