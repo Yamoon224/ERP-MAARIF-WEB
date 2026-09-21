@@ -178,7 +178,7 @@ export function NotificationBell({ load, footer, refreshMs = 60_000 }: Notificat
               onClick={() => setOpen(false)}
               className="block border-t border-border px-4 py-2.5 text-center text-sm font-medium text-primary hover:bg-foreground/5 focus-visible:bg-foreground/5 focus-visible:outline-none"
             >
-              {footer.label}
+              {t(footer.label)}
             </Link>
           )}
         </div>
