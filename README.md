@@ -12,11 +12,12 @@ src/
     (staff)/                  espace personnel, protege par RequireAuth
       dashboard/ students/ (+ new, [id]) classes/ subjects/ terms/ (+ [id] : detail d'un trimestre) grades/
       attendance/ (appel de classe) absences/ discipline/ (sanctions, summons) admissions/ (+ new, [id], [id]/edit)
-      accounting/ (payments, unpaid, fees) results/ notifications/ users/ profile/ settings/
+      accounting/ (payments, unpaid, fees) expenses/ (new, [id], [id]/edit, categories) results/ notifications/ users/ profile/ settings/
     portal/(app)/              portail parent, protege par RequireAuth
       report-card/ attendance/ summons/ sanctions/ tuition/ results/ profile/ settings/
   components/
     ui/          design system (Button, Card, DataTable, Tabs, PeriodFilter, StatCard, ...)
+    ui/charts/   ColumnChart (barres, 1 ou plusieurs series) et DonutChart, sans bibliotheque ; palette --series-1..6 dans globals.css
     layout/      AppShell = Sidebar (groupee, reductible) + Topbar (bascule, theme, menu du profil)
     theme/       ThemeToggle, ThemeSync (themes Light / Blue Dark)
     auth/        RequireAuth (garde de route cote client)
