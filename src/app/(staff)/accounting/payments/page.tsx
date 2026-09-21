@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { MobileMoneyMonitor } from "@/components/accounting/MobileMoneyMonitor";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
@@ -115,6 +116,8 @@ export default function PaymentsPage() {
           )
         }
       />
+
+      <MobileMoneyMonitor />
 
       <PeriodFilter filter={period} className="mb-4" />
 
