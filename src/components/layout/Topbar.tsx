@@ -3,14 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { NotificationBell, type NotificationFeed } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { isNavItemActive, type NavItem } from "@/components/layout/nav";
 import { useLayoutStore } from "@/lib/layout/store";
 import { cn } from "@/lib/utils/cn";
 
+/** Cloche de notifications : ce qu'elle charge dépend de l'espace (personnel, parent) et des droits. */
+export interface TopbarNotifications {
+  load: () => Promise<NotificationFeed>;
+  footer?: { href: string; label: string };
+}
+
 interface TopbarProps {
   shortcuts?: NavItem[];
+  notifications?: TopbarNotifications;
   name: string;
   subtitle: string;
   profileHref: string;
@@ -24,13 +32,13 @@ const ICON_BUTTON =
 /**
  * Barre du haut. À gauche, le bouton qui réduit la barre latérale à ses icônes
  * (ou ouvre le menu sur mobile), puis les raccourcis vers les pages les plus
- * utilisées ; à droite, le thème et le menu du profil.
+ * utilisées ; à droite, les notifications, le thème et le menu du profil.
  *
  * Les raccourcis apparaissent dès la tablette : en icônes (libellé en
  * infobulle et pour les lecteurs d'écran), avec leur libellé sur grand écran.
  * Sur mobile la place manque, le tiroir du menu fait le travail.
  */
-export function Topbar({ shortcuts = [], name, subtitle, profileHref, settingsHref, onLogout }: TopbarProps) {
+export function Topbar({ shortcuts = [], notifications, name, subtitle, profileHref, settingsHref, onLogout }: TopbarProps) {
   const pathname = usePathname();
   const collapsed = useLayoutStore((state) => state.collapsed);
   const toggleCollapsed = useLayoutStore((state) => state.toggleCollapsed);
@@ -82,6 +90,7 @@ export function Topbar({ shortcuts = [], name, subtitle, profileHref, settingsHr
       </div>
 
       <div className="flex items-center gap-1">
+        {notifications && <NotificationBell load={notifications.load} footer={notifications.footer} />}
         <ThemeToggle />
         <UserMenu name={name} subtitle={subtitle} profileHref={profileHref} settingsHref={settingsHref} onLogout={onLogout} />
       </div>

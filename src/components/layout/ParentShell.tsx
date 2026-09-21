@@ -4,9 +4,12 @@ import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { PARENT_NAV, PARENT_SHORTCUTS, visibleGroups } from "@/components/layout/nav";
+import { loadParentFeed } from "@/components/layout/notificationSources";
 import { parentLogout } from "@/lib/api/auth";
 import type { StudentAccount } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
+
+const NOTIFICATIONS = { load: loadParentFeed, footer: { href: "/portal/tuition", label: "Voir la scolarité" } };
 
 /** Portail parent : suivi de l'élève dont le matricule a servi à la connexion. */
 export function ParentShell({ children }: { children: ReactNode }) {
@@ -25,6 +28,7 @@ export function ParentShell({ children }: { children: ReactNode }) {
 
   return (
     <AppShell
+      notifications={NOTIFICATIONS}
       groups={visibleGroups(PARENT_NAV, null)}
       shortcutHrefs={PARENT_SHORTCUTS}
       brandSubtitle="Espace parent"
