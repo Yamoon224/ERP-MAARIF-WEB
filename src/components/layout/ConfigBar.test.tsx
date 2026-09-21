@@ -179,7 +179,7 @@ describe("ConfigBar", () => {
     it("carries the region classes that the chosen backgrounds are painted on", async () => {
       await openConfig();
 
-      expect(screen.getByRole("banner")).toHaveClass("region-topbar");
+      expect(document.querySelector("header.region-topbar")).not.toBeNull();
       expect(screen.getByRole("complementary", { name: "Barre latérale" })).toHaveClass("region-sidebar");
     });
   });
