@@ -88,7 +88,7 @@ describe("StaffDashboardPage charts", () => {
     expect(screen.getByText("Fournitures scolaires").closest("li")).toHaveTextContent("63 %");
 
     // 3 000 000 encaissés - 800 000 dépensés.
-    const balance = screen.getByText("Solde").closest("div") as HTMLElement;
+    const balance = screen.getByText("Solde").parentElement?.parentElement as HTMLElement;
     expect(balance).toHaveTextContent(/2\s?200\s?000/);
   });
 

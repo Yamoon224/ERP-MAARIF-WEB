@@ -34,8 +34,9 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
   useEffect(() => {
     if (!canManage) return;
 
-    listUsers({ role: "teacher", is_active: true, per_page: 100 })
-      .then((page) => setTeachers(page.data))
+    // Filtre côté client : le serveur compare `is_active` à la chaîne « true » et ne renverrait personne.
+    listUsers({ role: "teacher", per_page: 100 })
+      .then((page) => setTeachers(page.data.filter((teacher) => teacher.is_active !== false)))
       .catch(() => setTeachers([]));
   }, [canManage]);
 
