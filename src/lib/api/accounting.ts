@@ -3,6 +3,9 @@ import type {
   AccountingSummary,
   ArrearsRow,
   PaginatedResponse,
+  MobileMoneyOperator,
+  MobileMoneyStatus,
+  MobileMoneyTransaction,
   Payment,
   PaymentMethod,
   PaymentPeriod,
@@ -91,5 +94,45 @@ export async function getMyTuition() {
 
 export async function listMyPayments(params: PeriodParams & { page?: number; per_page?: number }) {
   const { data } = await apiClient.get<PaginatedResponse<Payment>>("/parent/payments", { params });
+  return data;
+}
+
+// --- Paiement par mobile money -----------------------------------------------------
+
+export interface MobileMoneyPayload {
+  enrollment_id: string;
+  period: PaymentPeriod;
+  operator: MobileMoneyOperator;
+  phone: string;
+}
+
+/** Quels mois et quel montant pour une formule, côté parent (inscription de son enfant uniquement). */
+export async function previewMyPayment(enrollmentId: string, period: PaymentPeriod) {
+  const { data } = await apiClient.get<{ data: PaymentPreview }>("/parent/tuition/preview", {
+    params: { enrollment_id: enrollmentId, period },
+  });
+  return data.data;
+}
+
+/** Lance la demande : le parent reçoit une invite à valider sur son téléphone. Le montant est calculé par le serveur. */
+export async function startMobileMoneyPayment(payload: MobileMoneyPayload) {
+  const { data } = await apiClient.post<{ data: MobileMoneyTransaction }>("/parent/mobile-money", payload);
+  return data.data;
+}
+
+/** Sert aussi de sondage : chaque appel demande à l'opérateur où en est une demande en attente. */
+export async function getMobileMoneyPayment(id: string) {
+  const { data } = await apiClient.get<{ data: MobileMoneyTransaction }>(`/parent/mobile-money/${id}`);
+  return data.data;
+}
+
+export async function listMyMobileMoneyPayments(params: { page?: number; per_page?: number } = {}) {
+  const { data } = await apiClient.get<PaginatedResponse<MobileMoneyTransaction>>("/parent/mobile-money", { params });
+  return data;
+}
+
+/** Côté comptabilité : toutes les demandes des parents, les plus récentes d'abord. */
+export async function listMobileMoneyTransactions(params: { status?: MobileMoneyStatus; page?: number; per_page?: number } = {}) {
+  const { data } = await apiClient.get<PaginatedResponse<MobileMoneyTransaction>>("/mobile-money-transactions", { params });
   return data;
 }

@@ -7,9 +7,17 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   accent?: Accent;
 }
 
+/**
+ * Le liseret bleu est un pseudo-élément en dégradé posé sur la bordure haute
+ * (transparente) : une bordure ne peut pas porter de dégradé. Les autres
+ * domaines gardent une couleur unie, qui les distingue du bleu.
+ */
+const BLUE_TOP_BAR =
+  "border-t-transparent relative before:absolute before:-top-1 before:-inset-x-px before:h-1 before:rounded-t-md before:bg-brand before:content-['']";
+
 const accentBorderClasses: Record<Accent, string> = {
-  primary: "border-t-primary",
-  grades: "border-t-accent-grades",
+  primary: BLUE_TOP_BAR,
+  grades: BLUE_TOP_BAR,
   attendance: "border-t-accent-attendance",
   discipline: "border-t-accent-discipline",
   academics: "border-t-accent-academics",

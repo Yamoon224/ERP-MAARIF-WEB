@@ -21,6 +21,19 @@ describe("Card", () => {
     expect(screen.getByTestId("card")).toHaveClass("border-t-accent-discipline");
   });
 
+  it("draws the blue accents as a gradient bar instead of a solid border", () => {
+    render(
+      <Card data-testid="card" accent="primary">
+        Contenu
+      </Card>,
+    );
+
+    const card = screen.getByTestId("card");
+    expect(card).toHaveClass("border-t-transparent");
+    expect(card).toHaveClass("before:bg-brand");
+    expect(card).not.toHaveClass("border-t-primary");
+  });
+
   it("falls back to a neutral accent when none is provided", () => {
     render(<Card data-testid="card">Contenu</Card>);
 

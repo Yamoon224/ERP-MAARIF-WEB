@@ -59,8 +59,11 @@ export function Tabs({ tabs, active, onChange, idPrefix, className }: TabsProps)
             onClick={() => onChange(tab.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={cn(
-              "-mb-px flex shrink-0 items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",
-              isActive ? "border-primary text-primary" : "border-transparent text-muted hover:text-foreground",
+              "relative -mb-px flex shrink-0 items-center gap-2 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium transition-colors",
+              // Le trait de l'onglet actif est un pseudo-élément : une bordure ne peut pas porter de dégradé.
+              isActive
+                ? "text-primary after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand after:content-['']"
+                : "text-muted hover:text-foreground",
             )}
           >
             {tab.icon}

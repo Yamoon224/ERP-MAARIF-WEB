@@ -1,14 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="logo-title">
   <title id="logo-title">ERP Maarif</title>
   <defs>
-    <linearGradient id="bg" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#3b82f6"/>
-      <stop offset="1" stop-color="#1d4ed8"/>
+    <linearGradient id="bg" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1e40af"/>
+      <stop offset="0.55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#60a5fa"/>
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#bg)"/>
   <path d="M32 27C26.5 22.5 18.5 21.5 11 24V47C18.5 44.5 26.5 45.5 32 50Z" fill="#fff"/>
   <path d="M32 27C37.5 22.5 45.5 21.5 53 24V47C45.5 44.5 37.5 45.5 32 50Z" fill="#fff" fill-opacity=".9"/>
-  <path d="M32 27V50" stroke="#1d4ed8" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M32 27V50" stroke="#1e40af" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M32 6L34.4 11.6L40 14L34.4 16.4L32 22L29.6 16.4L24 14L29.6 11.6Z" fill="#fbbf24"/>
 </svg>

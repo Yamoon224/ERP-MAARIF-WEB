@@ -325,6 +325,35 @@ export interface Payment {
   received_by?: { id: string; name: string } | null;
 }
 
+export type MobileMoneyOperator = "orange_money" | "mtn_momo" | "moov_money";
+
+/** pending : à valider sur le téléphone · needs_review : débité mais mois déjà réglés, la comptabilité doit rembourser. */
+export type MobileMoneyStatus = "pending" | "successful" | "failed" | "expired" | "needs_review";
+
+/** Demande de paiement de scolarité par mobile money. Le paiement et son reçu n'existent qu'à la confirmation. */
+export interface MobileMoneyTransaction {
+  id: string;
+  reference: string;
+  operator: MobileMoneyOperator;
+  operator_label: string;
+  phone: string;
+  period_type: PaymentPeriod;
+  period_label: string;
+  /** Mois visés, au format `YYYY-MM`. */
+  months: string[];
+  months_count: number;
+  amount: number;
+  status: MobileMoneyStatus;
+  status_label: string;
+  failure_reason: string | null;
+  receipt_number?: string | null;
+  student?: { id: string; name: string; matricule: string } | null;
+  enrollment?: { id: string; academic_year: string; school_class: { id: string; name: string } | null };
+  expires_at: string;
+  confirmed_at: string | null;
+  created_at: string;
+}
+
 /** paid : réglé · overdue : mois terminé non réglé · due : mois en cours · upcoming : mois à venir. */
 export type InstallmentStatus = "paid" | "overdue" | "due" | "upcoming";
 
