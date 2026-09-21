@@ -2,10 +2,17 @@
 
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CircleUser, LogOut, Settings, User } from "lucide-react";
+import { ChevronsUpDown, CircleUser, LogOut, Settings, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface UserMenuProps {
+  /**
+   * `topbar` : icône ronde dont le menu s'ouvre vers le bas, aligné à droite.
+   * `sidebar` : profil épinglé en bas de la barre latérale, dont le menu s'ouvre vers le haut.
+   */
+  variant?: "topbar" | "sidebar";
+  /** Barre latérale réduite à ses icônes : seul l'avatar reste, et le menu s'ouvre à droite de la barre. */
+  collapsed?: boolean;
   name: string;
   subtitle: string;
   profileHref: string;
@@ -16,8 +23,11 @@ interface UserMenuProps {
 const ITEM_CLASS =
   "flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-foreground hover:bg-foreground/5 focus-visible:bg-foreground/5 focus-visible:outline-none";
 
-/** Icône de profil dans la barre du haut, avec un menu : Profil, Paramètres, Déconnexion. */
-export function UserMenu({ name, subtitle, profileHref, settingsHref, onLogout }: UserMenuProps) {
+/**
+ * Menu du profil : Profil, Paramètres, Déconnexion. Le même menu s'ouvre depuis l'icône de la barre du haut
+ * et depuis le profil épinglé en bas de la barre latérale ; seuls le déclencheur et le sens d'ouverture changent.
+ */
+export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle, profileHref, settingsHref, onLogout }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -55,30 +65,69 @@ export function UserMenu({ name, subtitle, profileHref, settingsHref, onLogout }
     items[next]?.focus();
   }
 
+  const isSidebar = variant === "sidebar";
+
   return (
     <div ref={containerRef} className="relative">
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label="Menu du profil"
-        onClick={() => setOpen((current) => !current)}
-        className={cn(
-          "inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors",
-          "hover:bg-foreground/5 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-          open && "bg-foreground/5 text-foreground",
-        )}
-      >
-        <CircleUser className="size-6" aria-hidden="true" />
-      </button>
+      {isSidebar ? (
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={`Menu du profil : ${name}`}
+          title={collapsed ? `${name} — Menu du profil` : undefined}
+          onClick={() => setOpen((current) => !current)}
+          className={cn(
+            "flex w-full items-center rounded-md py-2 text-left transition-colors hover:bg-foreground/5",
+            "focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+            collapsed ? "justify-center px-0" : "gap-3 px-2",
+            open && "bg-foreground/5",
+          )}
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-primary">
+            <User className="size-5" aria-hidden="true" />
+          </span>
+          {!collapsed && (
+            <>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block truncate text-sm font-medium text-foreground">{name}</span>
+                <span className="block truncate text-xs text-muted">{subtitle}</span>
+              </span>
+              <ChevronsUpDown className="size-4 shrink-0 text-muted" aria-hidden="true" />
+            </>
+          )}
+        </button>
+      ) : (
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label="Menu du profil"
+          onClick={() => setOpen((current) => !current)}
+          className={cn(
+            "inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors",
+            "hover:bg-foreground/5 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+            open && "bg-foreground/5 text-foreground",
+          )}
+        >
+          <CircleUser className="size-6" aria-hidden="true" />
+        </button>
+      )}
 
       {open && (
         <div
           role="menu"
           aria-label="Profil"
           onKeyDown={handleMenuKeyDown}
-          className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-md border border-border bg-surface py-1 shadow-lg"
+          className={cn(
+            "absolute z-50 overflow-hidden rounded-md border border-border bg-surface py-1 shadow-lg",
+            !isSidebar && "right-0 mt-2 w-60",
+            // Vers le haut, puisque le profil est collé au bas de l'écran ; à droite de la barre quand elle est réduite.
+            isSidebar && !collapsed && "bottom-full left-0 mb-2 w-full min-w-56",
+            isSidebar && collapsed && "bottom-0 left-full ml-3 w-60",
+          )}
         >
           <div className="border-b border-border px-4 py-3">
             <p className="truncate text-sm font-medium text-foreground">{name}</p>

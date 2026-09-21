@@ -78,14 +78,14 @@ describe("AppShell", () => {
 
     const sidebar = screen.getByRole("complementary", { name: "Barre latérale" });
     const nav = within(sidebar).getByRole("navigation");
-    const profile = within(sidebar).getByRole("link", { name: /Admin Maarif/ });
+    const profile = within(sidebar).getByRole("button", { name: /Admin Maarif/ });
 
     // Barre collée en haut et haute comme l'écran : elle ne défile pas avec la page.
     expect(sidebar).toHaveClass("sticky", "top-0", "h-screen");
     // Seule la navigation défile ; le profil est hors de la zone défilante.
     expect(nav).toHaveClass("overflow-y-auto");
     expect(nav).not.toContainElement(profile);
-    expect(profile).toHaveAttribute("href", "/profile");
+    expect(profile).toHaveTextContent("Administrateur");
   });
 
   it("collapses the sidebar to its icons from the button on the left of the top bar", async () => {
@@ -168,5 +168,80 @@ describe("AppShell", () => {
     await user.click(screen.getByText("Contenu de la page"));
 
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+  describe("profile at the bottom of the sidebar", () => {
+    const sidebarTrigger = () =>
+      within(screen.getByRole("complementary", { name: "Barre latérale" })).getByRole("button", { name: "Menu du profil : Admin Maarif" });
+
+    it("opens the same menu as the top bar icon, upwards", async () => {
+      const user = userEvent.setup();
+      const { onLogout } = renderShell();
+
+      expect(sidebarTrigger()).toHaveAttribute("aria-haspopup", "menu");
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+
+      await user.click(sidebarTrigger());
+
+      const menu = screen.getByRole("menu", { name: "Profil" });
+      expect(sidebarTrigger()).toHaveAttribute("aria-expanded", "true");
+      expect(menu).toHaveClass("bottom-full");
+      expect(within(menu).getByText("Admin Maarif")).toBeInTheDocument();
+      expect(within(menu).getByText("Administrateur")).toBeInTheDocument();
+      expect(within(menu).getByRole("menuitem", { name: "Profil" })).toHaveAttribute("href", "/profile");
+      expect(within(menu).getByRole("menuitem", { name: "Paramètres" })).toHaveAttribute("href", "/settings");
+
+      await user.click(within(menu).getByRole("menuitem", { name: "Déconnexion" }));
+
+      expect(onLogout).toHaveBeenCalledOnce();
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    });
+
+    it("closes with Escape and gives the focus back to the profile", async () => {
+      const user = userEvent.setup();
+      renderShell();
+
+      await user.click(sidebarTrigger());
+      expect(screen.getByRole("menuitem", { name: "Profil" })).toHaveFocus();
+
+      await user.keyboard("{Escape}");
+
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+      expect(sidebarTrigger()).toHaveFocus();
+    });
+
+    it("closes when clicking elsewhere", async () => {
+      const user = userEvent.setup();
+      renderShell();
+
+      await user.click(sidebarTrigger());
+      await user.click(screen.getByText("Contenu de la page"));
+
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    });
+
+    it("keeps working from the avatar alone when the sidebar is collapsed, opening beside the sidebar", async () => {
+      const user = userEvent.setup();
+      useLayoutStore.setState({ collapsed: true, mobileOpen: false });
+      renderShell();
+
+      expect(within(sidebarTrigger()).queryByText("Admin Maarif")).not.toBeInTheDocument();
+
+      await user.click(sidebarTrigger());
+
+      const menu = screen.getByRole("menu", { name: "Profil" });
+      expect(menu).toHaveClass("left-full");
+      expect(within(menu).getByRole("menuitem", { name: "Déconnexion" })).toBeInTheDocument();
+    });
+
+    it("leaves the top bar menu independent of the sidebar one", async () => {
+      const user = userEvent.setup();
+      renderShell();
+
+      await user.click(sidebarTrigger());
+      await user.click(screen.getByRole("button", { name: "Menu du profil" }));
+
+      expect(screen.getAllByRole("menu")).toHaveLength(1);
+      expect(screen.getByRole("menu")).toHaveClass("right-0");
+    });
   });
 });

@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, X } from "lucide-react";
+import { X } from "lucide-react";
 import { BrandMark } from "@/components/layout/Logo";
+import { UserMenu } from "@/components/layout/UserMenu";
 import { isNavItemActive, type NavGroup } from "@/components/layout/nav";
 import { useLayoutStore } from "@/lib/layout/store";
 import { cn } from "@/lib/utils/cn";
@@ -12,7 +13,10 @@ import { cn } from "@/lib/utils/cn";
 export interface SidebarProfile {
   name: string;
   subtitle: string;
+  /** Page « Profil » du menu. */
   href: string;
+  settingsHref: string;
+  onLogout: () => void | Promise<void>;
 }
 
 interface SidebarProps {
@@ -108,25 +112,15 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
       </nav>
 
       <div className="shrink-0 border-t border-border p-3">
-        <Link
-          href={profile.href}
-          title={collapsed ? `${profile.name} — Mon profil` : undefined}
-          aria-label={collapsed ? `Mon profil : ${profile.name}` : undefined}
-          className={cn(
-            "flex items-center rounded-md py-2 transition-colors hover:bg-foreground/5",
-            collapsed ? "justify-center px-0" : "gap-3 px-2",
-          )}
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-primary">
-            <User className="size-5" aria-hidden="true" />
-          </span>
-          {!collapsed && (
-            <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-medium text-foreground">{profile.name}</span>
-              <span className="block truncate text-xs text-muted">{profile.subtitle}</span>
-            </span>
-          )}
-        </Link>
+        <UserMenu
+          variant="sidebar"
+          collapsed={collapsed}
+          name={profile.name}
+          subtitle={profile.subtitle}
+          profileHref={profile.href}
+          settingsHref={profile.settingsHref}
+          onLogout={profile.onLogout}
+        />
       </div>
     </div>
   );
