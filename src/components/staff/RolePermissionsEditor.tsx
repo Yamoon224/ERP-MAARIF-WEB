@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Lock, X } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Modal } from "@/components/ui/Modal";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { getErrorMessage } from "@/lib/api/error";
 import { getRole, grantRolePermissions, revokeRolePermission, syncRolePermissions } from "@/lib/api/roles";
 import type { Permission, Role } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 interface RolePermissionsEditorProps {
   role: Role;
@@ -21,10 +22,11 @@ interface RolePermissionsEditorProps {
 
 /**
  * Attribution et retrait des permissions d'un rôle. Chaque case cochée ou décochée est enregistrée aussitôt :
- * il n'y a pas de bouton « Enregistrer » à oublier. L'administrateur, lui, garde toutes les permissions
+ * il n'y a pas de bouton « Enregistrer » à oublier. Affiché dans une fenêtre, comme les autres formulaires d'administration. L'administrateur, lui, garde toutes les permissions
  * (le serveur refuse d'y toucher) : ses cases sont cochées et verrouillées.
  */
 export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: RolePermissionsEditorProps) {
+  const { t } = useT();
   const [granted, setGranted] = useState<Set<string> | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
         if (!cancelled) setGranted(new Set(loaded.permissions ?? []));
       })
       .catch(() => {
-        if (!cancelled) setError("Impossible de charger les permissions de ce rôle.");
+        if (!cancelled) setError(t("Impossible de charger les permissions de ce rôle."));
       });
 
     return () => {
@@ -73,7 +75,7 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
       onChanged();
     } catch (failure) {
       setGranted(previous);
-      setError(getErrorMessage(failure, "Impossible d'enregistrer ce changement."));
+      setError(getErrorMessage(failure, t("Impossible d'enregistrer ce changement.")));
     } finally {
       setBusy(false);
     }
@@ -102,40 +104,34 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
   }
 
   return (
-    <Card accent="users" className="mb-6" role="region" aria-label={`Permissions du rôle ${role.label}`}>
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
-        <div>
-          <CardTitle>Permissions du rôle « {role.label} »</CardTitle>
-          <p className="mt-1 text-sm text-muted">
-            Cochez ce que ce rôle peut faire : chaque changement est enregistré immédiatement et vaut pour tous les comptes qui
-            portent ce rôle (leur menu se met à jour à leur prochaine connexion).
-          </p>
-        </div>
-        <Button type="button" variant="ghost" size="sm" aria-label="Fermer l'éditeur de permissions" onClick={onClose}>
-          <X className="size-4" />
-        </Button>
-      </CardHeader>
-
-      <CardContent className="space-y-5">
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      title={t("Permissions du rôle « {role} »", { role: t(role.label) })}
+      description={t("Cochez ce que ce rôle peut faire : chaque changement est enregistré immédiatement et vaut pour tous les comptes qui portent ce rôle (leur menu se met à jour à leur prochaine connexion).")}
+    >
+      <div className="space-y-5">
         {error && <Alert>{error}</Alert>}
 
         {isLocked && (
           <p className="flex items-center gap-2 rounded-md bg-background p-3 text-sm text-muted">
             <Lock className="size-4 shrink-0" aria-hidden="true" />
-            Le rôle Administrateur possède toutes les permissions : elles ne peuvent pas être modifiées.
+            {t("Le rôle Administrateur possède toutes les permissions : elles ne peuvent pas être modifiées.")}
           </p>
         )}
 
-        {!granted && !error && <p className="text-sm text-muted">Chargement...</p>}
+        {!granted && !error && <p className="text-sm text-muted">{t("Chargement...")}</p>}
 
         {granted &&
           groups.map(([group, { label, permissions }]) => {
             const grantedCount = permissions.filter((permission) => granted.has(permission.name)).length;
             const allGranted = grantedCount === permissions.length;
+            const groupLabel = t(label);
 
             return (
               <fieldset key={group} className="rounded-md border border-border p-4">
-                <legend className="px-2 text-sm font-semibold text-foreground">{label}</legend>
+                <legend className="px-2 text-sm font-semibold text-foreground">{groupLabel}</legend>
 
                 <div className="mb-3 flex justify-end">
                   <Button
@@ -145,7 +141,7 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
                     disabled={isLocked || busy}
                     onClick={() => setGroup(permissions, !allGranted)}
                   >
-                    {allGranted ? `Tout retirer (${label})` : `Tout attribuer (${label})`}
+                    {allGranted ? t("Tout retirer ({group})", { group: groupLabel }) : t("Tout attribuer ({group})", { group: groupLabel })}
                   </Button>
                 </div>
 
@@ -159,7 +155,7 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
                         label={
                           <span>
                             <span className="font-mono text-xs">{permission.name}</span>
-                            {permission.description && <span className="block text-xs text-muted">{permission.description}</span>}
+                            {permission.description && <span className="block text-xs text-muted">{t(permission.description)}</span>}
                           </span>
                         }
                       />
@@ -169,7 +165,13 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
               </fieldset>
             );
           })}
-      </CardContent>
-    </Card>
+
+        <div className="flex justify-end">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            {t("Fermer")}
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }

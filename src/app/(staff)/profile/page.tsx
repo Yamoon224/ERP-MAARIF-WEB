@@ -15,10 +15,12 @@ import { changeStaffPassword, updateStaffProfile } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
 import type { StaffUser } from "@/lib/api/types";
 import { roleLabel } from "@/lib/auth/roles";
+import { useT } from "@/lib/i18n/store";
 import { useAuthStore } from "@/lib/auth/store";
 import { profileSchema, type ProfileFormInput } from "@/lib/validation/profile";
 
 export default function StaffProfilePage() {
+  const { t } = useT();
   const user = useAuthStore((state) => state.user as StaffUser | null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -44,7 +46,7 @@ export default function StaffProfilePage() {
       if (token && actorType) setSession(token, actorType, updated);
       setSaved(true);
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible d'enregistrer le profil."));
+      setServerError(getErrorMessage(error, t("Impossible d'enregistrer le profil.")));
     }
   }
 
@@ -54,18 +56,15 @@ export default function StaffProfilePage() {
     <div>
       <PageHeader title="Profil" description="Vos informations de connexion et votre mot de passe." />
 
-      <div className="max-w-3xl space-y-6">
-        <Card accent="primary">
+      {/* Les deux cartes côte à côte, à hauteur égale : même disposition que la page Paramètres. */}
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <Card accent="primary" className="h-full">
           <CardHeader>
             <CardTitle>Informations personnelles</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2" noValidate>
-              {serverError && (
-                <div className="sm:col-span-2">
-                  <Alert>{serverError}</Alert>
-                </div>
-              )}
+            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+              {serverError && <Alert>{serverError}</Alert>}
 
               <div>
                 <Label htmlFor="name">Nom complet</Label>
@@ -86,23 +85,23 @@ export default function StaffProfilePage() {
               </div>
 
               <div>
-                <p className="mb-1.5 text-sm font-medium text-foreground">Rôle</p>
+                <p className="mb-1.5 text-sm font-medium text-foreground">{t("Rôle")}</p>
                 <div className="flex h-10 flex-wrap items-center gap-2">
                   {user.roles.map((role) => (
                     <Badge key={role} tone="info">
-                      {roleLabel(role)}
+                      {t(roleLabel(role))}
                     </Badge>
                   ))}
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 sm:col-span-2">
+              <div className="flex items-center gap-4">
                 <Button type="submit" loading={isSubmitting}>
-                  Enregistrer
+                  {t("Enregistrer")}
                 </Button>
                 {saved && (
                   <p role="status" className="flex items-center gap-1.5 text-sm text-success">
-                    <Check className="size-4" aria-hidden="true" /> Profil enregistré.
+                    <Check className="size-4" aria-hidden="true" /> {t("Profil enregistré.")}
                   </p>
                 )}
               </div>
@@ -110,7 +109,7 @@ export default function StaffProfilePage() {
           </CardContent>
         </Card>
 
-        <ChangePasswordCard onChange={changeStaffPassword} />
+        <ChangePasswordCard onChange={changeStaffPassword} className="h-full" />
       </div>
     </div>
   );

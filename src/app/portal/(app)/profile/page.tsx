@@ -16,13 +16,13 @@ export default function ParentProfilePage() {
     <div>
       <PageHeader title="Profil" description="Le compte du portail est celui de votre enfant : son matricule sert d'identifiant." />
 
-      <div className="max-w-3xl space-y-6">
-        <Card accent="primary">
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <Card accent="primary" className="h-full">
           <CardHeader>
             <CardTitle>Élève suivi</CardTitle>
           </CardHeader>
           <CardContent>
-            <dl className="grid gap-4 text-sm sm:grid-cols-3">
+            <dl className="grid gap-4 text-sm">
               <div>
                 <dt className="text-muted">Nom</dt>
                 <dd className="mt-0.5 font-medium text-foreground">
@@ -41,7 +41,7 @@ export default function ParentProfilePage() {
           </CardContent>
         </Card>
 
-        <ChangePasswordCard onChange={changeParentPassword} />
+        <ChangePasswordCard onChange={changeParentPassword} className="h-full" />
       </div>
     </div>
   );

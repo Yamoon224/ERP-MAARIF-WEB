@@ -3,6 +3,7 @@
 import { Monitor, Moon, PanelLeftClose, Sun } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { useT } from "@/lib/i18n/store";
 import { useLayoutStore } from "@/lib/layout/store";
 import { THEME_OPTIONS, type ThemePreference } from "@/lib/theme/theme";
 import { useTheme } from "@/lib/theme/useTheme";
@@ -12,6 +13,7 @@ const THEME_ICONS: Record<ThemePreference, typeof Sun> = { light: Sun, "blue-dar
 
 /** Préférences d'affichage, communes au personnel et aux parents : thème et barre latérale. */
 export function SettingsView() {
+  const { t } = useT();
   const { preference, setPreference } = useTheme();
   const collapsed = useLayoutStore((state) => state.collapsed);
   const setCollapsed = useLayoutStore((state) => state.setCollapsed);
@@ -20,13 +22,14 @@ export function SettingsView() {
     <div>
       <PageHeader title="Paramètres" description="Ces préférences sont enregistrées sur cet appareil." />
 
-      <div className="max-w-3xl space-y-6">
-        <Card accent="primary">
+      {/* Les deux cartes côte à côte, à hauteur égale : même disposition que la page Profil. */}
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <Card accent="primary" className="h-full">
           <CardHeader>
             <CardTitle>Thème</CardTitle>
           </CardHeader>
           <CardContent>
-            <div role="radiogroup" aria-label="Thème de l'application" className="grid gap-3 sm:grid-cols-3">
+            <div role="radiogroup" aria-label={t("Thème de l'application")} className="grid gap-3">
               {THEME_OPTIONS.map((option) => {
                 const Icon = THEME_ICONS[option.value];
                 const selected = preference === option.value;
@@ -44,9 +47,9 @@ export function SettingsView() {
                     )}
                   >
                     <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                      <Icon className="size-4" aria-hidden="true" /> {option.label}
+                      <Icon className="size-4" aria-hidden="true" /> {t(option.label)}
                     </span>
-                    <span className="mt-1 block text-xs text-muted">{option.description}</span>
+                    <span className="mt-1 block text-xs text-muted">{t(option.description)}</span>
                   </button>
                 );
               })}
@@ -54,7 +57,7 @@ export function SettingsView() {
           </CardContent>
         </Card>
 
-        <Card accent="primary">
+        <Card accent="primary" className="h-full">
           <CardHeader>
             <CardTitle>Barre latérale</CardTitle>
           </CardHeader>
@@ -68,10 +71,10 @@ export function SettingsView() {
               />
               <span className="text-sm">
                 <span className="flex items-center gap-2 font-medium text-foreground">
-                  <PanelLeftClose className="size-4" aria-hidden="true" /> Réduire la barre latérale à ses icônes
+                  <PanelLeftClose className="size-4" aria-hidden="true" /> {t("Réduire la barre latérale à ses icônes")}
                 </span>
                 <span className="mt-0.5 block text-muted">
-                  Vous pouvez aussi la réduire à tout moment avec le bouton à gauche de la barre du haut.
+                  {t("Vous pouvez aussi la réduire à tout moment avec le bouton à gauche de la barre du haut.")}
                 </span>
               </span>
             </label>

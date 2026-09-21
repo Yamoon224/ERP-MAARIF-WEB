@@ -13,15 +13,19 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import type { ApiError } from "@/lib/api/types";
 import { getErrorMessage } from "@/lib/api/error";
 import type { ChangePasswordPayload } from "@/lib/api/auth";
+import { useT } from "@/lib/i18n/store";
+import { cn } from "@/lib/utils/cn";
 import { passwordSchema, type PasswordFormInput } from "@/lib/validation/profile";
 
 interface ChangePasswordCardProps {
   /** Appel API propre à chaque espace (personnel ou parent). */
   onChange: (payload: ChangePasswordPayload) => Promise<void>;
+  className?: string;
 }
 
 /** Changement de mot de passe : l'ancien est exigé, et les autres sessions sont fermées côté serveur. */
-export function ChangePasswordCard({ onChange }: ChangePasswordCardProps) {
+export function ChangePasswordCard({ onChange, className }: ChangePasswordCardProps) {
+  const { t } = useT();
   const [serverError, setServerError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
@@ -49,21 +53,21 @@ export function ChangePasswordCard({ onChange }: ChangePasswordCardProps) {
         return;
       }
 
-      setServerError(getErrorMessage(error, "Impossible de changer le mot de passe."));
+      setServerError(getErrorMessage(error, t("Impossible de changer le mot de passe.")));
     }
   }
 
   return (
-    <Card accent="primary">
+    <Card accent="primary" className={className}>
       <CardHeader>
         <CardTitle>Mot de passe</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="max-w-md space-y-4" noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {serverError && <Alert>{serverError}</Alert>}
           {done && (
             <p role="status" className="flex items-center gap-2 text-sm text-success">
-              <Check className="size-4" aria-hidden="true" /> Mot de passe modifié. Vos autres sessions ont été fermées.
+              <Check className="size-4" aria-hidden="true" /> {t("Mot de passe modifié. Vos autres sessions ont été fermées.")}
             </p>
           )}
 
@@ -75,7 +79,7 @@ export function ChangePasswordCard({ onChange }: ChangePasswordCardProps) {
 
           <div>
             <Label htmlFor="password">Nouveau mot de passe</Label>
-            <PasswordInput id="password" autoComplete="new-password" placeholder="8 caractères minimum" {...register("password")} />
+            <PasswordInput id="password" autoComplete="new-password" placeholder={t("8 caractères minimum")} {...register("password")} />
             <FieldError>{errors.password?.message}</FieldError>
           </div>
 
@@ -86,7 +90,7 @@ export function ChangePasswordCard({ onChange }: ChangePasswordCardProps) {
           </div>
 
           <Button type="submit" loading={isSubmitting}>
-            Changer le mot de passe
+            {t("Changer le mot de passe")}
           </Button>
         </form>
       </CardContent>
