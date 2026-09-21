@@ -60,6 +60,18 @@ export interface Subject {
   coefficient: number;
 }
 
+/**
+ * Un enseignant, une matière, une classe. Une matière n'a qu'un enseignant par
+ * classe ; un enseignant en a autant qu'il enseigne de matières et de classes.
+ * `teacher` est présent dans la liste d'une classe, `school_class` dans « mes affectations ».
+ */
+export interface TeachingAssignment {
+  id: string;
+  subject: Subject;
+  teacher?: { id: string; name: string } | null;
+  school_class?: { id: string; name: string; level: string; academic_year: string };
+}
+
 export interface Term {
   id: string;
   name: string;

@@ -4,6 +4,7 @@ import type {
   PaginatedResponse,
   SchoolClass,
   Subject,
+  TeachingAssignment,
   Term,
   TermOverview,
   TermStudentRow,
@@ -29,6 +30,37 @@ export async function updateSchoolClass(id: string, payload: Partial<{ name: str
 
 export async function deleteSchoolClass(id: string) {
   await apiClient.delete(`/classes/${id}`);
+}
+
+export async function getSchoolClass(id: string) {
+  const { data } = await apiClient.get<{ data: SchoolClass }>(`/classes/${id}`);
+  return data.data;
+}
+
+// --- Affectations des enseignants ------------------------------------------
+
+/** Matières d'une classe qui ont un enseignant. */
+export async function listClassAssignments(classId: string) {
+  const { data } = await apiClient.get<{ data: TeachingAssignment[] }>(`/classes/${classId}/subjects`);
+  return data.data;
+}
+
+/** Donne la matière de la classe à cet enseignant (remplace l'éventuel enseignant actuel). */
+export async function assignTeacher(classId: string, subjectId: string, teacherId: string) {
+  const { data } = await apiClient.put<{ data: TeachingAssignment }>(`/classes/${classId}/subjects/${subjectId}`, {
+    teacher_id: teacherId,
+  });
+  return data.data;
+}
+
+export async function unassignSubject(classId: string, subjectId: string) {
+  await apiClient.delete(`/classes/${classId}/subjects/${subjectId}`);
+}
+
+/** Ce que l'utilisateur connecté enseigne : une ligne par couple classe + matière. */
+export async function listMyAssignments() {
+  const { data } = await apiClient.get<{ data: TeachingAssignment[] }>("/me/assignments");
+  return data.data;
 }
 
 // --- Matieres ------------------------------------------------------------

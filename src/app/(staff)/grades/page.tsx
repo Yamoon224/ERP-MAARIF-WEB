@@ -16,18 +16,41 @@ import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useMyAssignments } from "@/lib/hooks/useMyAssignments";
 import { useSubjectOptions } from "@/lib/hooks/useSubjectOptions";
 import { useTermOptions } from "@/lib/hooks/useTermOptions";
 import { gradeSchema, type GradeFormInput } from "@/lib/validation/grades";
 import { createGrade, deleteGrade, listGrades } from "@/lib/api/grades";
 import { getErrorMessage } from "@/lib/api/error";
-import type { Grade, Student } from "@/lib/api/types";
+import { hasPermission } from "@/lib/auth/permissions";
+import { useAuthStore } from "@/lib/auth/store";
+import type { Grade, StaffUser, Student } from "@/lib/api/types";
 
 export default function GradesPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
-  const subjects = useSubjectOptions();
-  const terms = useTermOptions();
+  const allSubjects = useSubjectOptions();
+  const allTerms = useTermOptions();
+
+  // Un enseignant ne note que ce qu'il enseigne à la classe de l'élève : le serveur
+  // l'impose, on ne propose donc que ces matières (et les trimestres de l'année de la classe).
+  // Un administrateur, lui, n'est limité par aucune affectation.
+  const isRestricted = !hasPermission(useAuthStore((state) => state.user as StaffUser | null), "academics.manage");
+  const myAssignments = useMyAssignments(isRestricted);
+  const classAssignments = useMemo(
+    () => (myAssignments ?? []).filter((assignment) => student?.school_class && assignment.school_class?.id === student.school_class.id),
+    [myAssignments, student],
+  );
+  const subjects = useMemo(() => {
+    if (!isRestricted) return allSubjects;
+    const taught = new Set(classAssignments.map((assignment) => assignment.subject.id));
+    return allSubjects.filter((subject) => taught.has(subject.id));
+  }, [isRestricted, allSubjects, classAssignments]);
+  const terms = useMemo(() => {
+    const year = classAssignments[0]?.school_class?.academic_year;
+    return isRestricted && year ? allTerms.filter((term) => term.academic_year === year) : allTerms;
+  }, [isRestricted, allTerms, classAssignments]);
+  const cannotGrade = isRestricted && myAssignments !== null && student !== null && subjects.length === 0;
 
   const period = usePeriodFilter();
   const { page, perPage, setPage, setPerPage } = usePagination(`${student?.id}|${JSON.stringify(period.params)}`);
@@ -112,6 +135,12 @@ export default function GradesPage() {
               <CardTitle>Ajouter une note</CardTitle>
             </CardHeader>
             <CardContent>
+              {cannotGrade ? (
+                <p className="text-sm text-muted">
+                  Vous n&apos;enseignez aucune matière à la classe de cet élève{student?.school_class ? ` (${student.school_class.name})` : ""} : vous ne pouvez pas
+                  lui saisir de note. Un administrateur peut vous affecter à cette classe.
+                </p>
+              ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6" noValidate>
                 {serverError && (
                   <div className="sm:col-span-3 lg:col-span-6">
@@ -176,6 +205,7 @@ export default function GradesPage() {
                   </Button>
                 </div>
               </form>
+              )}
             </CardContent>
           </Card>
         </>

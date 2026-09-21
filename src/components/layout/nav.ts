@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Megaphone,
   NotebookPen,
+  Receipt,
   School,
   ShieldAlert,
   TriangleAlert,
@@ -78,6 +79,7 @@ export const STAFF_NAV: NavGroup[] = [
       { href: "/accounting/payments", label: "Paiements", icon: HandCoins, permission: "accounting.view" },
       { href: "/accounting/unpaid", label: "Impayés", icon: TriangleAlert, permission: "accounting.view" },
       { href: "/accounting/fees", label: "Frais de scolarité", icon: Banknote, permission: "accounting.view" },
+      { href: "/expenses", label: "Dépenses", icon: Receipt, permission: "expenses.view" },
     ],
   },
   {
