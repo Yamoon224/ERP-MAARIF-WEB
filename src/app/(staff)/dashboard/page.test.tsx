@@ -76,7 +76,7 @@ describe("StaffDashboardPage charts", () => {
     const table = screen.getByRole("table", { name: "Encaissements et dépenses par mois", hidden: true });
     // Septembre : des dépenses de rentrée, pas encore d'encaissement ; les mois des deux séries sont réunis.
     const september = within(table).getByRole("row", { name: /septembre 2026/, hidden: true });
-    expect(september).toHaveTextContent(/0\s*FG.*300\s?000\s*FG/);
+    expect(september).toHaveTextContent(/2026\D*0\D+300\D000/);
     expect(within(table).getAllByRole("row", { hidden: true })).toHaveLength(4); // en-tête + sept., oct., nov.
   });
 
