@@ -207,7 +207,7 @@ export default function NewPaymentPage() {
                         onClick={() => setPeriod(option)}
                         className={cn(
                           "rounded-md border px-4 py-3 text-left transition-colors",
-                          period === option ? "border-primary bg-primary/10" : "border-border hover:bg-foreground/5",
+                          period === option ? "selected-brand" : "border-border hover:bg-foreground/5",
                         )}
                       >
                         <span className="block text-sm font-semibold text-foreground">{PAYMENT_PERIOD_LABEL[option]}</span>

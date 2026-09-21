@@ -75,7 +75,7 @@ export function PeriodFilter({ filter, modes = ["year", "term", "month"], classN
               onClick={() => filter.setMode(option.value)}
               className={cn(
                 "h-9 px-4 text-sm font-medium transition-colors",
-                mode === option.value ? "bg-primary text-primary-foreground" : "text-muted hover:bg-foreground/5 hover:text-foreground",
+                mode === option.value ? "bg-brand text-primary-foreground" : "text-muted hover:bg-foreground/5 hover:text-foreground",
               )}
             >
               {option.label}

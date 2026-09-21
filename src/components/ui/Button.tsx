@@ -13,11 +13,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-primary",
+    "bg-brand text-primary-foreground hover:brightness-110 focus-visible:outline-primary",
   secondary:
     "bg-surface text-foreground border border-border hover:bg-background focus-visible:outline-primary",
   outline:
-    "bg-transparent text-primary border border-primary hover:bg-primary/10 focus-visible:outline-primary",
+    "border border-brand text-primary hover:brightness-95 focus-visible:outline-primary",
   ghost: "bg-transparent text-foreground hover:bg-foreground/5 focus-visible:outline-primary",
   // primary-foreground (et non white) : sur le rouge clair de Blue Dark, le blanc manquerait de contraste.
   danger: "bg-danger text-primary-foreground hover:opacity-90 focus-visible:outline-danger",
@@ -37,7 +37,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         className={cn(
           // rounded-full : identite visuelle des actions dans toute l'appli.
-          "inline-flex items-center justify-center rounded-full font-medium transition-colors",
+          "inline-flex items-center justify-center rounded-full font-medium transition-[filter,background-color]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
           variantClasses[variant],

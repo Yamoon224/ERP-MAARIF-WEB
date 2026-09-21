@@ -138,7 +138,7 @@ export function AuthShell({ audience, title, subtitle, children }: AuthShellProp
                     className={cn(
                       "rounded-full py-2 text-center transition-colors",
                       "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                      active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted hover:text-foreground",
+                      active ? "bg-brand text-primary-foreground shadow-sm" : "text-muted hover:text-foreground",
                     )}
                   >
                     {item.label}

@@ -121,7 +121,7 @@ export function StudentEnrollments({ studentId, onEnrolled }: StudentEnrollments
                     key={enrollment.id}
                     className={
                       enrollment.id === selectedId
-                        ? "border-b border-border bg-primary/5 last:border-0"
+                        ? "border-b border-border bg-brand-soft last:border-0"
                         : "border-b border-border last:border-0 hover:bg-background"
                     }
                   >

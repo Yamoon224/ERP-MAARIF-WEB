@@ -295,10 +295,6 @@ body {
  * pas : dès que `scrollbar-width` est posé, Chrome ignore ::-webkit-scrollbar.
  */
 @supports selector(::-webkit-scrollbar) {
-  * {
-    scrollbar-width: auto;
-  }
-
   ::-webkit-scrollbar {
     width: 12px;
     height: 12px;

@@ -92,7 +92,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
                         className={cn(
                           "flex items-center rounded-md py-1.5 text-sm font-medium transition-colors",
                           collapsed ? "justify-center px-0" : "gap-3 px-3",
-                          isActive ? "bg-primary/10 text-primary" : "text-muted hover:bg-foreground/5 hover:text-foreground",
+                          isActive ? "bg-brand-soft text-primary" : "text-muted hover:bg-foreground/5 hover:text-foreground",
                         )}
                       >
                         <Icon className="size-5 shrink-0" aria-hidden="true" />
@@ -117,7 +117,7 @@ function SidebarContent({ groups, brandSubtitle, profile, collapsed, onClose }: 
             collapsed ? "justify-center px-0" : "gap-3 px-2",
           )}
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-primary">
             <User className="size-5" aria-hidden="true" />
           </span>
           {!collapsed && (

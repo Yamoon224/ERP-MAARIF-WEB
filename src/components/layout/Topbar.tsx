@@ -69,7 +69,7 @@ export function Topbar({ shortcuts = [], name, subtitle, profileHref, settingsHr
                   className={cn(
                     "inline-flex h-10 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors",
                     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-                    active ? "bg-primary/10 text-primary" : "text-muted hover:bg-foreground/5 hover:text-foreground",
+                    active ? "bg-brand-soft text-primary" : "text-muted hover:bg-foreground/5 hover:text-foreground",
                   )}
                 >
                   <item.icon className="size-5" aria-hidden="true" />

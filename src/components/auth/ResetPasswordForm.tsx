@@ -75,7 +75,7 @@ export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFo
         </div>
         <Link
           href={links.login}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-base font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-6 text-base font-medium text-primary-foreground transition-[filter] hover:brightness-110"
         >
           Se connecter
           <ArrowRight className="size-4" aria-hidden="true" />

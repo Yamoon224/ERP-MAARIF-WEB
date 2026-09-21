@@ -40,7 +40,7 @@ export function SettingsView() {
                     onClick={() => setPreference(option.value)}
                     className={cn(
                       "rounded-md border px-4 py-3 text-left transition-colors",
-                      selected ? "border-primary bg-primary/10" : "border-border hover:bg-foreground/5",
+                      selected ? "selected-brand" : "border-border hover:bg-foreground/5",
                     )}
                   >
                     <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
