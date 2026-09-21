@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, ClipboardCheck, Lock, Mail, NotebookPen, Wallet } from "lucide-react";
+import { ArrowRight, Lock, Mail } from "lucide-react";
 import { AuthField } from "@/components/auth/AuthField";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Field";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Alert } from "@/components/ui/Alert";
@@ -15,12 +17,6 @@ import { staffLoginSchema, type StaffLoginInput } from "@/lib/validation/auth";
 import { staffLogin } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
 import { useAuthStore } from "@/lib/auth/store";
-
-const HIGHLIGHTS = [
-  { icon: NotebookPen, label: "Notes" },
-  { icon: ClipboardCheck, label: "Présences" },
-  { icon: Wallet, label: "Scolarité" },
-];
 
 export default function StaffLoginPage() {
   const router = useRouter();
@@ -31,14 +27,14 @@ export default function StaffLoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<StaffLoginInput>({ resolver: zodResolver(staffLoginSchema) });
+  } = useForm<StaffLoginInput>({ resolver: zodResolver(staffLoginSchema), defaultValues: { remember: false } });
 
   async function onSubmit(values: StaffLoginInput) {
     setServerError(null);
 
     try {
-      const { token, user } = await staffLogin(values.email, values.password);
-      setSession(token, "staff", user);
+      const { token, user } = await staffLogin(values.email, values.password, values.remember);
+      setSession(token, "staff", user, values.remember);
       router.push("/dashboard");
     } catch (error) {
       setServerError(getErrorMessage(error, "Identifiants invalides."));
@@ -48,11 +44,6 @@ export default function StaffLoginPage() {
   return (
     <AuthShell
       audience="staff"
-      image="/auth/admin.jpg"
-      imageClassName="object-[35%_center]"
-      headline="Pilotez l'établissement, sans friction."
-      tagline="Élèves, notes, présences, discipline et scolarité réunis dans un seul espace de travail."
-      highlights={HIGHLIGHTS}
       title="Connexion"
       subtitle="Espace réservé au personnel de l'établissement. Entrez votre e-mail et votre mot de passe."
     >
@@ -79,6 +70,13 @@ export default function StaffLoginPage() {
             {...register("password")}
           />
         </AuthField>
+
+        <div className="flex items-center justify-between gap-4">
+          <Checkbox label="Se souvenir de moi" {...register("remember")} />
+          <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+            Mot de passe oublié ?
+          </Link>
+        </div>
 
         <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
           Se connecter

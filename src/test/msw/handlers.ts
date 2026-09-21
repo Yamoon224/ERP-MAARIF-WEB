@@ -54,6 +54,41 @@ export const handlers = [
     );
   }),
 
+  // Mot de passe oublié : la réponse est la même que le compte existe ou non, comme l'API.
+  http.post(`${API_URL}/forgot-password`, () =>
+    HttpResponse.json({ message: "Si un compte correspond à cette adresse, un e-mail contenant un lien de réinitialisation vient d'être envoyé." }),
+  ),
+
+  http.post(`${API_URL}/parent/forgot-password`, () =>
+    HttpResponse.json({ message: "Si ce matricule existe, un message contenant un lien de réinitialisation vient d'être envoyé au tuteur de l'élève." }),
+  ),
+
+  http.post(`${API_URL}/reset-password`, async ({ request }) => {
+    const body = (await request.json()) as { email: string; token: string };
+
+    if (body.email === "admin@maarif.test" && body.token === "jeton-valide") {
+      return new HttpResponse(null, { status: 204 });
+    }
+
+    return HttpResponse.json(
+      { message: "Ce lien de réinitialisation est invalide ou a expiré.", error_code: "validation_failed", errors: { email: ["Ce lien de réinitialisation est invalide ou a expiré."] } },
+      { status: 422 },
+    );
+  }),
+
+  http.post(`${API_URL}/parent/reset-password`, async ({ request }) => {
+    const body = (await request.json()) as { matricule: string; token: string };
+
+    if (body.matricule === "MAA-2026-000001" && body.token === "jeton-valide") {
+      return new HttpResponse(null, { status: 204 });
+    }
+
+    return HttpResponse.json(
+      { message: "Ce lien de réinitialisation est invalide ou a expiré.", error_code: "validation_failed", errors: { matricule: ["Ce lien de réinitialisation est invalide ou a expiré."] } },
+      { status: 422 },
+    );
+  }),
+
   http.get(`${API_URL}/students`, ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get("search");

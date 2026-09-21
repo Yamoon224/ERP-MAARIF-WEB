@@ -32,4 +32,39 @@ describe("ParentLoginPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Matricule ou mot de passe incorrect.");
     expect(useAuthStore.getState().token).toBeNull();
   });
+
+  it("keeps the parent's session in the tab unless 'Se souvenir de moi' is checked", async () => {
+    const user = userEvent.setup();
+    render(<ParentLoginPage />);
+
+    await user.type(screen.getByLabelText("Matricule de l'élève"), "MAA-2026-000001");
+    await user.type(screen.getByLabelText("Mot de passe"), "password");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith("/portal"));
+
+    expect(window.sessionStorage.getItem("erp-maarif-auth")).toContain("fake-parent-token");
+    expect(window.localStorage.getItem("erp-maarif-auth")).toBeNull();
+  });
+
+  it("remembers the parent's session when the box is checked", async () => {
+    const user = userEvent.setup();
+    render(<ParentLoginPage />);
+
+    await user.type(screen.getByLabelText("Matricule de l'élève"), "MAA-2026-000001");
+    await user.type(screen.getByLabelText("Mot de passe"), "password");
+    await user.click(screen.getByLabelText("Se souvenir de moi"));
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith("/portal"));
+
+    expect(window.localStorage.getItem("erp-maarif-auth")).toContain("fake-parent-token");
+    expect(window.sessionStorage.getItem("erp-maarif-auth")).toBeNull();
+  });
+
+  it("links to the password reset request", () => {
+    render(<ParentLoginPage />);
+
+    expect(screen.getByRole("link", { name: "Mot de passe oublié ?" })).toHaveAttribute("href", "/portal/forgot-password");
+  });
 });

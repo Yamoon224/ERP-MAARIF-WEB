@@ -18,6 +18,7 @@ afterEach(() => {
   // sinon d'un test de connexion au suivant via le localStorage partage.
   useAuthStore.getState().clear();
   window.localStorage.clear();
+  window.sessionStorage.clear();
   resetMockRouter();
 });
 

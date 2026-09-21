@@ -16,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
     <input
       ref={ref}
       className={cn(
-        "h-10 w-full rounded-md border border-border bg-surface px-3.5 text-sm text-foreground",
+        "h-10 w-full rounded-full border border-border bg-surface px-4 text-sm text-foreground",
         "placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
@@ -33,7 +33,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
       ref={ref}
       rows={3}
       className={cn(
-        "w-full rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground",
+        "w-full rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground",
         "placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
@@ -49,7 +49,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
     <select
       ref={ref}
       className={cn(
-        "h-10 w-full rounded-md border border-border bg-surface px-3.5 text-sm text-foreground",
+        "h-10 w-full rounded-2xl border border-border bg-surface px-4 text-sm text-foreground",
         "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,

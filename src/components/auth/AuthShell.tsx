@@ -1,58 +1,82 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type ComponentType, type ReactNode } from "react";
+import { ClipboardCheck, NotebookPen, Wallet } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { cn } from "@/lib/utils/cn";
+
+export type AuthAudience = "staff" | "parent";
 
 interface Highlight {
   icon: ComponentType<{ className?: string }>;
   label: string;
 }
 
-interface AuthShellProps {
-  /** Quel formulaire est affiché : met en avant l'onglet correspondant. */
-  audience: "staff" | "parent";
+interface AudienceContent {
   /** Photo d'ambiance du panneau de gauche, servie depuis /public/auth. */
   image: string;
   /** Recadrage : où la photo garde son sujet quand le panneau est plus haut que large. */
-  imageClassName?: string;
+  imageClassName: string;
   /** Message d'accroche superposé à la photo. */
   headline: string;
   tagline: string;
   highlights: Highlight[];
-  /** Titre et sous-titre du formulaire. */
-  title: string;
-  subtitle: string;
-  children: ReactNode;
 }
+
+/** Habillage de chaque public : le même pour la connexion, le mot de passe oublié et sa réinitialisation. */
+const CONTENT: Record<AuthAudience, AudienceContent> = {
+  staff: {
+    image: "/auth/admin.jpg",
+    imageClassName: "object-[35%_center]",
+    headline: "Pilotez l'établissement, sans friction.",
+    tagline: "Élèves, notes, présences, discipline et scolarité réunis dans un seul espace de travail.",
+    highlights: [
+      { icon: NotebookPen, label: "Notes" },
+      { icon: ClipboardCheck, label: "Présences" },
+      { icon: Wallet, label: "Scolarité" },
+    ],
+  },
+  parent: {
+    image: "/auth/parent.jpg",
+    imageClassName: "object-left",
+    headline: "La scolarité de votre enfant, en toute clarté.",
+    tagline: "Bulletins, présences, convocations et frais de scolarité, consultables à tout moment.",
+    highlights: [
+      { icon: NotebookPen, label: "Bulletins" },
+      { icon: ClipboardCheck, label: "Présences" },
+      { icon: Wallet, label: "Frais de scolarité" },
+    ],
+  },
+};
 
 const AUDIENCES = [
   { key: "staff", label: "Personnel", href: "/login" },
   { key: "parent", label: "Parents", href: "/portal/login" },
 ] as const;
 
+interface AuthShellProps {
+  /** Quel public est concerné : choisit la photo et met en avant l'onglet correspondant. */
+  audience: AuthAudience;
+  /** Titre et sous-titre du formulaire. */
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}
+
 /**
- * Mise en page commune des pages de connexion : sur grand écran, la photo
- * occupe 7 colonnes sur 12 et le formulaire les 5 autres. Sur mobile et
- * tablette la photo disparaît (et n'est pas téléchargée : image paresseuse
- * masquée), le formulaire garde toute la largeur.
+ * Mise en page commune des pages d'accès (connexion, mot de passe oublié) : sur
+ * grand écran, la photo occupe 7 colonnes sur 12 et le formulaire les 5 autres.
+ * Sur mobile et tablette la photo disparaît (et n'est pas téléchargée : image
+ * paresseuse masquée), le formulaire garde toute la largeur.
  *
  * La photo est décorative (alt vide) : le texte qui la recouvre porte
  * l'information. Le dégradé sombre est fixe, indépendant du thème, car c'est
  * lui qui garantit le contraste du texte blanc sur n'importe quelle photo.
  */
-export function AuthShell({
-  audience,
-  image,
-  imageClassName,
-  headline,
-  tagline,
-  highlights,
-  title,
-  subtitle,
-  children,
-}: AuthShellProps) {
+export function AuthShell({ audience, title, subtitle, children }: AuthShellProps) {
+  const { image, imageClassName, headline, tagline, highlights } = CONTENT[audience];
+
   return (
     <main className="grid flex-1 lg:grid-cols-12">
       <aside className="relative hidden overflow-hidden bg-slate-900 text-white lg:col-span-7 lg:block">

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, ClipboardCheck, IdCard, Lock, NotebookPen, Wallet } from "lucide-react";
+import { ArrowRight, IdCard, Lock } from "lucide-react";
 import { AuthField } from "@/components/auth/AuthField";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Field";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Alert } from "@/components/ui/Alert";
@@ -15,12 +17,6 @@ import { parentLoginSchema, type ParentLoginInput } from "@/lib/validation/auth"
 import { parentLogin } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
 import { useAuthStore } from "@/lib/auth/store";
-
-const HIGHLIGHTS = [
-  { icon: NotebookPen, label: "Bulletins" },
-  { icon: ClipboardCheck, label: "Présences" },
-  { icon: Wallet, label: "Frais de scolarité" },
-];
 
 export default function ParentLoginPage() {
   const router = useRouter();
@@ -31,14 +27,14 @@ export default function ParentLoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ParentLoginInput>({ resolver: zodResolver(parentLoginSchema) });
+  } = useForm<ParentLoginInput>({ resolver: zodResolver(parentLoginSchema), defaultValues: { remember: false } });
 
   async function onSubmit(values: ParentLoginInput) {
     setServerError(null);
 
     try {
-      const { token, student } = await parentLogin(values.matricule, values.password);
-      setSession(token, "parent", student);
+      const { token, student } = await parentLogin(values.matricule, values.password, values.remember);
+      setSession(token, "parent", student, values.remember);
       router.push("/portal");
     } catch (error) {
       setServerError(getErrorMessage(error, "Matricule ou mot de passe incorrect."));
@@ -48,11 +44,6 @@ export default function ParentLoginPage() {
   return (
     <AuthShell
       audience="parent"
-      image="/auth/parent.jpg"
-      imageClassName="object-left"
-      headline="La scolarité de votre enfant, en toute clarté."
-      tagline="Bulletins, présences, convocations et frais de scolarité, consultables à tout moment."
-      highlights={HIGHLIGHTS}
       title="Portail parent"
       subtitle="Connectez-vous avec le matricule de votre enfant. Le mot de passe vous est remis par l'établissement."
     >
@@ -78,6 +69,13 @@ export default function ParentLoginPage() {
             {...register("password")}
           />
         </AuthField>
+
+        <div className="flex items-center justify-between gap-4">
+          <Checkbox label="Se souvenir de moi" {...register("remember")} />
+          <Link href="/portal/forgot-password" className="text-sm font-medium text-primary hover:underline">
+            Mot de passe oublié ?
+          </Link>
+        </div>
 
         <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
           Se connecter
