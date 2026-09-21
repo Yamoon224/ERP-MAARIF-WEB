@@ -103,29 +103,29 @@ export default function StaffDashboardPage() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.accounting && (
                   <>
-                <StatCard
-                  label="Encaissements"
-                  value={formatMoney(stats.accounting.collected)}
-                  hint="Scolarité encaissée sur la période"
-                  icon={<Wallet className="size-4" />}
-                  accent="accounting"
-                />
-                <Link href="/accounting/unpaid" className="block">
-                  <StatCard
-                    label="Impayés"
-                    value={formatMoney(stats.accounting.arrears)}
-                    hint="Mois terminés non réglés"
-                    icon={<TriangleAlert className="size-4" />}
-                    accent="discipline"
-                    className="h-full transition-shadow hover:shadow-md"
-                  />
-                </Link>
-                <StatCard
-                  label="Taux de recouvrement"
-                  value={formatPercent(stats.accounting.recovery_rate)}
-                  hint="Réglé / dû sur les mois de la période"
-                  accent="accounting"
-                />
+                    <StatCard
+                      label="Encaissements"
+                      value={formatMoney(stats.accounting.collected)}
+                      hint="Scolarité encaissée sur la période"
+                      icon={<Wallet className="size-4" />}
+                      accent="accounting"
+                    />
+                    <Link href="/accounting/unpaid" className="block">
+                      <StatCard
+                        label="Impayés"
+                        value={formatMoney(stats.accounting.arrears)}
+                        hint="Mois terminés non réglés"
+                        icon={<TriangleAlert className="size-4" />}
+                        accent="discipline"
+                        className="h-full transition-shadow hover:shadow-md"
+                      />
+                    </Link>
+                    <StatCard
+                      label="Taux de recouvrement"
+                      value={formatPercent(stats.accounting.recovery_rate)}
+                      hint="Réglé / dû sur les mois de la période"
+                      accent="accounting"
+                    />
                   </>
                 )}
                 {stats.expenses && (
