@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { TuitionStatementView } from "@/components/accounting/TuitionStatementView";
+import { MobileMoneyPayment } from "@/components/portal/MobileMoneyPayment";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
@@ -12,8 +13,9 @@ import type { Payment, TuitionStatement } from "@/lib/api/types";
 import { formatDate, formatMoney, formatMonth } from "@/lib/utils/format";
 
 /**
- * Scolarité de l'enfant, en lecture seule : le relevé mois par mois pour
- * chaque année d'inscription, et les reçus déjà délivrés par l'établissement.
+ * Scolarité de l'enfant : le relevé mois par mois pour chaque année
+ * d'inscription, les reçus déjà délivrés, et le paiement en ligne par mobile
+ * money pour les mois restants.
  */
 export default function ParentTuitionPage() {
   const [statements, setStatements] = useState<TuitionStatement[]>([]);
@@ -32,13 +34,23 @@ export default function ParentTuitionPage() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  useEffect(() => {
+  const loadPayments = useCallback(() => {
     if (!academicYear) return;
 
     listMyPayments({ academic_year: academicYear, per_page: 100 })
       .then((page) => setPayments(page.data))
       .catch(() => setPayments([]));
   }, [academicYear]);
+
+  useEffect(loadPayments, [loadPayments]);
+
+  /** Un paiement vient d'être confirmé : le relevé (mois réglés) et les reçus changent. */
+  const handlePaid = useCallback(() => {
+    getMyTuition()
+      .then(setStatements)
+      .catch(() => undefined);
+    loadPayments();
+  }, [loadPayments]);
 
   const statement = useMemo(() => statements.find((candidate) => candidate.enrollment.academic_year === academicYear), [statements, academicYear]);
 
@@ -63,7 +75,7 @@ export default function ParentTuitionPage() {
     <div>
       <PageHeader
         title="Frais de scolarité"
-        description="La scolarité est mensuelle. Elle peut être réglée au mois, au trimestre, au semestre ou pour l'année : adressez-vous à la comptabilité de l'établissement."
+        description="La scolarité est mensuelle. Réglez-la au mois, au trimestre, au semestre ou pour l'année, en ligne par mobile money ou auprès de la comptabilité de l'établissement."
         actions={
           statements.length > 1 && (
             <label className="flex flex-col text-xs font-medium text-muted">
@@ -93,6 +105,13 @@ export default function ParentTuitionPage() {
           <p className="text-sm text-muted">
             {statement.enrollment.school_class?.name ?? "Classe non renseignée"} · {statement.enrollment.academic_year}
           </p>
+
+          <MobileMoneyPayment
+            key={statement.enrollment.id}
+            enrollmentId={statement.enrollment.id}
+            remaining={statement.totals.remaining}
+            onPaid={handlePaid}
+          />
 
           <TuitionStatementView statement={statement} />
 
