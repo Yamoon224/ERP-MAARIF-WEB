@@ -114,10 +114,13 @@ describe("RolesPage", () => {
     render(<RolesPage />);
     await screen.findByText("Secrétaire", { selector: "span" });
 
-    await user.type(screen.getByLabelText("Nouveau rôle"), "Surveillant général");
-    await user.click(screen.getByRole("button", { name: /Créer le rôle/ }));
+    await user.click(screen.getByRole("button", { name: "Nouveau rôle" }));
+    const form = screen.getByRole("dialog", { name: "Nouveau rôle" });
+    await user.type(within(form).getByLabelText("Nom du rôle"), "Surveillant général");
+    await user.click(within(form).getByRole("button", { name: "Créer le rôle" }));
 
-    expect(await screen.findByRole("region", { name: "Permissions du rôle Surveillant général" })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "Permissions du rôle « Surveillant général »" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Nouveau rôle" })).not.toBeInTheDocument();
     expect(requests).toEqual([{ method: "POST", url: "/roles", body: { name: "Surveillant général" } }]);
   });
 
@@ -126,8 +129,9 @@ describe("RolesPage", () => {
     render(<RolesPage />);
     await screen.findByText("Secrétaire", { selector: "span" });
 
-    await user.type(screen.getByLabelText("Nouveau rôle"), "A");
-    await user.click(screen.getByRole("button", { name: /Créer le rôle/ }));
+    await user.click(screen.getByRole("button", { name: "Nouveau rôle" }));
+    await user.type(screen.getByLabelText("Nom du rôle"), "A");
+    await user.click(screen.getByRole("button", { name: "Créer le rôle" }));
 
     expect(await screen.findByText("Le nom doit compter au moins 2 caractères.")).toBeInTheDocument();
     expect(requests).toEqual([]);
@@ -143,10 +147,13 @@ describe("RolesPage", () => {
     render(<RolesPage />);
     await screen.findByText("Secrétaire", { selector: "span" });
 
-    await user.type(screen.getByLabelText("Nouveau rôle"), "teacher");
-    await user.click(screen.getByRole("button", { name: /Créer le rôle/ }));
+    await user.click(screen.getByRole("button", { name: "Nouveau rôle" }));
+    await user.type(screen.getByLabelText("Nom du rôle"), "teacher");
+    await user.click(screen.getByRole("button", { name: "Créer le rôle" }));
 
     expect(await screen.findByText("Le nom du rôle est déjà utilisé.")).toBeInTheDocument();
+    // La fenêtre reste ouverte : l'utilisateur corrige le nom.
+    expect(screen.getByRole("dialog", { name: "Nouveau rôle" })).toBeInTheDocument();
   });
 
   it("renames a custom role", async () => {
@@ -155,12 +162,15 @@ describe("RolesPage", () => {
     await screen.findByText("Secrétaire", { selector: "span" });
 
     await user.click(screen.getByRole("button", { name: "Renommer Secrétaire" }));
-    const input = screen.getByLabelText("Nom de Secrétaire");
+    const form = screen.getByRole("dialog", { name: "Renommer le rôle" });
+    const input = within(form).getByLabelText("Nom du rôle");
+    expect(input).toHaveValue("Secrétaire");
     await user.clear(input);
     await user.type(input, "Secrétaire général");
-    await user.click(screen.getByRole("button", { name: "Enregistrer Secrétaire" }));
+    await user.click(within(form).getByRole("button", { name: "Enregistrer" }));
 
     expect(await screen.findByText("Secrétaire général", { selector: "span" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(requests).toEqual([{ method: "PUT", url: "/roles/r3", body: { name: "Secrétaire général" } }]);
   });
 
@@ -214,7 +224,7 @@ describe("RolesPage", () => {
       await screen.findByText(label, { selector: "span" });
       await user.click(screen.getByRole("button", { name: `Permissions de ${label}` }));
 
-      const editor = await screen.findByRole("region", { name: `Permissions du rôle ${label}` });
+      const editor = await screen.findByRole("dialog", { name: `Permissions du rôle « ${label} »` });
       await within(editor).findByRole("checkbox", { name: /students\.view/ });
 
       return { user, editor };
@@ -290,9 +300,9 @@ describe("RolesPage", () => {
     it("closes the editor", async () => {
       const { user } = await openPermissionsOf("Enseignant");
 
-      await user.click(screen.getByRole("button", { name: "Fermer l'éditeur de permissions" }));
+      await user.click(screen.getAllByRole("button", { name: "Fermer" })[0]);
 
-      expect(screen.queryByRole("region", { name: /Permissions du rôle/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
 });
