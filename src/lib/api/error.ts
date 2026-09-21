@@ -9,3 +9,12 @@ export function getErrorMessage(error: unknown, fallback = "Une erreur est surve
 
   return fallback;
 }
+
+/** Erreurs de validation du serveur, une par champ (la première de chaque liste) : `{ email: "Cette adresse est déjà utilisée." }`. */
+export function getFieldErrors(error: unknown): Record<string, string> {
+  if (!isAxiosError<ApiError>(error)) return {};
+
+  return Object.fromEntries(
+    Object.entries(error.response?.data?.errors ?? {}).flatMap(([field, messages]) => (messages[0] ? [[field, messages[0]]] : [])),
+  );
+}

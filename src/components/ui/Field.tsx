@@ -1,3 +1,5 @@
+"use client";
+
 import {
   type InputHTMLAttributes,
   type LabelHTMLAttributes,
@@ -5,6 +7,7 @@ import {
   type TextareaHTMLAttributes,
   forwardRef,
 } from "react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
@@ -63,6 +66,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
 Select.displayName = "Select";
 
 export function FieldError({ children }: { children?: string }) {
+  const { t } = useT();
+
   if (!children) return null;
-  return <p className="mt-1.5 text-xs text-danger">{children}</p>;
+  return <p className="mt-1.5 text-xs text-danger">{t(children)}</p>;
 }

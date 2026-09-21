@@ -33,6 +33,11 @@ export async function updateUser(id: string, payload: Partial<UserPayload>) {
   return data.data;
 }
 
+/** Nouveau mot de passe d'un compte, choisi par un administrateur. Les sessions du compte sont fermées. */
+export async function resetUserPassword(id: string, payload: { password: string; password_confirmation: string }) {
+  await apiClient.post(`/users/${id}/reset-password`, payload);
+}
+
 export async function deleteUser(id: string) {
   await apiClient.delete(`/users/${id}`);
 }

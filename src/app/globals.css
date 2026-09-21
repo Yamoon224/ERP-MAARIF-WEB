@@ -218,6 +218,46 @@
   background-clip: padding-box, border-box;
 }
 
+/*
+ * Fonds réglables des barres (panneau de configuration). Les variables `--sidebar-bg`, `--topbar-bg` et
+ * `--sidebar-header-bg` sont posées sur <html> avec un `data-tone-*` (voir lib/appearance/palettes.ts) ; sans
+ * réglage, les barres gardent le fond du thème.
+ *
+ * Sur un fond choisi, `data-tone` redéfinit les jetons de texte, de bordure et de surface dans la zone : tout ce
+ * qui s'y trouve (liens, icônes, menus déroulants) reste lisible sans connaître le fond, dans les deux thèmes.
+ */
+.region-sidebar {
+  background-color: var(--sidebar-bg, var(--surface));
+}
+
+.region-topbar {
+  background-color: var(--topbar-bg, var(--surface));
+}
+
+.region-sidebar-header {
+  background-color: var(--sidebar-header-bg, transparent);
+}
+
+:root[data-tone-sidebar="dark"] .region-sidebar,
+:root[data-tone-topbar="dark"] .region-topbar,
+:root[data-tone-sidebar-header="dark"] .region-sidebar-header {
+  color-scheme: dark;
+  --foreground: #e6edf8;
+  --muted: #a9b8d4;
+  --border: rgb(255 255 255 / 0.16);
+  --surface: #101c34;
+}
+
+:root[data-tone-sidebar="light"] .region-sidebar,
+:root[data-tone-topbar="light"] .region-topbar,
+:root[data-tone-sidebar-header="light"] .region-sidebar-header {
+  color-scheme: light;
+  --foreground: #101828;
+  --muted: #667085;
+  --border: #e4e7ec;
+  --surface: #ffffff;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
