@@ -141,70 +141,70 @@ export default function GradesPage() {
                   lui saisir de note. Un administrateur peut vous affecter à cette classe.
                 </p>
               ) : (
-              <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6" noValidate>
-                {serverError && (
-                  <div className="sm:col-span-3 lg:col-span-6">
-                    <Alert>{serverError}</Alert>
+                <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6" noValidate>
+                  {serverError && (
+                    <div className="sm:col-span-3 lg:col-span-6">
+                      <Alert>{serverError}</Alert>
+                    </div>
+                  )}
+
+                  <div>
+                    <Label htmlFor="subject_id">Matiere</Label>
+                    <Select id="subject_id" {...register("subject_id")}>
+                      <option value="">Choisir...</option>
+                      {subjects.map((subject) => (
+                        <option key={subject.id} value={subject.id}>
+                          {subject.name}
+                        </option>
+                      ))}
+                    </Select>
+                    <FieldError>{errors.subject_id?.message}</FieldError>
                   </div>
-                )}
 
-                <div>
-                  <Label htmlFor="subject_id">Matiere</Label>
-                  <Select id="subject_id" {...register("subject_id")}>
-                    <option value="">Choisir...</option>
-                    {subjects.map((subject) => (
-                      <option key={subject.id} value={subject.id}>
-                        {subject.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <FieldError>{errors.subject_id?.message}</FieldError>
-                </div>
+                  <div>
+                    <Label htmlFor="term_id">Trimestre</Label>
+                    <Select id="term_id" {...register("term_id")}>
+                      <option value="">Choisir...</option>
+                      {terms.map((term) => (
+                        <option key={term.id} value={term.id}>
+                          {term.name}
+                        </option>
+                      ))}
+                    </Select>
+                    <FieldError>{errors.term_id?.message}</FieldError>
+                  </div>
 
-                <div>
-                  <Label htmlFor="term_id">Trimestre</Label>
-                  <Select id="term_id" {...register("term_id")}>
-                    <option value="">Choisir...</option>
-                    {terms.map((term) => (
-                      <option key={term.id} value={term.id}>
-                        {term.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <FieldError>{errors.term_id?.message}</FieldError>
-                </div>
+                  <div>
+                    <Label htmlFor="type">Type</Label>
+                    <Select id="type" {...register("type")}>
+                      <option value="devoir">Devoir</option>
+                      <option value="composition">Composition</option>
+                    </Select>
+                  </div>
 
-                <div>
-                  <Label htmlFor="type">Type</Label>
-                  <Select id="type" {...register("type")}>
-                    <option value="devoir">Devoir</option>
-                    <option value="composition">Composition</option>
-                  </Select>
-                </div>
+                  <div>
+                    <Label htmlFor="value">Note</Label>
+                    <Input id="value" type="number" step="0.01" placeholder="14.5" {...register("value")} />
+                    <FieldError>{errors.value?.message}</FieldError>
+                  </div>
 
-                <div>
-                  <Label htmlFor="value">Note</Label>
-                  <Input id="value" type="number" step="0.01" placeholder="14.5" {...register("value")} />
-                  <FieldError>{errors.value?.message}</FieldError>
-                </div>
+                  <div>
+                    <Label htmlFor="max_value">Bareme</Label>
+                    <Input id="max_value" type="number" step="0.01" placeholder="20" {...register("max_value")} />
+                    <FieldError>{errors.max_value?.message}</FieldError>
+                  </div>
 
-                <div>
-                  <Label htmlFor="max_value">Bareme</Label>
-                  <Input id="max_value" type="number" step="0.01" placeholder="20" {...register("max_value")} />
-                  <FieldError>{errors.max_value?.message}</FieldError>
-                </div>
+                  <div>
+                    <Label htmlFor="recorded_at">Date</Label>
+                    <Input id="recorded_at" type="date" {...register("recorded_at")} />
+                  </div>
 
-                <div>
-                  <Label htmlFor="recorded_at">Date</Label>
-                  <Input id="recorded_at" type="date" {...register("recorded_at")} />
-                </div>
-
-                <div className="sm:col-span-3 lg:col-span-6">
-                  <Button type="submit" loading={isSubmitting}>
-                    <Plus className="size-4" /> Enregistrer la note
-                  </Button>
-                </div>
-              </form>
+                  <div className="sm:col-span-3 lg:col-span-6">
+                    <Button type="submit" loading={isSubmitting}>
+                      <Plus className="size-4" /> Enregistrer la note
+                    </Button>
+                  </div>
+                </form>
               )}
             </CardContent>
           </Card>
