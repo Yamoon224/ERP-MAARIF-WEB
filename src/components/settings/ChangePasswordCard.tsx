@@ -14,7 +14,6 @@ import type { ApiError } from "@/lib/api/types";
 import { getErrorMessage } from "@/lib/api/error";
 import type { ChangePasswordPayload } from "@/lib/api/auth";
 import { useT } from "@/lib/i18n/store";
-import { cn } from "@/lib/utils/cn";
 import { passwordSchema, type PasswordFormInput } from "@/lib/validation/profile";
 
 interface ChangePasswordCardProps {

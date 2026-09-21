@@ -47,6 +47,8 @@ export function RolePermissionsEditor({ role, catalog, onChanged, onClose }: Rol
     return () => {
       cancelled = true;
     };
+    // Recharger à chaque changement de langue effacerait les cases en cours de modification.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role.id]);
 
   const groups = useMemo(() => {
