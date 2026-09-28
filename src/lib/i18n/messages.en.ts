@@ -927,6 +927,77 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "au total": "in total",
   "Aucune donnée sur la période.": "No data for this period.",
   "Légende": "Legend",
+  "Sections": "Sections",
+
+  // Passage à l'année suivante (PromotionCard)
+  "Aucune année postérieure à {year} n'existe encore : créez ses trimestres et ses classes pour y réinscrire les élèves.":
+    "No year after {year} exists yet: create its terms and classes to re-enroll students there.",
+  "Réinscrit les élèves de {className} d'après leurs décisions": "Re-enrolls {className}'s students based on their",
+  "enregistrées": "recorded decisions",
+  ": les admis dans la classe supérieure, les redoublants dans la classe qu'ils répètent, les exclus ne sont pas réinscrits.":
+    ": those admitted go to the next class, repeaters to the class they're repeating, and excluded students are not re-enrolled.",
+  "Année d'accueil": "Destination year",
+  "Classe des admis": "Class for those admitted",
+  "Choisir...": "Choose...",
+  "Classe des redoublants": "Class for repeaters",
+  "Ne pas réinscrire": "Do not re-enroll",
+  "Réinscrire pour {year}": "Re-enroll for {year}",
+  "Aucune classe n'existe pour l'année {year} : créez-la d'abord dans Classes.":
+    "No class exists for the {year} year: create it first in Classes.",
+  "Aucun élève à réinscrire dans cette classe.": "No students to re-enroll in this class.",
+  "élève(s) admis réinscrit(s) en classe supérieure": "student(s) admitted, re-enrolled in the next class",
+  "redoublant(s) réinscrit(s)": "repeater(s) re-enrolled",
+  "élève(s) déjà inscrit(s) pour cette année, laissé(s) tel(s) quel(s)": "student(s) already enrolled for this year, left as is",
+  "élève(s) exclu(s), non réinscrit(s)": "excluded student(s), not re-enrolled",
+  "élève(s) inactif(s), non réinscrit(s)": "inactive student(s), not re-enrolled",
+  "élève(s) sans décision enregistrée : validez les décisions puis relancez le passage":
+    "student(s) with no recorded decision: validate the decisions then run the promotion again",
+  "redoublant(s) laissé(s) de côté : choisissez une classe de redoublement puis relancez":
+    "repeater(s) left aside: choose a repeat class then run it again",
+
+  // Inscriptions de l'élève (StudentEnrollments)
+  "On s'inscrit pour une année scolaire entière : les trois trimestres et la scolarité s'y rattachent.":
+    "Enrollment is for a whole school year: the three terms and tuition are tied to it.",
+  "Aucune inscription enregistrée.": "No enrollment recorded.",
+  "Inscrit le": "Enrolled on",
+  "Scolarité mensuelle": "Monthly tuition",
+  "Réinscrire dans une classe": "Re-enroll in a class",
+  "Inscrire": "Enroll",
+  "Scolarité {year}": "Tuition {year}",
+  "Encaisser un paiement →": "Record a payment →",
+
+  // Résultats de classe (staff, ResultsPage)
+  "Semestre": "Semester",
+  "Impossible de calculer ces résultats.": "Unable to compute these results.",
+  "Impossible d'enregistrer cette décision.": "Unable to save this decision.",
+  "Aucune décision à valider : elles sont toutes déjà enregistrées.": "No decision to validate: they are all already recorded.",
+  "{count} décision(s) enregistrée(s).": "{count} decision(s) recorded.",
+  "Impossible de valider les décisions.": "Unable to validate the decisions.",
+  "Décision pour {name}": "Decision for {name}",
+  "À décider": "To decide",
+  "Classement d'une classe par trimestre, par semestre ou sur l'année, et décisions de passage en classe supérieure.":
+    "A class's ranking by term, semester or year, and promotion decisions.",
+  "Cette année n'a pas assez de trimestres pour calculer ce semestre.": "This year does not have enough terms to compute this semester.",
+  "Moyenne de la classe": "Class average",
+  "{ranked} élève(s) classé(s) sur {students}": "{ranked} student(s) ranked out of {students}",
+  "Meilleure moyenne": "Highest average",
+  "Moyenne la plus faible": "Lowest average",
+  "Taux de réussite": "Pass rate",
+  "{passed} élève(s) à {passMark}/20 ou plus": "{passed} student(s) at {passMark}/20 or above",
+  "Valider les décisions suggérées": "Validate the suggested decisions",
+  "1er semestre (trimestres 1 et 2)": "1st semester (terms 1 and 2)",
+  "2ème semestre (trimestres 2 et 3)": "2nd semester (terms 2 and 3)",
+  "Aucune classe": "No class",
+
+  // Page d'accueil publique
+  "Le suivi scolaire, simple et en temps réel.": "School tracking, simple and in real time.",
+  "Notes, présences, discipline et scolarité réunies dans un seul espace : l'établissement et les familles partagent la même information, au même moment.":
+    "Grades, attendance, discipline and tuition brought together in one place: the school and families share the same information, at the same time.",
+  "Administrateurs et enseignants : gestion des élèves, des notes, des présences et de la discipline.":
+    "Administrators and teachers: manage students, grades, attendance and discipline.",
+  "Connectez-vous avec le matricule de votre enfant pour suivre sa scolarité.":
+    "Log in with your child's student ID to follow their schooling.",
+  "Accéder au portail": "Go to the portal",
   "Portail parent": "Parent portal",
   "Connectez-vous avec le matricule de votre enfant. Le mot de passe vous est remis par l'établissement.":
     "Log in with your child's student ID. The password is given to you by the school.",

@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore, type ActorType } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 
 interface RequireAuthProps {
   actorType: ActorType;
@@ -17,6 +18,7 @@ interface RequireAuthProps {
  * instant avant la redirection, le temps que le store persiste se rehydrate.
  */
 export function RequireAuth({ actorType, redirectTo, children }: RequireAuthProps) {
+  const { t } = useT();
   const router = useRouter();
   const token = useAuthStore((state) => state.token);
   const storedActorType = useAuthStore((state) => state.actorType);
@@ -41,7 +43,7 @@ export function RequireAuth({ actorType, redirectTo, children }: RequireAuthProp
   if (!isChecked) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted">
-        Chargement...
+        {t("Chargement...")}
       </div>
     );
   }

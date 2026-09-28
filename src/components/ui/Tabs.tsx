@@ -1,6 +1,7 @@
 "use client";
 
 import { type KeyboardEvent, type ReactNode, useRef } from "react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 export interface TabItem {
@@ -22,6 +23,7 @@ interface TabsProps {
 
 /** Onglets accessibles : flèches gauche/droite, Début et Fin déplacent la sélection. */
 export function Tabs({ tabs, active, onChange, idPrefix, className }: TabsProps) {
+  const { t } = useT();
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -40,7 +42,7 @@ export function Tabs({ tabs, active, onChange, idPrefix, className }: TabsProps)
   }
 
   return (
-    <div role="tablist" aria-label="Sections" className={cn("flex gap-1 overflow-x-auto border-b border-border", className)}>
+    <div role="tablist" aria-label={t("Sections")} className={cn("flex gap-1 overflow-x-auto border-b border-border", className)}>
       {tabs.map((tab, index) => {
         const isActive = tab.id === active;
 

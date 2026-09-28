@@ -21,15 +21,10 @@ import { getClassResults, saveDecision, validateClassDecisions } from "@/lib/api
 import type { AcademicYear, ClassResultRow, ClassResults, PromotionDecisionValue, ResultPeriodKind, SchoolClass, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { DECISION_LABEL, DECISION_TONE } from "@/lib/labels";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { formatAverage, formatPercent } from "@/lib/utils/format";
-
-const KIND_TABS = [
-  { id: "term", label: "Trimestre" },
-  { id: "semester", label: "Semestre" },
-  { id: "annual", label: "Annuel" },
-];
 
 const SEMESTERS: ReadonlyArray<{ value: 1 | 2; label: string; termsNeeded: number }> = [
   { value: 1, label: "1er semestre (trimestres 1 et 2)", termsNeeded: 2 },
@@ -43,7 +38,14 @@ const DECISIONS: PromotionDecisionValue[] = ["admitted", "repeat", "excluded"];
  * 2 = T2+T3) ou sur l'année, avec la décision de passage en fin d'année.
  */
 export default function ResultsPage() {
+  const { t } = useT();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "results.manage");
+
+  const KIND_TABS = [
+    { id: "term", label: t("Trimestre") },
+    { id: "semester", label: t("Semestre") },
+    { id: "annual", label: t("Annuel") },
+  ];
 
   const [years, setYears] = useState<AcademicYear[]>([]);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
@@ -103,7 +105,7 @@ export default function ResultsPage() {
       .catch((failure) => {
         if (cancelled) return;
         setResults(null);
-        setError(getErrorMessage(failure, "Impossible de calculer ces résultats."));
+        setError(getErrorMessage(failure, t("Impossible de calculer ces résultats.")));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -112,6 +114,7 @@ export default function ResultsPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId, isReady, kind, termId, semester, reloadToken]);
 
   const { page, perPage, setPage, setPerPage } = usePagination(`${classId}|${kind}|${termId}|${semester}`);
@@ -131,7 +134,7 @@ export default function ResultsPage() {
       await saveDecision(row.enrollment_id, value as PromotionDecisionValue);
       setReloadToken((token) => token + 1);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'enregistrer cette décision."));
+      setError(getErrorMessage(failure, t("Impossible d'enregistrer cette décision.")));
     }
   }
 
@@ -144,10 +147,14 @@ export default function ResultsPage() {
 
     try {
       const count = await validateClassDecisions(classId);
-      setNotice(count === 0 ? "Aucune décision à valider : elles sont toutes déjà enregistrées." : `${count} décision(s) enregistrée(s).`);
+      setNotice(
+        count === 0
+          ? t("Aucune décision à valider : elles sont toutes déjà enregistrées.")
+          : t("{count} décision(s) enregistrée(s).", { count }),
+      );
       setReloadToken((token) => token + 1);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de valider les décisions."));
+      setError(getErrorMessage(failure, t("Impossible de valider les décisions.")));
     } finally {
       setIsValidating(false);
     }
@@ -178,20 +185,26 @@ export default function ResultsPage() {
             render: (row: ClassResultRow) => {
               if (!canManage) {
                 if (row.decision) return <Badge tone={DECISION_TONE[row.decision.value]}>{row.decision.label}</Badge>;
-                return row.suggested_decision ? <span className="text-muted">Suggéré : {row.suggested_decision.label}</span> : "-";
+                return row.suggested_decision ? (
+                  <span className="text-muted">{t("Suggéré : {label}", { label: row.suggested_decision.label })}</span>
+                ) : (
+                  "-"
+                );
               }
 
               return (
                 <Select
-                  aria-label={`Décision pour ${row.student.name}`}
+                  aria-label={t("Décision pour {name}", { name: row.student.name })}
                   className="h-9 w-56"
                   value={row.decision?.value ?? ""}
                   onChange={(event) => handleDecision(row, event.target.value)}
                 >
-                  <option value="">{row.suggested_decision ? `Suggéré : ${row.suggested_decision.label}` : "À décider"}</option>
+                  <option value="">
+                    {row.suggested_decision ? t("Suggéré : {label}", { label: row.suggested_decision.label }) : t("À décider")}
+                  </option>
                   {DECISIONS.map((value) => (
                     <option key={value} value={value}>
-                      {DECISION_LABEL[value]}
+                      {t(DECISION_LABEL[value])}
                     </option>
                   ))}
                 </Select>
@@ -207,13 +220,13 @@ export default function ResultsPage() {
   return (
     <div>
       <PageHeader
-        title="Résultats"
-        description="Classement d'une classe par trimestre, par semestre ou sur l'année, et décisions de passage en classe supérieure."
+        title={t("Résultats")}
+        description={t("Classement d'une classe par trimestre, par semestre ou sur l'année, et décisions de passage en classe supérieure.")}
       />
 
       <div className="mb-4 flex flex-wrap items-end gap-x-4 gap-y-3 rounded-md border border-border bg-surface px-4 py-3">
         <label className="flex flex-col text-xs font-medium text-muted">
-          Année scolaire
+          {t("Année scolaire")}
           <Select
             className="mt-1 h-9 w-40"
             value={yearLabel ?? ""}
@@ -233,14 +246,14 @@ export default function ResultsPage() {
         </label>
 
         <label className="flex flex-col text-xs font-medium text-muted">
-          Classe
+          {t("Classe")}
           <Select
             className="mt-1 h-9 w-48"
             value={classId ?? ""}
             disabled={yearClasses.length === 0}
             onChange={(event) => setSelectedClassId(event.target.value)}
           >
-            {yearClasses.length === 0 && <option value="">Aucune classe</option>}
+            {yearClasses.length === 0 && <option value="">{t("Aucune classe")}</option>}
             {yearClasses.map((schoolClass) => (
               <option key={schoolClass.id} value={schoolClass.id}>
                 {schoolClass.name}
@@ -251,7 +264,7 @@ export default function ResultsPage() {
 
         {kind === "term" && (
           <label className="flex flex-col text-xs font-medium text-muted">
-            Trimestre
+            {t("Trimestre")}
             <Select className="mt-1 h-9 w-48" value={termId ?? ""} onChange={(event) => setSelectedTermId(event.target.value)}>
               {terms.map((term) => (
                 <option key={term.id} value={term.id}>
@@ -264,7 +277,7 @@ export default function ResultsPage() {
 
         {kind === "semester" && (
           <label className="flex flex-col text-xs font-medium text-muted">
-            Semestre
+            {t("Semestre")}
             <Select
               className="mt-1 h-9 w-72"
               value={semester}
@@ -272,7 +285,7 @@ export default function ResultsPage() {
             >
               {SEMESTERS.map((option) => (
                 <option key={option.value} value={option.value} disabled={terms.length < option.termsNeeded}>
-                  {option.label}
+                  {t(option.label)}
                 </option>
               ))}
             </Select>
@@ -285,12 +298,12 @@ export default function ResultsPage() {
       <TabPanel idPrefix="results" id={kind} active={kind}>
         {years.length > 0 && yearClasses.length === 0 && (
           <p className="rounded-md border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-            Aucune classe pour l&apos;année {yearLabel}.
+            {t("Aucune classe pour l'année {year}.", { year: yearLabel ?? "" })}
           </p>
         )}
 
         {kind === "semester" && !semesterAvailable && yearClasses.length > 0 && (
-          <Alert className="mb-4">Cette année n&apos;a pas assez de trimestres pour calculer ce semestre.</Alert>
+          <Alert className="mb-4">{t("Cette année n'a pas assez de trimestres pour calculer ce semestre.")}</Alert>
         )}
         {error && <Alert className="mb-4">{error}</Alert>}
         {notice && (
@@ -301,14 +314,19 @@ export default function ResultsPage() {
 
         {stats && (
           <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard accent="grades" label="Moyenne de la classe" value={formatAverage(stats.average)} hint={`${stats.ranked} élève(s) classé(s) sur ${stats.students}`} />
-            <StatCard accent="academics" label="Meilleure moyenne" value={formatAverage(stats.highest)} />
-            <StatCard accent="discipline" label="Moyenne la plus faible" value={formatAverage(stats.lowest)} />
+            <StatCard
+              accent="grades"
+              label={t("Moyenne de la classe")}
+              value={formatAverage(stats.average)}
+              hint={t("{ranked} élève(s) classé(s) sur {students}", { ranked: stats.ranked, students: stats.students })}
+            />
+            <StatCard accent="academics" label={t("Meilleure moyenne")} value={formatAverage(stats.highest)} />
+            <StatCard accent="discipline" label={t("Moyenne la plus faible")} value={formatAverage(stats.lowest)} />
             <StatCard
               accent="primary"
-              label="Taux de réussite"
+              label={t("Taux de réussite")}
               value={formatPercent(stats.pass_rate)}
-              hint={`${stats.passed} élève(s) à ${results?.pass_mark}/20 ou plus`}
+              hint={t("{passed} élève(s) à {passMark}/20 ou plus", { passed: stats.passed, passMark: results?.pass_mark ?? 0 })}
             />
           </div>
         )}
@@ -316,7 +334,7 @@ export default function ResultsPage() {
         {isAnnual && canManage && rows.length > 0 && (
           <div className="mb-4 flex justify-end">
             <Button type="button" variant="secondary" size="sm" loading={isValidating} onClick={handleValidate}>
-              <CheckCheck className="size-4" /> Valider les décisions suggérées
+              <CheckCheck className="size-4" /> {t("Valider les décisions suggérées")}
             </Button>
           </div>
         )}

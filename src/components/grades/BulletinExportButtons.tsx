@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { BulletinFormat } from "@/lib/api/grades";
+import { useT } from "@/lib/i18n/store";
 import { downloadBlob } from "@/lib/export/tableExport";
 
 interface BulletinExportButtonsProps {
@@ -16,6 +17,7 @@ interface BulletinExportButtonsProps {
 
 /** Exporter un bulletin en PDF (à remettre ou imprimer) ou en Excel (à retravailler). */
 export function BulletinExportButtons({ fileName, load, disabled }: BulletinExportButtonsProps) {
+  const { t } = useT();
   const [running, setRunning] = useState<BulletinFormat | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,14 +28,14 @@ export function BulletinExportButtons({ fileName, load, disabled }: BulletinExpo
     try {
       downloadBlob(await load(format), `${fileName}.${format}`);
     } catch {
-      setError("Le bulletin n'a pas pu être exporté. Veuillez réessayer.");
+      setError(t("Le bulletin n'a pas pu être exporté. Veuillez réessayer."));
     } finally {
       setRunning(null);
     }
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Exporter le bulletin">
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("Exporter le bulletin")}>
       {error && (
         <span role="alert" className="text-sm text-danger">
           {error}
@@ -48,7 +50,7 @@ export function BulletinExportButtons({ fileName, load, disabled }: BulletinExpo
         onClick={() => handleExport("pdf")}
       >
         {running !== "pdf" && <FileText className="size-4" aria-hidden="true" />}
-        Bulletin PDF
+        {t("Bulletin PDF")}
       </Button>
       <Button
         type="button"
@@ -59,7 +61,7 @@ export function BulletinExportButtons({ fileName, load, disabled }: BulletinExpo
         onClick={() => handleExport("xlsx")}
       >
         {running !== "xlsx" && <FileSpreadsheet className="size-4" aria-hidden="true" />}
-        Bulletin Excel
+        {t("Bulletin Excel")}
       </Button>
     </div>
   );
