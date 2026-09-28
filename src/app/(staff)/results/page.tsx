@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { StatCard } from "@/components/ui/StatCard";
 import { TabPanel, Tabs } from "@/components/ui/Tabs";
+import { GradeScaleCard } from "@/components/results/GradeScaleCard";
 import { PromotionCard } from "@/components/results/PromotionCard";
 import { formatRank } from "@/components/results/StudentResultsCard";
 import { listAcademicYears, listClassesOfYear } from "@/lib/api/academics";
@@ -333,6 +334,11 @@ export default function ResultsPage() {
 
             {isAnnual && canManage && results && rows.length > 0 && (
               <div className="mt-5">
+                <GradeScaleCard
+                  key={`scale-${results.school_class.id}`}
+                  schoolClass={results.school_class}
+                  siblingClasses={yearClasses.filter((schoolClass) => schoolClass.id !== results.school_class.id)}
+                />
                 <PromotionCard key={results.school_class.id} sourceClass={results.school_class} years={years} />
               </div>
             )}

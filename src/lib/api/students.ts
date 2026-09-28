@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import type { Enrollment, PaginatedResponse, Student } from "@/lib/api/types";
+import type { Enrollment, PaginatedResponse, Student, StudentImportResult } from "@/lib/api/types";
 
 export interface StudentListParams {
   search?: string;
@@ -49,6 +49,22 @@ export async function deleteStudent(id: string) {
 
 export async function resetStudentPassword(id: string) {
   const { data } = await apiClient.post<{ data: { initial_password: string } }>(`/students/${id}/reset-password`);
+  return data.data;
+}
+
+// --- Import en masse (migration depuis un tableur existant : CSV, Excel) --------
+
+/**
+ * Importe des élèves depuis un fichier CSV/Excel. En mode `dryRun`, rien n'est
+ * enregistré : la réponse ne sert qu'à prévisualiser ce qui serait importé et
+ * les lignes en erreur, avant confirmation.
+ */
+export async function importStudents(file: File, dryRun: boolean) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("dry_run", dryRun ? "1" : "0");
+
+  const { data } = await apiClient.post<{ data: StudentImportResult }>("/students/import", formData);
   return data.data;
 }
 

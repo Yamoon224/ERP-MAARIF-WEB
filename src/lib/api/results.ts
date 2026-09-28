@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import type {
   ClassResults,
+  GradeScaleBand,
   PromotionDecisionValue,
   PromotionSummary,
   ResultPeriodKind,
@@ -61,4 +62,29 @@ export async function promoteClass(schoolClassId: string, payload: { admitted_cl
 export async function validateClassDecisions(schoolClassId: string) {
   const { data } = await apiClient.post<{ data: { validated: number } }>(`/classes/${schoolClassId}/decisions/validate`);
   return data.data.validated;
+}
+
+// --- Barème de passage et d'appréciation (configurable par classe) --------------
+
+export interface GradeScaleBandInput {
+  min_average: number;
+  max_average: number;
+  label: string;
+  decision: PromotionDecisionValue | null;
+}
+
+export async function getGradeScale(schoolClassId: string) {
+  const { data } = await apiClient.get<{ data: GradeScaleBand[] }>(`/classes/${schoolClassId}/grade-scale`);
+  return data.data;
+}
+
+/** Remplace entièrement le barème de la classe par ces tranches (triées ou non, sans chevauchement). */
+export async function saveGradeScale(schoolClassId: string, bands: GradeScaleBandInput[]) {
+  const { data } = await apiClient.put<{ data: GradeScaleBand[] }>(`/classes/${schoolClassId}/grade-scale`, { bands });
+  return data.data;
+}
+
+/** Copie le barème de cette classe vers d'autres, pour ne pas le ressaisir classe par classe. */
+export async function duplicateGradeScale(schoolClassId: string, targetClassIds: string[]) {
+  await apiClient.post(`/classes/${schoolClassId}/grade-scale/duplicate`, { target_class_ids: targetClassIds });
 }

@@ -123,6 +123,28 @@ export interface Student {
   created_at?: string;
 }
 
+// --- Import en masse d'élèves (migration depuis un tableur) ---------------------
+
+export interface StudentImportError {
+  row: number;
+  messages: string[];
+}
+
+export interface StudentImportStudent {
+  matricule: string;
+  name: string;
+  initial_password: string;
+}
+
+export interface StudentImportResult {
+  total: number;
+  valid: number;
+  invalid: number;
+  dry_run: boolean;
+  errors: StudentImportError[];
+  students: StudentImportStudent[];
+}
+
 export type GradeType = "devoir" | "composition";
 
 export interface Grade {
@@ -555,6 +577,15 @@ export interface SavedDecision extends SuggestedDecision {
   note: string | null;
   average: number | null;
   decided_at: string;
+}
+
+/** Tranche du barème de passage et d'appréciation d'une classe (ex. [02–09] → « Redouble »). */
+export interface GradeScaleBand {
+  id: string;
+  min_average: number;
+  max_average: number;
+  label: string;
+  decision: SuggestedDecision | null;
 }
 
 export interface ClassResultRow {

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { GraduationCap, Plus } from "lucide-react";
+import { GraduationCap, Plus, Upload } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -69,11 +69,18 @@ export default function StudentsPage() {
           <h1 className="text-xl font-semibold text-foreground">Eleves</h1>
           <p className="mt-1 text-sm text-muted">Dossiers, matricules et affectation aux classes.</p>
         </div>
-        <Link href="/students/new">
-          <Button>
-            <Plus className="size-4" /> Inscrire un eleve
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/students/import">
+            <Button variant="secondary">
+              <Upload className="size-4" /> Importer
+            </Button>
+          </Link>
+          <Link href="/students/new">
+            <Button>
+              <Plus className="size-4" /> Inscrire un eleve
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
