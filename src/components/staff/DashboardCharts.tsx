@@ -50,7 +50,8 @@ export function DashboardCharts({ stats }: { stats: DashboardStats }) {
   const { t } = useT();
   const money = monthlyMoney(stats, t);
   const hasMoney = money.series.length > 0 && money.data.length > 0;
-  const formatCount = (count: number) => t("{count} élève(s)", { count: count.toLocaleString("fr-FR") });
+  const formatCount = (count: number) =>
+    t(count > 1 ? "{count} élèves" : "{count} élève", { count: count.toLocaleString("fr-FR") });
 
   // Présents, absents, retards : la couleur suit la catégorie (jamais son rang), pour ne pas changer d'une période à l'autre.
   const attendance: Slice[] = [

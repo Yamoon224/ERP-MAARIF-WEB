@@ -20,8 +20,10 @@ import { schoolClassSchema, type SchoolClassFormInput } from "@/lib/validation/a
 import { createSchoolClass, deleteSchoolClass, listSchoolClasses } from "@/lib/api/academics";
 import { getErrorMessage } from "@/lib/api/error";
 import type { SchoolClass, StaffUser } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 export default function SchoolClassesPage() {
+  const { t } = useT();
   const [serverError, setServerError] = useState<string | null>(null);
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "academics.manage");
 
@@ -64,7 +66,7 @@ export default function SchoolClassesPage() {
       reset();
       reload();
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible de creer cette classe."));
+      setServerError(getErrorMessage(error, t("Impossible de créer cette classe.")));
     }
   }
 
@@ -84,7 +86,7 @@ export default function SchoolClassesPage() {
       ),
     },
     { key: "level", header: "Niveau", render: (row) => row.level },
-    { key: "year", header: "Annee scolaire", render: (row) => row.academic_year },
+    { key: "year", header: "Année scolaire", render: (row) => row.academic_year },
     { key: "students", header: "Effectif", render: (row) => row.students_count ?? "—" },
     { key: "teacher", header: "Titulaire", render: (row) => row.main_teacher?.name ?? "—" },
     ...(canManage
@@ -93,7 +95,7 @@ export default function SchoolClassesPage() {
             key: "actions",
             header: "",
             render: (row: SchoolClass) => (
-              <button onClick={() => handleDelete(row)} aria-label="Supprimer la classe" className="text-muted hover:text-danger">
+              <button onClick={() => handleDelete(row)} aria-label={t("Supprimer la classe")} className="text-muted hover:text-danger">
                 <Trash2 className="size-4" />
               </button>
             ),
@@ -104,7 +106,7 @@ export default function SchoolClassesPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-foreground">Classes</h1>
+      <h1 className="mb-6 text-xl font-semibold text-foreground">{t("Classes")}</h1>
 
       {canManage && (
         <Card accent="academics" className="mb-6">
@@ -132,14 +134,14 @@ export default function SchoolClassesPage() {
               </div>
 
               <div>
-                <Label htmlFor="academic_year">Annee scolaire</Label>
+                <Label htmlFor="academic_year">Année scolaire</Label>
                 <Input id="academic_year" placeholder="2025-2026" {...register("academic_year")} />
                 <FieldError>{errors.academic_year?.message}</FieldError>
               </div>
 
               <div className="flex items-end">
                 <Button type="submit" loading={isSubmitting} className="w-full">
-                  <Plus className="size-4" /> Creer
+                  <Plus className="size-4" /> {t("Créer")}
                 </Button>
               </div>
             </form>

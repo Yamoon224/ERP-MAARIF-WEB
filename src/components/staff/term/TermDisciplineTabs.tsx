@@ -8,6 +8,7 @@ import { listSanctions, listSummons } from "@/lib/api/discipline";
 import type { Sanction, Summon } from "@/lib/api/types";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import { SUMMON_LABEL, SUMMON_TONE } from "@/lib/labels";
 import { formatDate, formatDateTime } from "@/lib/utils/format";
 
@@ -35,6 +36,7 @@ export function TermSanctionsTab({ termId }: { termId: string }) {
 
 /** Convocations prévues pendant le trimestre. */
 export function TermSummonsTab({ termId }: { termId: string }) {
+  const { t } = useT();
   const { page, perPage, setPage, setPerPage } = usePagination(termId);
   const fetcher = useMemo(() => () => listSummons({ term_id: termId, page, per_page: perPage }), [termId, page, perPage]);
   const { data, meta, isLoading } = usePaginatedResource(fetcher, [termId, page, perPage]);
@@ -43,7 +45,7 @@ export function TermSummonsTab({ termId }: { termId: string }) {
     { key: "student", header: "Élève", render: (row) => row.student.name },
     { key: "reason", header: "Motif", render: (row) => row.reason },
     { key: "date", header: "Date prévue", render: (row) => formatDateTime(row.scheduled_at) },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={SUMMON_TONE[row.status]}>{SUMMON_LABEL[row.status]}</Badge> },
+    { key: "status", header: "Statut", render: (row) => <Badge tone={SUMMON_TONE[row.status]}>{t(SUMMON_LABEL[row.status])}</Badge> },
   ];
 
   return (

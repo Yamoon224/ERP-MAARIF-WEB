@@ -5,6 +5,7 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { listStudents } from "@/lib/api/students";
 import type { Student } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 interface StudentPickerProps {
   selected: Student | null;
@@ -14,6 +15,7 @@ interface StudentPickerProps {
 
 /** Recherche d'un eleve par nom ou matricule, utilisee partout ou une action doit cibler un seul eleve (notes, presences, discipline). */
 export function StudentPicker({ selected, onSelect, onClear }: StudentPickerProps) {
+  const { t } = useT();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Student[]>([]);
   const debouncedQuery = useDebouncedValue(query);
@@ -46,7 +48,7 @@ export function StudentPicker({ selected, onSelect, onClear }: StudentPickerProp
           }}
           className="text-sm font-medium text-primary hover:underline"
         >
-          Changer
+          {t("Changer")}
         </button>
       </div>
     );
@@ -54,7 +56,7 @@ export function StudentPicker({ selected, onSelect, onClear }: StudentPickerProp
 
   return (
     <div className="relative">
-      <SearchInput value={query} onChange={setQuery} placeholder="Rechercher un eleve par nom ou matricule..." />
+      <SearchInput value={query} onChange={setQuery} placeholder={t("Rechercher un élève par nom ou matricule...")} />
       {results.length > 0 && (
         <ul className="absolute z-10 mt-1 w-full max-w-sm overflow-hidden rounded-md border border-border bg-surface shadow-lg">
           {results.map((student) => (

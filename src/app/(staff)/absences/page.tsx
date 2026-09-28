@@ -26,6 +26,7 @@ import type { AttendanceRecord, AttendanceStatus, AttendanceSummary, Student } f
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import { ATTENDANCE_LABEL, ATTENDANCE_SOURCE_LABEL, ATTENDANCE_TONE } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
@@ -47,6 +48,7 @@ interface Editing {
  * L'appel de toute une classe se fait dans « Présences ».
  */
 export default function AbsencesPage() {
+  const { t } = useT();
   const period = usePeriodFilter();
   const classes = useSchoolClassOptions();
 
@@ -110,7 +112,7 @@ export default function AbsencesPage() {
       setEditing(null);
       refresh();
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de modifier cette absence."));
+      setError(getErrorMessage(failure, t("Impossible de modifier cette absence.")));
     }
   }
 
@@ -121,7 +123,7 @@ export default function AbsencesPage() {
       await deleteAttendance(record.id);
       refresh();
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de supprimer ce pointage."));
+      setError(getErrorMessage(failure, t("Impossible de supprimer ce pointage.")));
     }
   }
 
@@ -136,8 +138,8 @@ export default function AbsencesPage() {
         </Link>
       ),
     },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={ATTENDANCE_TONE[row.status]}>{ATTENDANCE_LABEL[row.status]}</Badge> },
-    { key: "source", header: "Origine", render: (row) => <span className="text-xs text-muted">{ATTENDANCE_SOURCE_LABEL[row.source]}</span> },
+    { key: "status", header: "Statut", render: (row) => <Badge tone={ATTENDANCE_TONE[row.status]}>{t(ATTENDANCE_LABEL[row.status])}</Badge> },
+    { key: "source", header: "Origine", render: (row) => <span className="text-xs text-muted">{t(ATTENDANCE_SOURCE_LABEL[row.source])}</span> },
     {
       key: "justified",
       header: "Justification",
@@ -145,9 +147,9 @@ export default function AbsencesPage() {
         row.status === "present" ? (
           "—"
         ) : row.justified ? (
-          <Badge tone="success">Justifiée</Badge>
+          <Badge tone="success">{t("Justifiée")}</Badge>
         ) : (
-          <Badge tone="warning">Non justifiée</Badge>
+          <Badge tone="warning">{t("Non justifiée")}</Badge>
         ),
     },
     {
@@ -157,22 +159,22 @@ export default function AbsencesPage() {
         editing?.id === row.id ? (
           <div className="flex items-center gap-2">
             <Input
-              aria-label="Motif de la justification"
+              aria-label={t("Motif de la justification")}
               className="h-8 min-w-48"
               autoFocus
               value={editing.reason}
               maxLength={255}
-              placeholder="Certificat médical, appel du parent..."
+              placeholder={t("Certificat médical, appel du parent...")}
               onChange={(event) => setEditing({ id: row.id, reason: event.target.value })}
               onKeyDown={(event) => {
                 if (event.key === "Enter") saveJustification(row, true, editing.reason);
                 if (event.key === "Escape") setEditing(null);
               }}
             />
-            <Button size="sm" onClick={() => saveJustification(row, true, editing.reason)} aria-label="Valider la justification">
+            <Button size="sm" onClick={() => saveJustification(row, true, editing.reason)} aria-label={t("Valider la justification")}>
               <Check className="size-4" />
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => setEditing(null)} aria-label="Annuler">
+            <Button size="sm" variant="secondary" onClick={() => setEditing(null)} aria-label={t("Annuler")}>
               <X className="size-4" />
             </Button>
           </div>
@@ -192,7 +194,7 @@ export default function AbsencesPage() {
                 onClick={() => saveJustification(row, false, row.reason ?? "")}
                 className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground"
               >
-                <ShieldOff className="size-4" aria-hidden="true" /> Retirer
+                <ShieldOff className="size-4" aria-hidden="true" /> {t("Retirer")}
               </button>
             ) : (
               <button
@@ -200,10 +202,10 @@ export default function AbsencesPage() {
                 onClick={() => setEditing({ id: row.id, reason: row.reason ?? "" })}
                 className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
-                <ShieldCheck className="size-4" aria-hidden="true" /> Justifier
+                <ShieldCheck className="size-4" aria-hidden="true" /> {t("Justifier")}
               </button>
             )}
-            <button type="button" onClick={() => handleDelete(row)} aria-label="Supprimer ce pointage" className="text-muted hover:text-danger">
+            <button type="button" onClick={() => handleDelete(row)} aria-label={t("Supprimer ce pointage")} className="text-muted hover:text-danger">
               <Trash2 className="size-4" />
             </button>
           </div>
@@ -216,11 +218,11 @@ export default function AbsencesPage() {
   return (
     <div>
       <PageHeader
-        title="Absences"
-        description="Suivi, justification et signalement des absences et retards."
+        title={t("Absences")}
+        description={t("Suivi, justification et signalement des absences et retards.")}
         actions={
           <Link href="/attendance">
-            <Button variant="secondary">Faire l&apos;appel d&apos;une classe</Button>
+            <Button variant="secondary">{t("Faire l'appel d'une classe")}</Button>
           </Link>
         }
       />
@@ -229,13 +231,18 @@ export default function AbsencesPage() {
 
       {summary && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Absences" value={summary.absent} hint={`${summary.justified_absences} justifiée(s)`} accent="attendance" />
-          <StatCard label="Non justifiées" value={summary.unjustified_absences} hint="À régulariser" accent="discipline" />
-          <StatCard label="Retards" value={summary.late} accent="attendance" />
           <StatCard
-            label="Taux de présence"
+            label={t("Absences")}
+            value={summary.absent}
+            hint={t("{count} justifiée(s)", { count: summary.justified_absences })}
+            accent="attendance"
+          />
+          <StatCard label={t("Non justifiées")} value={summary.unjustified_absences} hint={t("À régulariser")} accent="discipline" />
+          <StatCard label={t("Retards")} value={summary.late} accent="attendance" />
+          <StatCard
+            label={t("Taux de présence")}
             value={pointed > 0 ? formatPercent((summary.present / pointed) * 100) : "—"}
-            hint={`${pointed} pointage(s) sur la période`}
+            hint={t("{count} pointage(s) sur la période", { count: pointed })}
             accent="grades"
           />
         </div>
@@ -245,25 +252,25 @@ export default function AbsencesPage() {
         <div className="lg:col-span-2">
           <div className="mb-4 flex flex-wrap items-end gap-3">
             <label className="flex flex-col text-xs font-medium text-muted">
-              Type
+              {t("Type")}
               <Select className="mt-1 h-9 w-40" value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
-                <option value="absent">Absences</option>
-                <option value="retard">Retards</option>
-                <option value="">Tous les statuts</option>
+                <option value="absent">{t("Absences")}</option>
+                <option value="retard">{t("Retards")}</option>
+                <option value="">{t("Tous les statuts")}</option>
               </Select>
             </label>
             <label className="flex flex-col text-xs font-medium text-muted">
-              Justification
+              {t("Justification")}
               <Select className="mt-1 h-9 w-44" value={justified} onChange={(event) => setJustified(event.target.value as JustifiedFilter)}>
-                <option value="">Toutes</option>
-                <option value="0">Non justifiées</option>
-                <option value="1">Justifiées</option>
+                <option value="">{t("Toutes")}</option>
+                <option value="0">{t("Non justifiées")}</option>
+                <option value="1">{t("Justifiées")}</option>
               </Select>
             </label>
             <label className="flex flex-col text-xs font-medium text-muted">
-              Classe
+              {t("Classe")}
               <Select className="mt-1 h-9 w-44" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
-                <option value="">Toutes les classes</option>
+                <option value="">{t("Toutes les classes")}</option>
                 {classes
                   .filter((schoolClass) => !period.year || schoolClass.academic_year === period.year.label)
                   .map((schoolClass) => (
@@ -298,7 +305,7 @@ export default function AbsencesPage() {
             </CardHeader>
             <CardContent>
               {!summary || summary.top_absentees.length === 0 ? (
-                <p className="text-sm text-muted">Aucune absence sur la période.</p>
+                <p className="text-sm text-muted">{t("Aucune absence sur la période.")}</p>
               ) : (
                 <ol className="space-y-2.5">
                   {summary.top_absentees.map((entry, index) => (
@@ -310,8 +317,8 @@ export default function AbsencesPage() {
                         </Link>
                       </span>
                       <span className="shrink-0 text-right text-xs text-muted">
-                        {entry.absences} abs. ({entry.unjustified} non just.)
-                        {entry.lates > 0 && <> · {entry.lates} ret.</>}
+                        {t("{count} abs. ({unjustified} non just.)", { count: entry.absences, unjustified: entry.unjustified })}
+                        {entry.lates > 0 && <> · {t("{count} ret.", { count: entry.lates })}</>}
                       </span>
                     </li>
                   ))}
@@ -329,6 +336,7 @@ export default function AbsencesPage() {
 
 /** Signalement d'une absence ou d'un retard isolé, hors appel de classe (ex. appel du parent le matin). */
 function ReportAbsenceCard({ onSaved }: { onSaved: () => void }) {
+  const { t } = useT();
   const [student, setStudent] = useState<Student | null>(null);
   const [date, setDate] = useState(() => today());
   const [status, setStatus] = useState<Exclude<AttendanceStatus, "present">>("absent");
@@ -346,12 +354,18 @@ function ReportAbsenceCard({ onSaved }: { onSaved: () => void }) {
 
     try {
       await recordAttendance({ student_id: student.id, date, status, justified, reason: reason || null });
-      setMessage({ tone: "success", text: `${status === "absent" ? "Absence" : "Retard"} enregistré(e) pour ${student.first_name} ${student.last_name}.` });
+      setMessage({
+        tone: "success",
+        text:
+          status === "absent"
+            ? t("Absence enregistrée pour {student}.", { student: `${student.first_name} ${student.last_name}` })
+            : t("Retard enregistré pour {student}.", { student: `${student.first_name} ${student.last_name}` }),
+      });
       setReason("");
       setJustified(false);
       onSaved();
     } catch (failure) {
-      setMessage({ tone: "error", text: getErrorMessage(failure, "Impossible d'enregistrer ce pointage.") });
+      setMessage({ tone: "error", text: getErrorMessage(failure, t("Impossible d'enregistrer ce pointage.")) });
     } finally {
       setIsSaving(false);
     }

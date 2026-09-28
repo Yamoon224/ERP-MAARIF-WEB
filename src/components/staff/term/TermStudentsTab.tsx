@@ -13,10 +13,12 @@ import type { Bulletin, SchoolClass, Term, TermStudentRow } from "@/lib/api/type
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import { formatAverage } from "@/lib/utils/format";
 
 /** Détail des notes d'un élève pour le trimestre : le bulletin, déplié sous sa ligne. */
 function StudentBulletin({ studentId, termId }: { studentId: string; termId: string }) {
+  const { t } = useT();
   const [bulletin, setBulletin] = useState<Bulletin | null | undefined>(undefined);
 
   useEffect(() => {
@@ -25,17 +27,17 @@ function StudentBulletin({ studentId, termId }: { studentId: string; termId: str
       .catch(() => setBulletin(null));
   }, [studentId, termId]);
 
-  if (bulletin === undefined) return <p className="text-sm text-muted">Chargement des notes...</p>;
-  if (!bulletin || bulletin.subjects.length === 0) return <p className="text-sm text-muted">Aucune note pour ce trimestre.</p>;
+  if (bulletin === undefined) return <p className="text-sm text-muted">{t("Chargement des notes...")}</p>;
+  if (!bulletin || bulletin.subjects.length === 0) return <p className="text-sm text-muted">{t("Aucune note pour ce trimestre.")}</p>;
 
   return (
     <table className="w-full max-w-xl text-left text-sm">
       <thead>
         <tr className="text-xs tracking-wide text-muted uppercase">
-          <th className="py-1 font-medium">Matière</th>
-          <th className="py-1 font-medium">Coefficient</th>
-          <th className="py-1 font-medium">Notes</th>
-          <th className="py-1 font-medium">Moyenne</th>
+          <th className="py-1 font-medium">{t("Matière")}</th>
+          <th className="py-1 font-medium">{t("Coefficient")}</th>
+          <th className="py-1 font-medium">{t("Notes")}</th>
+          <th className="py-1 font-medium">{t("Moyenne")}</th>
         </tr>
       </thead>
       <tbody>
@@ -49,7 +51,7 @@ function StudentBulletin({ studentId, termId }: { studentId: string; termId: str
         ))}
         <tr className="border-t border-border font-semibold">
           <td className="py-1" colSpan={3}>
-            Moyenne générale
+            {t("Moyenne générale")}
           </td>
           <td className="py-1">{formatAverage(bulletin.overall_average)}</td>
         </tr>
@@ -60,6 +62,7 @@ function StudentBulletin({ studentId, termId }: { studentId: string; termId: str
 
 /** Élèves inscrits pour l'année du trimestre, avec leur moyenne et leurs absences sur le trimestre. */
 export function TermStudentsTab({ term }: { term: Term }) {
+  const { t } = useT();
   const [search, setSearch] = useState("");
   const [schoolClassId, setSchoolClassId] = useState("");
   const [classes, setClasses] = useState<SchoolClass[]>([]);
@@ -88,9 +91,9 @@ export function TermStudentsTab({ term }: { term: Term }) {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un élève, un matricule..." />
-        <Select aria-label="Classe" className="h-10 w-48" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
-          <option value="">Toutes les classes</option>
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Rechercher un élève, un matricule...")} />
+        <Select aria-label={t("Classe")} className="h-10 w-48" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
+          <option value="">{t("Toutes les classes")}</option>
           {classes.map((schoolClass) => (
             <option key={schoolClass.id} value={schoolClass.id}>
               {schoolClass.name}
@@ -104,11 +107,11 @@ export function TermStudentsTab({ term }: { term: Term }) {
           <thead>
             <tr className="border-b border-border text-xs tracking-wide text-muted uppercase">
               <th className="w-10 px-4 py-3" />
-              <th className="px-4 py-3 font-medium">Matricule</th>
-              <th className="px-4 py-3 font-medium">Élève</th>
-              <th className="px-4 py-3 font-medium">Classe</th>
-              <th className="px-4 py-3 font-medium">Moyenne</th>
-              <th className="px-4 py-3 font-medium">Absences</th>
+              <th className="px-4 py-3 font-medium">{t("Matricule")}</th>
+              <th className="px-4 py-3 font-medium">{t("Élève")}</th>
+              <th className="px-4 py-3 font-medium">{t("Classe")}</th>
+              <th className="px-4 py-3 font-medium">{t("Moyenne")}</th>
+              <th className="px-4 py-3 font-medium">{t("Absences")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -116,14 +119,14 @@ export function TermStudentsTab({ term }: { term: Term }) {
             {isLoading && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-muted">
-                  Chargement...
+                  {t("Chargement...")}
                 </td>
               </tr>
             )}
             {!isLoading && data.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-muted">
-                  Aucun élève inscrit pour cette année.
+                  {t("Aucun élève inscrit pour cette année.")}
                 </td>
               </tr>
             )}
@@ -138,7 +141,11 @@ export function TermStudentsTab({ term }: { term: Term }) {
                         <button
                           type="button"
                           aria-expanded={isExpanded}
-                          aria-label={`${isExpanded ? "Masquer" : "Afficher"} les notes de ${row.student.name}`}
+                          aria-label={
+                            isExpanded
+                              ? t("Masquer les notes de {student}", { student: row.student.name })
+                              : t("Afficher les notes de {student}", { student: row.student.name })
+                          }
                           onClick={() => setExpandedId(isExpanded ? null : row.enrollment_id)}
                           className="text-muted hover:text-foreground"
                         >
@@ -147,14 +154,14 @@ export function TermStudentsTab({ term }: { term: Term }) {
                       </td>
                       <td className="px-4 py-3 font-mono text-xs">{row.student.matricule}</td>
                       <td className="px-4 py-3">
-                        {row.student.name} {!row.student.is_active && <Badge>Inactif</Badge>}
+                        {row.student.name} {!row.student.is_active && <Badge>{t("Inactif")}</Badge>}
                       </td>
                       <td className="px-4 py-3">{row.school_class?.name ?? "—"}</td>
                       <td className="px-4 py-3 font-medium">{formatAverage(row.average)}</td>
                       <td className="px-4 py-3">{row.absences}</td>
                       <td className="px-4 py-3">
                         <Link href={`/students/${row.student.id}`} className="text-sm font-medium text-primary hover:underline">
-                          Dossier
+                          {t("Dossier")}
                         </Link>
                       </td>
                     </tr>

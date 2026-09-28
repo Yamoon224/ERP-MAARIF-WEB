@@ -1,6 +1,7 @@
 "use client";
 
 import type { AttendanceStatus } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { ATTENDANCE_LABEL } from "@/lib/labels";
 import { cn } from "@/lib/utils/cn";
 
@@ -21,8 +22,10 @@ interface StatusPickerProps {
 
 /** Choix Présent / Absent / Retard en un clic, pour l'appel d'une classe. */
 export function StatusPicker({ value, onChange, label }: StatusPickerProps) {
+  const { t } = useT();
+
   return (
-    <div role="radiogroup" aria-label={`Statut de ${label}`} className="inline-flex overflow-hidden rounded-full border border-border">
+    <div role="radiogroup" aria-label={t("Statut de {student}", { student: label })} className="inline-flex overflow-hidden rounded-full border border-border">
       {OPTIONS.map((option) => (
         <button
           key={option}
@@ -35,7 +38,7 @@ export function StatusPicker({ value, onChange, label }: StatusPickerProps) {
             value === option ? ACTIVE_CLASS[option] : "text-muted hover:bg-foreground/5 hover:text-foreground",
           )}
         >
-          {ATTENDANCE_LABEL[option]}
+          {t(ATTENDANCE_LABEL[option])}
         </button>
       ))}
     </div>

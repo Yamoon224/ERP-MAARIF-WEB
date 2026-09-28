@@ -17,6 +17,7 @@ import { getTerm, getTermOverview } from "@/lib/api/academics";
 import type { StaffUser, Term, TermOverview } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { formatAverage, formatDate } from "@/lib/utils/format";
 
 const ID_PREFIX = "term";
@@ -28,6 +29,7 @@ const ID_PREFIX = "term";
  * consulter la ressource correspondante.
  */
 export default function TermDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const user = useAuthStore((state) => state.user as StaffUser | null);
 
@@ -43,24 +45,26 @@ export default function TermDetailPage({ params }: { params: Promise<{ id: strin
         setTerm(loadedTerm);
         setOverview(loadedOverview);
       })
-      .catch(() => setError("Impossible de charger ce trimestre."));
+      .catch(() => setError(t("Impossible de charger ce trimestre.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const tabs = useMemo<TabItem[]>(() => {
     const items: TabItem[] = [
-      { id: "classes", label: "Classes", count: overview?.classes },
-      { id: "subjects", label: "Matières", count: overview?.subjects },
-      { id: "students", label: "Élèves", count: overview?.students },
+      { id: "classes", label: t("Classes"), count: overview?.classes },
+      { id: "subjects", label: t("Matières"), count: overview?.subjects },
+      { id: "students", label: t("Élèves"), count: overview?.students },
     ];
 
-    if (hasPermission(user, "grades.manage")) items.push({ id: "grades", label: "Notes", count: overview?.grades });
+    if (hasPermission(user, "grades.manage")) items.push({ id: "grades", label: t("Notes"), count: overview?.grades });
     if (hasPermission(user, "discipline.manage")) {
-      items.push({ id: "sanctions", label: "Sanctions", count: overview?.sanctions });
-      items.push({ id: "summons", label: "Convocations", count: overview?.summons });
+      items.push({ id: "sanctions", label: t("Sanctions"), count: overview?.sanctions });
+      items.push({ id: "summons", label: t("Convocations"), count: overview?.summons });
     }
-    if (hasPermission(user, "attendance.manage")) items.push({ id: "attendance", label: "Présences" });
+    if (hasPermission(user, "attendance.manage")) items.push({ id: "attendance", label: t("Présences") });
 
     return items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overview, user]);
 
   if (error) {
@@ -68,41 +72,57 @@ export default function TermDetailPage({ params }: { params: Promise<{ id: strin
       <div className="space-y-4">
         <Alert>{error}</Alert>
         <Link href="/terms" className="text-sm font-medium text-primary hover:underline">
-          Retour aux trimestres
+          {t("Retour aux trimestres")}
         </Link>
       </div>
     );
   }
 
-  if (!term || !overview) return <p className="text-sm text-muted">Chargement...</p>;
+  if (!term || !overview) return <p className="text-sm text-muted">{t("Chargement...")}</p>;
 
   return (
     <div>
       <Link href="/terms" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" /> Tous les trimestres
+        <ArrowLeft className="size-4" aria-hidden="true" /> {t("Tous les trimestres")}
       </Link>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold text-foreground">
           {term.name} <span className="font-normal text-muted">— {term.academic_year}</span>
         </h1>
-        {term.is_current && <Badge tone="success">Courant</Badge>}
-        <span className="text-sm text-muted">
-          du {formatDate(term.starts_at)} au {formatDate(term.ends_at)}
-        </span>
+        {term.is_current && <Badge tone="success">{t("Courant")}</Badge>}
+        <span className="text-sm text-muted">{t("du {from} au {to}", { from: formatDate(term.starts_at), to: formatDate(term.ends_at) })}</span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Élèves inscrits" value={overview.students} hint={`${overview.classes} classe(s) · ${overview.subjects} matière(s)`} accent="primary" />
-        <StatCard label="Moyenne générale" value={formatAverage(overview.average)} hint={`${overview.grades} note(s) saisie(s)`} accent="grades" />
         <StatCard
-          label="Absences"
+          label={t("Élèves inscrits")}
+          value={overview.students}
+          hint={t("{classes} classe(s) · {subjects} matière(s)", { classes: overview.classes, subjects: overview.subjects })}
+          accent="primary"
+        />
+        <StatCard
+          label={t("Moyenne générale")}
+          value={formatAverage(overview.average)}
+          hint={t("{count} note(s) saisie(s)", { count: overview.grades })}
+          accent="grades"
+        />
+        <StatCard
+          label={t("Absences")}
           value={overview.attendance.absent}
-          hint={`${overview.attendance.unjustified_absences} non justifiée(s) · ${overview.attendance.late} retard(s)`}
+          hint={t("{unjustified} non justifiée(s) · {late} retard(s)", {
+            unjustified: overview.attendance.unjustified_absences,
+            late: overview.attendance.late,
+          })}
           accent="attendance"
         />
         {overview.sanctions !== null && overview.summons !== null && (
-          <StatCard label="Discipline" value={overview.sanctions} hint={`sanction(s) · ${overview.summons} convocation(s)`} accent="discipline" />
+          <StatCard
+            label={t("Discipline")}
+            value={overview.sanctions}
+            hint={t("sanction(s) · {summons} convocation(s)", { summons: overview.summons })}
+            accent="discipline"
+          />
         )}
       </div>
 

@@ -13,6 +13,7 @@ import { getRollCall, recordClassAttendance } from "@/lib/api/attendance";
 import { getErrorMessage } from "@/lib/api/error";
 import type { AttendanceStatus, RollCallRow } from "@/lib/api/types";
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
+import { useT } from "@/lib/i18n/store";
 import { today } from "@/lib/utils/format";
 
 interface RowState {
@@ -27,6 +28,7 @@ interface RowState {
  * ce jour-là est prérempli avec son pointage (refaire l'appel le corrige).
  */
 export default function AttendancePage() {
+  const { t } = useT();
   const classes = useSchoolClassOptions();
   const [schoolClassId, setSchoolClassId] = useState("");
   const [date, setDate] = useState(() => today());
@@ -71,10 +73,11 @@ export default function AttendancePage() {
       );
     } catch (failure) {
       setRows([]);
-      setError(getErrorMessage(failure, "Impossible de charger la feuille d'appel."));
+      setError(getErrorMessage(failure, t("Impossible de charger la feuille d'appel.")));
     } finally {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schoolClassId, date]);
 
   useEffect(() => {
@@ -117,7 +120,7 @@ export default function AttendancePage() {
       await loadRollCall();
       setSavedCount(rows.length);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'enregistrer l'appel."));
+      setError(getErrorMessage(failure, t("Impossible d'enregistrer l'appel.")));
     } finally {
       setIsSaving(false);
     }
@@ -136,11 +139,11 @@ export default function AttendancePage() {
   return (
     <div>
       <PageHeader
-        title="Présences"
-        description="Faites l'appel d'une classe : un clic par élève, un seul enregistrement."
+        title={t("Présences")}
+        description={t("Faites l'appel d'une classe : un clic par élève, un seul enregistrement.")}
         actions={
           <Link href="/absences" className="text-sm font-medium text-primary hover:underline">
-            Suivi et justification des absences →
+            {t("Suivi et justification des absences →")}
           </Link>
         }
       />
@@ -148,9 +151,9 @@ export default function AttendancePage() {
       <Card accent="attendance" className="mb-6">
         <CardContent className="grid gap-4 pt-4 sm:grid-cols-3">
           <label className="text-sm font-medium text-foreground">
-            Classe
+            {t("Classe")}
             <Select className="mt-1.5" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
-              <option value="">Choisir une classe...</option>
+              <option value="">{t("Choisir une classe...")}</option>
               {sortedClasses.map((schoolClass) => (
                 <option key={schoolClass.id} value={schoolClass.id}>
                   {schoolClass.name} ({schoolClass.academic_year})
@@ -159,7 +162,7 @@ export default function AttendancePage() {
             </Select>
           </label>
           <label className="text-sm font-medium text-foreground">
-            Date de l&apos;appel
+            {t("Date de l'appel")}
             <Input className="mt-1.5" type="date" value={date} max={today()} onChange={(event) => setDate(event.target.value)} />
           </label>
         </CardContent>
@@ -169,21 +172,25 @@ export default function AttendancePage() {
 
       {schoolClassId && !isLoading && rows.length === 0 && !error && (
         <p className="rounded-md border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-          Aucun élève actif inscrit dans cette classe.
+          {t("Aucun élève actif inscrit dans cette classe.")}
         </p>
       )}
 
-      {isLoading && <p className="text-sm text-muted">Chargement de la feuille d&apos;appel...</p>}
+      {isLoading && <p className="text-sm text-muted">{t("Chargement de la feuille d'appel...")}</p>}
 
       {rows.length > 0 && (
         <Card accent="attendance">
           <CardHeader className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle>
-              Feuille d&apos;appel · {rows.length} élève(s)
-              {counts.alreadyPointed > 0 && <span className="ml-2 font-normal text-muted">({counts.alreadyPointed} déjà pointé(s) ce jour)</span>}
+              {t("Feuille d'appel · {count} élève(s)", { count: rows.length })}
+              {counts.alreadyPointed > 0 && (
+                <span className="ml-2 font-normal text-muted">
+                  {t("({count} déjà pointé(s) ce jour)", { count: counts.alreadyPointed })}
+                </span>
+              )}
             </CardTitle>
             <Button type="button" variant="secondary" size="sm" onClick={markAllPresent}>
-              <CheckCheck className="size-4" /> Tout marquer présent
+              <CheckCheck className="size-4" /> {t("Tout marquer présent")}
             </Button>
           </CardHeader>
 
@@ -192,10 +199,10 @@ export default function AttendancePage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-xs tracking-wide text-muted uppercase">
-                    <th className="py-2 pr-4 font-medium">Élève</th>
-                    <th className="py-2 pr-4 font-medium">Statut</th>
-                    <th className="py-2 pr-4 font-medium">Justifiée</th>
-                    <th className="py-2 font-medium">Motif</th>
+                    <th className="py-2 pr-4 font-medium">{t("Élève")}</th>
+                    <th className="py-2 pr-4 font-medium">{t("Statut")}</th>
+                    <th className="py-2 pr-4 font-medium">{t("Justifiée")}</th>
+                    <th className="py-2 font-medium">{t("Motif")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -216,7 +223,7 @@ export default function AttendancePage() {
                         <td className="py-2.5 pr-4">
                           <input
                             type="checkbox"
-                            aria-label={`Absence justifiée pour ${row.student.name}`}
+                            aria-label={t("Absence justifiée pour {student}", { student: row.student.name })}
                             disabled={isPresent}
                             checked={!isPresent && entry.justified}
                             onChange={(event) => update(row.student.id, { justified: event.target.checked })}
@@ -225,9 +232,9 @@ export default function AttendancePage() {
                         </td>
                         <td className="py-2.5">
                           <Input
-                            aria-label={`Motif pour ${row.student.name}`}
+                            aria-label={t("Motif pour {student}", { student: row.student.name })}
                             className="h-8 min-w-48"
-                            placeholder={isPresent ? "" : "Motif (optionnel)"}
+                            placeholder={isPresent ? "" : t("Motif (optionnel)")}
                             disabled={isPresent}
                             value={isPresent ? "" : entry.reason}
                             maxLength={255}
@@ -243,15 +250,19 @@ export default function AttendancePage() {
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
               <p className="text-sm text-muted" aria-live="polite">
-                {counts.present} présent(s) · {counts.absent} absent(s) · {counts.late} en retard
+                {t("{present} présent(s) · {absent} absent(s) · {late} en retard", {
+                  present: counts.present,
+                  absent: counts.absent,
+                  late: counts.late,
+                })}
                 {savedCount !== null && (
                   <span className="ml-3 inline-flex items-center gap-1 font-medium text-success">
-                    <Check className="size-4" aria-hidden="true" /> Appel enregistré ({savedCount} élèves)
+                    <Check className="size-4" aria-hidden="true" /> {t("Appel enregistré ({count} élèves)", { count: savedCount })}
                   </span>
                 )}
               </p>
               <Button type="button" onClick={handleSave} loading={isSaving}>
-                <Check className="size-4" /> Enregistrer l&apos;appel
+                <Check className="size-4" /> {t("Enregistrer l'appel")}
               </Button>
             </div>
           </CardContent>

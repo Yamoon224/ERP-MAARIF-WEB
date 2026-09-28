@@ -17,8 +17,10 @@ import { getClassCardsBlob } from "@/lib/api/students";
 import { downloadBlob, slugify } from "@/lib/export/tableExport";
 import { listUsers } from "@/lib/api/users";
 import type { SchoolClass, StaffUser } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 export default function SchoolClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const user = useAuthStore((state) => state.user as StaffUser | null);
   const canManage = hasPermission(user, "academics.manage");
@@ -33,7 +35,8 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
   useEffect(() => {
     getSchoolClass(id)
       .then(setSchoolClass)
-      .catch((loadError) => setError(getErrorMessage(loadError, "Impossible de charger cette classe.")));
+      .catch((loadError) => setError(getErrorMessage(loadError, t("Impossible de charger cette classe."))));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
     try {
       setSchoolClass(await updateSchoolClass(id, { main_teacher_id: teacherId || null }));
     } catch (saveError) {
-      setError(getErrorMessage(saveError, "Impossible de modifier le titulaire."));
+      setError(getErrorMessage(saveError, t("Impossible de modifier le titulaire.")));
     } finally {
       setIsSaving(false);
     }
@@ -65,14 +68,14 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
     try {
       downloadBlob(await getClassCardsBlob(id), `${slugify(`cartes ${schoolClass?.name ?? id}`)}.pdf`);
     } catch (downloadError) {
-      setError(getErrorMessage(downloadError, "Impossible de télécharger les cartes."));
+      setError(getErrorMessage(downloadError, t("Impossible de télécharger les cartes.")));
     } finally {
       setIsDownloadingCards(false);
     }
   }
 
   if (!schoolClass) {
-    return error ? <Alert>{error}</Alert> : <p className="text-sm text-muted">Chargement...</p>;
+    return error ? <Alert>{error}</Alert> : <p className="text-sm text-muted">{t("Chargement...")}</p>;
   }
 
   const mainTeacher = schoolClass.main_teacher;
@@ -81,15 +84,15 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
     <div className="space-y-6">
       <div>
         <Link href="/classes" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Classes
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("Classes")}
         </Link>
         <PageHeader
           title={schoolClass.name}
-          description={`${schoolClass.level} · année scolaire ${schoolClass.academic_year}`}
+          description={t("{level} · année scolaire {year}", { level: schoolClass.level, year: schoolClass.academic_year })}
           actions={
             canPrintCards && (
               <Button variant="secondary" loading={isDownloadingCards} onClick={handleDownloadCards}>
-                <IdCard className="size-4" /> Cartes élèves (PDF)
+                <IdCard className="size-4" /> {t("Cartes élèves (PDF)")}
               </Button>
             )
           }
@@ -112,7 +115,7 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
                 disabled={isSaving}
                 onChange={(event) => handleMainTeacherChange(event.target.value)}
               >
-                <option value="">Aucun</option>
+                <option value="">{t("Aucun")}</option>
                 {mainTeacher && !teachers.some((teacher) => teacher.id === mainTeacher.id) && (
                   <option value={mainTeacher.id}>{mainTeacher.name}</option>
                 )}
@@ -124,7 +127,7 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
               </Select>
             </div>
           ) : (
-            <p className="text-sm text-foreground">{mainTeacher?.name ?? "Aucun titulaire désigné."}</p>
+            <p className="text-sm text-foreground">{mainTeacher?.name ?? t("Aucun titulaire désigné.")}</p>
           )}
         </CardContent>
       </Card>

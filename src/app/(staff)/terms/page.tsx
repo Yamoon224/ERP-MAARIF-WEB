@@ -20,8 +20,10 @@ import { termSchema, type TermFormInput } from "@/lib/validation/academics";
 import { createTerm, deleteTerm, listAcademicYears, listTermsPaginated } from "@/lib/api/academics";
 import { getErrorMessage } from "@/lib/api/error";
 import type { AcademicYear, StaffUser, Term } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 export default function TermsPage() {
+  const { t } = useT();
   const [serverError, setServerError] = useState<string | null>(null);
   const [years, setYears] = useState<AcademicYear[]>([]);
   const [academicYear, setAcademicYear] = useState("");
@@ -54,7 +56,7 @@ export default function TermsPage() {
       reset();
       reload();
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible de creer ce trimestre."));
+      setServerError(getErrorMessage(error, t("Impossible de créer ce trimestre.")));
     }
   }
 
@@ -68,7 +70,7 @@ export default function TermsPage() {
     { key: "year", header: "Année scolaire", render: (row) => row.academic_year },
     { key: "starts", header: "Début", render: (row) => row.starts_at },
     { key: "ends", header: "Fin", render: (row) => row.ends_at },
-    { key: "current", header: "Courant", render: (row) => (row.is_current ? <Badge tone="success">Courant</Badge> : "—") },
+    { key: "current", header: "Courant", render: (row) => (row.is_current ? <Badge tone="success">{t("Courant")}</Badge> : "—") },
     {
       key: "details",
       header: "",
@@ -76,9 +78,9 @@ export default function TermsPage() {
         <Link
           href={`/terms/${row.id}`}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-          aria-label={`Voir les détails du ${row.name} ${row.academic_year}`}
+          aria-label={t("Voir les détails du {term} {year}", { term: row.name, year: row.academic_year })}
         >
-          <Eye className="size-4" aria-hidden="true" /> Détails
+          <Eye className="size-4" aria-hidden="true" /> {t("Détails")}
         </Link>
       ),
     },
@@ -88,7 +90,7 @@ export default function TermsPage() {
             key: "actions",
             header: "",
             render: (row: Term) => (
-              <button onClick={() => handleDelete(row)} aria-label="Supprimer le trimestre" className="text-muted hover:text-danger">
+              <button onClick={() => handleDelete(row)} aria-label={t("Supprimer le trimestre")} className="text-muted hover:text-danger">
                 <Trash2 className="size-4" />
               </button>
             ),
@@ -101,16 +103,17 @@ export default function TermsPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Trimestres</h1>
+          <h1 className="text-xl font-semibold text-foreground">{t("Trimestres")}</h1>
           <p className="mt-1 text-sm text-muted">
-            Une année scolaire compte trois trimestres. Ouvrez un trimestre pour voir ses classes, matières, élèves, notes, sanctions,
-            convocations et présences.
+            {t(
+              "Une année scolaire compte trois trimestres. Ouvrez un trimestre pour voir ses classes, matières, élèves, notes, sanctions, convocations et présences.",
+            )}
           </p>
         </div>
         <label className="flex flex-col text-xs font-medium text-muted">
-          Année scolaire
+          {t("Année scolaire")}
           <Select className="mt-1 h-9 w-44" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
-            <option value="">Toutes les années</option>
+            <option value="">{t("Toutes les années")}</option>
             {years.map((year) => (
               <option key={year.label} value={year.label}>
                 {year.label}
@@ -135,18 +138,18 @@ export default function TermsPage() {
 
               <div>
                 <Label htmlFor="name">Nom</Label>
-                <Input id="name" placeholder="1er trimestre" {...register("name")} />
+                <Input id="name" placeholder={t("1er trimestre")} {...register("name")} />
                 <FieldError>{errors.name?.message}</FieldError>
               </div>
 
               <div>
-                <Label htmlFor="academic_year">Annee scolaire</Label>
+                <Label htmlFor="academic_year">Année scolaire</Label>
                 <Input id="academic_year" placeholder="2025-2026" {...register("academic_year")} />
                 <FieldError>{errors.academic_year?.message}</FieldError>
               </div>
 
               <div>
-                <Label htmlFor="starts_at">Debut</Label>
+                <Label htmlFor="starts_at">Début</Label>
                 <Input id="starts_at" type="date" {...register("starts_at")} />
                 <FieldError>{errors.starts_at?.message}</FieldError>
               </div>
@@ -159,13 +162,13 @@ export default function TermsPage() {
 
               <div className="flex items-end">
                 <Button type="submit" loading={isSubmitting} className="w-full">
-                  <Plus className="size-4" /> Creer
+                  <Plus className="size-4" /> {t("Créer")}
                 </Button>
               </div>
 
               <label className="flex items-center gap-2 text-sm text-foreground sm:col-span-5">
                 <input type="checkbox" {...register("is_current")} className="size-4 rounded border-border" />
-                Definir comme trimestre courant
+                {t("Définir comme trimestre courant")}
               </label>
             </form>
           </CardContent>

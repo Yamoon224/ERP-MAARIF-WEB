@@ -18,8 +18,10 @@ import { subjectSchema, type SubjectFormInput } from "@/lib/validation/academics
 import { createSubject, deleteSubject, listSubjects } from "@/lib/api/academics";
 import { getErrorMessage } from "@/lib/api/error";
 import type { StaffUser, Subject } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 export default function SubjectsPage() {
+  const { t } = useT();
   const [serverError, setServerError] = useState<string | null>(null);
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "academics.manage");
 
@@ -44,7 +46,7 @@ export default function SubjectsPage() {
       reset({ coefficient: "1", name: "", code: "" });
       reload();
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible de creer cette matiere."));
+      setServerError(getErrorMessage(error, t("Impossible de créer cette matière.")));
     }
   }
 
@@ -63,7 +65,7 @@ export default function SubjectsPage() {
             key: "actions",
             header: "",
             render: (row: Subject) => (
-              <button onClick={() => handleDelete(row)} aria-label="Supprimer la matiere" className="text-muted hover:text-danger">
+              <button onClick={() => handleDelete(row)} aria-label={t("Supprimer la matière")} className="text-muted hover:text-danger">
                 <Trash2 className="size-4" />
               </button>
             ),
@@ -74,12 +76,12 @@ export default function SubjectsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-foreground">Matieres</h1>
+      <h1 className="mb-6 text-xl font-semibold text-foreground">{t("Matières")}</h1>
 
       {canManage && (
         <Card accent="academics" className="mb-6">
           <CardHeader>
-            <CardTitle>Nouvelle matiere</CardTitle>
+            <CardTitle>{t("Nouvelle matière")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-4" noValidate>
@@ -91,7 +93,7 @@ export default function SubjectsPage() {
 
               <div>
                 <Label htmlFor="name">Nom</Label>
-                <Input id="name" placeholder="Mathematiques" {...register("name")} />
+                <Input id="name" placeholder={t("Mathématiques")} {...register("name")} />
                 <FieldError>{errors.name?.message}</FieldError>
               </div>
 
@@ -109,7 +111,7 @@ export default function SubjectsPage() {
 
               <div className="flex items-end">
                 <Button type="submit" loading={isSubmitting} className="w-full">
-                  <Plus className="size-4" /> Creer
+                  <Plus className="size-4" /> {t("Créer")}
                 </Button>
               </div>
             </form>

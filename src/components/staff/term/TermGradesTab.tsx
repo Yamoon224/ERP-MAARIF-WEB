@@ -10,10 +10,12 @@ import type { Grade, SchoolClass, Term } from "@/lib/api/types";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSubjectOptions } from "@/lib/hooks/useSubjectOptions";
+import { useT } from "@/lib/i18n/store";
 import { formatDate } from "@/lib/utils/format";
 
 /** Notes saisies pendant le trimestre, filtrables par classe et par matière. */
 export function TermGradesTab({ term }: { term: Term }) {
+  const { t } = useT();
   const [schoolClassId, setSchoolClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [classes, setClasses] = useState<SchoolClass[]>([]);
@@ -42,7 +44,7 @@ export function TermGradesTab({ term }: { term: Term }) {
   const columns: DataTableColumn<Grade>[] = [
     { key: "student", header: "Élève", render: (row) => row.student.name },
     { key: "subject", header: "Matière", render: (row) => row.subject.name },
-    { key: "type", header: "Type", render: (row) => (row.type === "devoir" ? "Devoir" : "Composition") },
+    { key: "type", header: "Type", render: (row) => (row.type === "devoir" ? t("Devoir") : t("Composition")) },
     { key: "value", header: "Note", render: (row) => `${row.value}/${row.max_value}` },
     { key: "normalized", header: "Sur 20", render: (row) => <span className="font-medium">{row.normalized_on_20}</span> },
     { key: "date", header: "Date", render: (row) => formatDate(row.recorded_at) },
@@ -51,16 +53,16 @@ export function TermGradesTab({ term }: { term: Term }) {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Select aria-label="Classe" className="h-10 w-48" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
-          <option value="">Toutes les classes</option>
+        <Select aria-label={t("Classe")} className="h-10 w-48" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
+          <option value="">{t("Toutes les classes")}</option>
           {classes.map((schoolClass) => (
             <option key={schoolClass.id} value={schoolClass.id}>
               {schoolClass.name}
             </option>
           ))}
         </Select>
-        <Select aria-label="Matière" className="h-10 w-48" value={subjectId} onChange={(event) => setSubjectId(event.target.value)}>
-          <option value="">Toutes les matières</option>
+        <Select aria-label={t("Matière")} className="h-10 w-48" value={subjectId} onChange={(event) => setSubjectId(event.target.value)}>
+          <option value="">{t("Toutes les matières")}</option>
           {subjects.map((subject) => (
             <option key={subject.id} value={subject.id}>
               {subject.name}

@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Field";
 import { assignTeacher, listClassAssignments, listSubjects, unassignSubject } from "@/lib/api/academics";
 import { getErrorMessage } from "@/lib/api/error";
 import type { StaffUser, Subject, TeachingAssignment } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 interface ClassAssignmentsProps {
   schoolClassId: string;
@@ -27,6 +28,7 @@ interface ClassAssignmentsProps {
  * confier plusieurs matières, dans plusieurs classes.
  */
 export function ClassAssignments({ schoolClassId, canManage, teachers, currentUserId }: ClassAssignmentsProps) {
+  const { t } = useT();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [assignments, setAssignments] = useState<TeachingAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,8 +41,9 @@ export function ClassAssignments({ schoolClassId, canManage, teachers, currentUs
         setSubjects(subjectPage.data);
         setAssignments(current);
       })
-      .catch((loadError) => setError(getErrorMessage(loadError, "Impossible de charger les matières de cette classe.")))
+      .catch((loadError) => setError(getErrorMessage(loadError, t("Impossible de charger les matières de cette classe."))))
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schoolClassId]);
 
   const teacherOf = (subject: Subject) => assignments.find((assignment) => assignment.subject.id === subject.id)?.teacher ?? null;
@@ -58,7 +61,7 @@ export function ClassAssignments({ schoolClassId, canManage, teachers, currentUs
         setAssignments((previous) => [...previous.filter((assignment) => assignment.subject.id !== subject.id), updated]);
       }
     } catch (changeError) {
-      setError(getErrorMessage(changeError, "Impossible de modifier cette affectation."));
+      setError(getErrorMessage(changeError, t("Impossible de modifier cette affectation.")));
     } finally {
       setPendingSubjectId(null);
     }
@@ -85,22 +88,22 @@ export function ClassAssignments({ schoolClassId, canManage, teachers, currentUs
           return teacher ? (
             <span className="inline-flex items-center gap-2">
               {teacher.name}
-              {teacher.id === currentUserId && <Badge tone="info">Vous</Badge>}
+              {teacher.id === currentUserId && <Badge tone="info">{t("Vous")}</Badge>}
             </span>
           ) : (
-            <span className="text-muted">Non affecté</span>
+            <span className="text-muted">{t("Non affecté")}</span>
           );
         }
 
         return (
           <Select
-            aria-label={`Enseignant de ${subject.name}`}
+            aria-label={t("Enseignant de {subject}", { subject: subject.name })}
             value={teacher?.id ?? ""}
             disabled={pendingSubjectId === subject.id}
             onChange={(event) => handleChange(subject, event.target.value)}
             className="max-w-64"
           >
-            <option value="">Non affecté</option>
+            <option value="">{t("Non affecté")}</option>
             {/* Un enseignant désactivé depuis l'affectation reste affiché, sinon la valeur choisie disparaîtrait de la liste. */}
             {teacher && !teachers.some((candidate) => candidate.id === teacher.id) && <option value={teacher.id}>{teacher.name}</option>}
             {teachers.map((candidate) => (
@@ -122,9 +125,14 @@ export function ClassAssignments({ schoolClassId, canManage, teachers, currentUs
       <CardContent>
         <p className="mb-4 text-sm text-muted">
           {canManage
-            ? "Choisissez l'enseignant de chaque matière dans cette classe. Une matière n'a qu'un enseignant par classe, mais un enseignant peut en avoir plusieurs, dans plusieurs classes."
-            : "Les enseignants de cette classe, matière par matière."}{" "}
-          {!isLoading && `${assignments.length} matière${assignments.length > 1 ? "s" : ""} sur ${subjects.length} ${assignments.length > 1 ? "ont" : "a"} un enseignant.`}
+            ? t(
+                "Choisissez l'enseignant de chaque matière dans cette classe. Une matière n'a qu'un enseignant par classe, mais un enseignant peut en avoir plusieurs, dans plusieurs classes.",
+              )
+            : t("Les enseignants de cette classe, matière par matière.")}{" "}
+          {!isLoading &&
+            (assignments.length > 1
+              ? t("{assigned} matières sur {total} ont un enseignant.", { assigned: assignments.length, total: subjects.length })
+              : t("{assigned} matière sur {total} a un enseignant.", { assigned: assignments.length, total: subjects.length }))}
         </p>
 
         {error && (

@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { listClassesOfYear } from "@/lib/api/academics";
 import type { SchoolClass, Term } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 /** Classes de l'année scolaire du trimestre (une classe existe pour toute l'année, donc ses trois trimestres). */
 export function TermClassesTab({ term }: { term: Term }) {
+  const { t } = useT();
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +33,7 @@ export function TermClassesTab({ term }: { term: Term }) {
       rows={classes}
       rowKey={(row) => row.id}
       isLoading={isLoading}
-      emptyMessage={`Aucune classe pour l'année ${term.academic_year}.`}
+      emptyMessage={t("Aucune classe pour l'année {year}.", { year: term.academic_year })}
     />
   );
 }
