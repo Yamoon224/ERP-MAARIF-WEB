@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -22,6 +22,24 @@ describe("StudentImportPage", () => {
 
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     expect(input.accept).toBe(".csv,.txt,.xlsx,.xls,.sql");
+  });
+
+  it("downloads a fillable CSV template", async () => {
+    const createObjectURL = vi.fn((_blob: Blob) => "blob:mock");
+    vi.stubGlobal("URL", { ...URL, createObjectURL, revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+    const user = userEvent.setup();
+    render(<StudentImportPage />);
+    await user.click(screen.getByRole("button", { name: "CSV" }));
+
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    const blob = createObjectURL.mock.calls[0][0] as Blob;
+    expect(blob.type).toContain("text/csv");
+    expect(await blob.text()).toContain("prenom,nom,sexe");
+
+    click.mockRestore();
+    vi.unstubAllGlobals();
   });
 
   it("analyzes the file first, without importing anything", async () => {

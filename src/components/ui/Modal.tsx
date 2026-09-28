@@ -98,11 +98,15 @@ export function Modal({ open, onClose, title, description, children, size = "md"
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          "relative my-8 w-full rounded-md border border-border border-t-4 border-t-primary bg-surface shadow-xl focus:outline-none sm:my-0",
+          "relative my-8 flex max-h-[calc(100vh-4rem)] w-full flex-col rounded-md border border-border border-t-4 border-t-primary bg-surface shadow-xl focus:outline-none sm:my-0",
           SIZE_CLASSES[size],
         )}
       >
-        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-2">
+        {/* En-tête fixe et contenu defilant separement : un contenu plus grand que l'ecran (ex. la longue
+            liste de permissions d'un role) ne doit jamais rendre l'en-tete inaccessible. Un panneau centre
+            (`items-center` ci-dessus) qui deborde de son conteneur ne peut pas toujours etre defile jusqu'en
+            haut par le navigateur — le plafonner ici et le faire defiler lui-meme evite ce piege. */}
+        <div className="flex shrink-0 items-start justify-between gap-4 px-6 pt-5 pb-2">
           <div>
             <h2 id={titleId} className="text-base font-semibold text-foreground">
               {title}
@@ -123,7 +127,7 @@ export function Modal({ open, onClose, title, description, children, size = "md"
           </button>
         </div>
 
-        <div className="px-6 pt-2 pb-6">{children}</div>
+        <div className="overflow-y-auto px-6 pt-2 pb-6">{children}</div>
       </div>
     </div>,
     document.body,

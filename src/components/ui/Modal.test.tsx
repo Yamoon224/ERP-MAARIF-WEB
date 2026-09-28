@@ -92,6 +92,24 @@ describe("Modal", () => {
     }
   });
 
+  it("caps the panel's height and scrolls its content, so a tall body never pushes the header out of reach", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await user.click(screen.getByRole("button", { name: "Ouvrir" }));
+
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.className).toContain("max-h-[calc(100vh-4rem)]");
+    expect(dialog.className).toContain("flex-col");
+
+    const heading = screen.getByRole("heading", { name: "Nouvel utilisateur" });
+    const header = heading.parentElement?.parentElement;
+    const content = screen.getByText("Valider").closest('[class*="overflow-y-auto"]');
+
+    expect(header?.className).not.toContain("overflow-y-auto");
+    expect(content).not.toBeNull();
+  });
+
   it("blocks the page from scrolling behind it, and restores it on close", async () => {
     const user = userEvent.setup();
     render(<Harness />);

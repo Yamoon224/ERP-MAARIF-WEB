@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, FileUp, UploadCloud } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Database, FileSpreadsheet, FileText, FileUp, UploadCloud } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -12,6 +12,8 @@ import { StatCard } from "@/components/ui/StatCard";
 import { getErrorMessage } from "@/lib/api/error";
 import { importStudents } from "@/lib/api/students";
 import type { StudentImportError, StudentImportResult, StudentImportStudent } from "@/lib/api/types";
+import { buildSql, downloadBlob, exportXlsx } from "@/lib/export/tableExport";
+import type { ExportTable } from "@/lib/utils/tableData";
 
 const COLUMN_HINTS = [
   ["prenom", "Prénom de l'élève"],
@@ -25,6 +27,39 @@ const COLUMN_HINTS = [
   ["email_tuteur", "E-mail du tuteur (optionnel)"],
   ["adresse", "Adresse (optionnel)"],
 ] as const;
+
+/** Deux lignes d'exemple (une complète, une avec les champs optionnels vides) pour chaque modèle téléchargeable. */
+const TEMPLATE_ROWS: string[][] = [
+  [
+    "Fatoumata",
+    "Camara",
+    "F",
+    "12/05/2012",
+    "6eme A",
+    "2025-2026",
+    "Ibrahima Camara",
+    "+224612345678",
+    "ibrahima.camara@exemple.com",
+    "Quartier Almamya, Conakry",
+  ],
+  ["Moussa", "Diallo", "M", "03/09/2011", "", "", "Aissatou Diallo", "+224622334455", "", ""],
+];
+
+function templateTable(): ExportTable {
+  return { title: "Modèle import élèves", headers: COLUMN_HINTS.map(([column]) => column), rows: TEMPLATE_ROWS };
+}
+
+/** Modèle CSV : encodage et guillemets simples, pas besoin d'une bibliothèque pour ça. */
+function downloadCsvTemplate() {
+  const escape = (value: string) => (/["\n,]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
+  const content = [templateTable().headers, ...TEMPLATE_ROWS].map((row) => row.map(escape).join(",")).join("\r\n");
+
+  downloadBlob(new Blob([content], { type: "text/csv;charset=utf-8" }), "modele-import-eleves.csv");
+}
+
+function downloadSqlTemplate() {
+  downloadBlob(new Blob([buildSql(templateTable(), "eleves")], { type: "application/sql;charset=utf-8" }), "modele-import-eleves.sql");
+}
 
 /**
  * Import en masse d'élèves depuis un fichier CSV/Excel (migration depuis un
@@ -171,6 +206,19 @@ export default function StudentImportPage() {
                 reconnues sont lues — le fichier n&apos;est jamais exécuté, ses autres tables (paiements, classes...) sont
                 simplement ignorées.
               </p>
+
+              <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-background px-4 py-3">
+                <span className="text-xs font-medium text-muted">Un modèle à remplir, selon le format choisi :</span>
+                <Button type="button" variant="secondary" size="sm" onClick={downloadCsvTemplate}>
+                  <FileText className="size-4" /> CSV
+                </Button>
+                <Button type="button" variant="secondary" size="sm" onClick={() => void exportXlsx(templateTable(), "modele-import-eleves")}>
+                  <FileSpreadsheet className="size-4" /> Excel
+                </Button>
+                <Button type="button" variant="secondary" size="sm" onClick={downloadSqlTemplate}>
+                  <Database className="size-4" /> SQL
+                </Button>
+              </div>
 
               <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed border-border bg-background px-4 py-8 text-center hover:border-primary">
                 <UploadCloud className="size-6 text-muted" aria-hidden="true" />
