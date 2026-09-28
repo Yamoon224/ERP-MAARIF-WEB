@@ -11,6 +11,7 @@ import { QrScanner } from "@/components/attendance/QrScanner";
 import { scanStudentCard } from "@/lib/api/attendance";
 import { getErrorMessage } from "@/lib/api/error";
 import type { AttendanceRecord } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { formatDateTime } from "@/lib/utils/format";
 
 interface ScanEntry {
@@ -27,6 +28,7 @@ interface ScanEntry {
  * arrivée au portail, ce qui suffit à le pointer présent pour aujourd'hui.
  */
 export default function ScanCardPage() {
+  const { t } = useT();
   const [active, setActive] = useState(true);
   const [entries, setEntries] = useState<ScanEntry[]>([]);
   const busyRef = useRef(false);
@@ -50,7 +52,13 @@ export default function ScanCardPage() {
       ]);
     } catch (failure) {
       setEntries((current) => [
-        { key: `error-${now}`, name: "Carte non reconnue", matricule: "—", time: formatDateTime(new Date().toISOString()), error: getErrorMessage(failure, "Cette carte ne correspond à aucun élève actif.") },
+        {
+          key: `error-${now}`,
+          name: t("Carte non reconnue"),
+          matricule: "—",
+          time: formatDateTime(new Date().toISOString()),
+          error: getErrorMessage(failure, t("Cette carte ne correspond à aucun élève actif.")),
+        },
         ...current,
       ]);
     } finally {
@@ -60,22 +68,25 @@ export default function ScanCardPage() {
 
   return (
     <div>
-      <PageHeader title="Scanner une carte" description="Pointez l'arrivée d'un élève en scannant le QR de sa carte scolaire." />
+      <PageHeader
+        title={t("Scanner une carte")}
+        description={t("Pointez l'arrivée d'un élève en scannant le QR de sa carte scolaire.")}
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card accent="attendance">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <ScanLine className="size-4" aria-hidden="true" /> Caméra
+              <ScanLine className="size-4" aria-hidden="true" /> {t("Caméra")}
             </CardTitle>
             <Button type="button" size="sm" variant="secondary" onClick={() => setActive((value) => !value)}>
               {active ? (
                 <>
-                  <Pause className="size-4" /> Mettre en pause
+                  <Pause className="size-4" /> {t("Mettre en pause")}
                 </>
               ) : (
                 <>
-                  <Play className="size-4" /> Reprendre
+                  <Play className="size-4" /> {t("Reprendre")}
                 </>
               )}
             </Button>
@@ -84,7 +95,7 @@ export default function ScanCardPage() {
             {active ? (
               <QrScanner active={active} onScan={handleScan} />
             ) : (
-              <p className="py-10 text-center text-sm text-muted">Caméra en pause.</p>
+              <p className="py-10 text-center text-sm text-muted">{t("Caméra en pause.")}</p>
             )}
           </CardContent>
         </Card>
@@ -95,7 +106,7 @@ export default function ScanCardPage() {
           </CardHeader>
           <CardContent>
             {entries.length === 0 ? (
-              <p className="text-sm text-muted">Les élèves pointés apparaîtront ici au fur et à mesure du scan.</p>
+              <p className="text-sm text-muted">{t("Les élèves pointés apparaîtront ici au fur et à mesure du scan.")}</p>
             ) : (
               <ul className="space-y-3">
                 {entries.map((entry) => (
@@ -107,7 +118,7 @@ export default function ScanCardPage() {
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
                       <span className="text-xs text-muted">{entry.time}</span>
-                      <Badge tone={entry.error ? "danger" : "success"}>{entry.error ? "Échec" : "Présent"}</Badge>
+                      <Badge tone={entry.error ? "danger" : "success"}>{entry.error ? t("Échec") : t("Présent")}</Badge>
                     </span>
                   </li>
                 ))}

@@ -20,6 +20,7 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { summonSchema, type SummonFormInput } from "@/lib/validation/discipline";
 import { createSummon, listSummons } from "@/lib/api/discipline";
 import { getErrorMessage } from "@/lib/api/error";
+import { useT } from "@/lib/i18n/store";
 import type { Student, Summon, SummonStatus } from "@/lib/api/types";
 
 const STATUS_TONE: Record<SummonStatus, "warning" | "success" | "neutral"> = {
@@ -30,11 +31,12 @@ const STATUS_TONE: Record<SummonStatus, "warning" | "success" | "neutral"> = {
 
 const STATUS_LABEL: Record<SummonStatus, string> = {
   pending: "En attente",
-  done: "Realisee",
-  cancelled: "Annulee",
+  done: "Réalisée",
+  cancelled: "Annulée",
 };
 
 export default function SummonsPage() {
+  const { t } = useT();
   const [student, setStudent] = useState<Student | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -65,24 +67,22 @@ export default function SummonsPage() {
       reset();
       reload();
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible de creer cette convocation."));
+      setServerError(getErrorMessage(error, t("Impossible de créer cette convocation.")));
     }
   }
 
   const columns: DataTableColumn<Summon>[] = [
-    { key: "student", header: "Eleve", render: (row) => row.student.name },
+    { key: "student", header: "Élève", render: (row) => row.student.name },
     { key: "reason", header: "Motif", render: (row) => row.reason },
-    { key: "date", header: "Date prevue", render: (row) => new Date(row.scheduled_at).toLocaleString("fr-FR") },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge> },
-    { key: "notified", header: "Tuteur notifie", render: (row) => (row.notified_at ? "Oui" : "Non") },
+    { key: "date", header: "Date prévue", render: (row) => new Date(row.scheduled_at).toLocaleString("fr-FR") },
+    { key: "status", header: "Statut", render: (row) => <Badge tone={STATUS_TONE[row.status]}>{t(STATUS_LABEL[row.status])}</Badge> },
+    { key: "notified", header: "Tuteur notifié", render: (row) => (row.notified_at ? t("Oui") : t("Non")) },
   ];
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-semibold text-foreground">Convocations</h1>
-      <p className="mb-6 text-sm text-muted">
-        La creation d&apos;une convocation notifie immediatement le tuteur par e-mail ou SMS.
-      </p>
+      <h1 className="mb-1 text-xl font-semibold text-foreground">{t("Convocations")}</h1>
+      <p className="mb-6 text-sm text-muted">{t("La création d'une convocation notifie immédiatement le tuteur par e-mail ou SMS.")}</p>
 
       <PeriodFilter filter={period} className="mb-4" />
 
@@ -106,7 +106,7 @@ export default function SummonsPage() {
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="reason">Motif</Label>
-                  <Input id="reason" placeholder="Motif de la convocation" {...register("reason")} />
+                  <Input id="reason" placeholder={t("Motif de la convocation")} {...register("reason")} />
                   <FieldError>{errors.reason?.message}</FieldError>
                 </div>
 
@@ -118,12 +118,12 @@ export default function SummonsPage() {
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="location">Lieu (optionnel)</Label>
-                  <Input id="location" placeholder="Bureau de la direction" {...register("location")} />
+                  <Input id="location" placeholder={t("Bureau de la direction")} {...register("location")} />
                 </div>
 
                 <div className="flex items-end sm:col-span-3">
                   <Button type="submit" loading={isSubmitting}>
-                    <Megaphone className="size-4" /> Convoquer et notifier le tuteur
+                    <Megaphone className="size-4" /> {t("Convoquer et notifier le tuteur")}
                   </Button>
                 </div>
               </form>
@@ -137,7 +137,9 @@ export default function SummonsPage() {
         rows={data}
         rowKey={(row) => row.id}
         isLoading={isLoading}
-        emptyMessage={student ? "Aucune convocation pour cet élève sur cette période." : "Aucune convocation sur cette période."}
+        emptyMessage={
+          student ? t("Aucune convocation pour cet élève sur cette période.") : t("Aucune convocation sur cette période.")
+        }
       />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}

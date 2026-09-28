@@ -584,4 +584,57 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Retard": "Late",
   "Changer": "Change",
   "Rechercher un élève par nom ou matricule...": "Search a student by name or student ID...",
+
+  // Discipline — convocations et sanctions
+  "Scanner une carte": "Scan a card",
+  "Portail QR": "QR gate",
+  "Impossible de créer cette convocation.": "Unable to create this summons.",
+  "La création d'une convocation notifie immédiatement le tuteur par e-mail ou SMS.":
+    "Creating a summons immediately notifies the guardian by email or SMS.",
+  "Motif de la convocation": "Reason for the summons",
+  "Bureau de la direction": "Principal's office",
+  "Convoquer et notifier le tuteur": "Summon and notify the guardian",
+  "Aucune convocation pour cet élève sur cette période.": "No summons for this student over this period.",
+  "Aucune convocation sur cette période.": "No summons over this period.",
+  "Impossible d'enregistrer cette sanction.": "Unable to save this sanction.",
+  "Sanctions disciplinaires": "Disciplinary sanctions",
+  "La création d'une sanction notifie immédiatement le tuteur par e-mail ou SMS.":
+    "Creating a sanction immediately notifies the guardian by email or SMS.",
+  "Avertissement": "Warning",
+  "Exclusion temporaire": "Temporary exclusion",
+  "Renvoi définitif": "Permanent expulsion",
+  "Motif de la sanction": "Reason for the sanction",
+  "Enregistrer et notifier le tuteur": "Save and notify the guardian",
+  "Aucune sanction pour cet élève sur cette période.": "No sanction for this student over this period.",
+  "Aucune sanction sur cette période.": "No sanction over this period.",
+
+  // Scanner une carte (pointage par QR)
+  "Carte non reconnue": "Card not recognized",
+  "Cette carte ne correspond à aucun élève actif.": "This card does not match any active student.",
+  "Pointez l'arrivée d'un élève en scannant le QR de sa carte scolaire.": "Check in a student's arrival by scanning their student card's QR.",
+  "Caméra": "Camera",
+  "Mettre en pause": "Pause",
+  "Reprendre": "Resume",
+  "Caméra en pause.": "Camera paused.",
+  "Les élèves pointés apparaîtront ici au fur et à mesure du scan.": "Checked-in students will appear here as they are scanned.",
+
+  // Portail QR (pointage géolocalisé)
+  "Impossible de charger le réglage du portail.": "Unable to load the gate settings.",
+  "Impossible de récupérer votre position. Autorisez la localisation dans votre navigateur.":
+    "Unable to get your position. Allow location access in your browser.",
+  "Réglage enregistré.": "Settings saved.",
+  "Régénérer le code invalide l'affiche déjà imprimée : il faudra la réimprimer. Continuer ?":
+    "Regenerating the code invalidates the already-printed poster: it will need reprinting. Continue?",
+  "QR régénéré : téléchargez et affichez la nouvelle affiche.": "QR regenerated: download and display the new poster.",
+  "Impossible de régénérer le code.": "Unable to regenerate the code.",
+  "Impossible de télécharger l'affiche.": "Unable to download the poster.",
+  "Pointage géolocalisé : réglez les coordonnées du portail et imprimez l'affiche à scanner.":
+    "Geolocated check-in: set the gate's coordinates and print the poster to scan.",
+  "Utiliser ma position actuelle": "Use my current position",
+  "Activer le pointage par QR au portail": "Enable QR check-in at the gate",
+  "QR code de pointage du portail": "Gate check-in QR code",
+  "Le pointage est désactivé : ce QR ne fonctionnera pas tant qu'il n'est pas activé.":
+    "Check-in is disabled: this QR will not work until it is enabled.",
+  "Télécharger l'affiche (PDF)": "Download the poster (PDF)",
+  "Régénérer le code": "Regenerate the code",
 };

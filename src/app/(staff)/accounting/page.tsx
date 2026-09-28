@@ -17,12 +17,15 @@ import type { AccountingSummary, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
+import { useT } from "@/lib/i18n/store";
 import { PAYMENT_METHOD_LABEL, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { formatDate, formatMoney, formatMonth, formatMonthAxis, formatPercent } from "@/lib/utils/format";
 
 /** Part de chaque ligne par rapport au total encaissé, pour la barre de proportion. */
 function Breakdown({ rows, total }: { rows: Array<{ key: string; label: string; total: number; count: number }>; total: number }) {
+  const { t } = useT();
+
   return (
     <ul className="space-y-3">
       {rows.map((row) => {
@@ -31,10 +34,8 @@ function Breakdown({ rows, total }: { rows: Array<{ key: string; label: string; 
         return (
           <li key={row.key}>
             <div className="flex items-baseline justify-between text-sm">
-              <span className="text-foreground">{row.label}</span>
-              <span className="text-muted">
-                {formatMoney(row.total)} · {row.count} paiement(s)
-              </span>
+              <span className="text-foreground">{t(row.label)}</span>
+              <span className="text-muted">{t("{amount} · {count} paiement(s)", { amount: formatMoney(row.total), count: row.count })}</span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-foreground/10" aria-hidden="true">
               <div className="h-full rounded-full bg-accent-accounting" style={{ width: `${share}%` }} />
@@ -47,6 +48,7 @@ function Breakdown({ rows, total }: { rows: Array<{ key: string; label: string; 
 }
 
 export default function AccountingOverviewPage() {
+  const { t } = useT();
   const user = useAuthStore((state) => state.user as StaffUser | null);
   const canManage = hasPermission(user, "accounting.manage");
   const period = usePeriodFilter();
@@ -68,7 +70,7 @@ export default function AccountingOverviewPage() {
         if (!cancelled) setSummary(loaded);
       })
       .catch(() => {
-        if (!cancelled) setError("Impossible de charger les indicateurs comptables.");
+        if (!cancelled) setError(t("Impossible de charger les indicateurs comptables."));
       });
 
     return () => {

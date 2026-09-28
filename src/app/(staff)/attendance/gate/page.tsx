@@ -17,6 +17,7 @@ import {
 import { getErrorMessage } from "@/lib/api/error";
 import type { GateSettings } from "@/lib/api/types";
 import { downloadBlob } from "@/lib/export/tableExport";
+import { useT } from "@/lib/i18n/store";
 
 /**
  * Pointage géolocalisé au portail (cahier des charges — pointage par QR
@@ -24,6 +25,7 @@ import { downloadBlob } from "@/lib/export/tableExport";
  * export du QR à imprimer et afficher au portail.
  */
 export default function GateSettingsPage() {
+  const { t } = useT();
   const [settings, setSettings] = useState<GateSettings | null>(null);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -59,8 +61,9 @@ export default function GateSettingsPage() {
         applySettings(loaded);
         setQrUrl(URL.createObjectURL(blob));
       })
-      .catch((failure) => setError(getErrorMessage(failure, "Impossible de charger le réglage du portail.")))
+      .catch((failure) => setError(getErrorMessage(failure, t("Impossible de charger le réglage du portail."))))
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function useCurrentPosition() {
@@ -70,7 +73,7 @@ export default function GateSettingsPage() {
         setLatitude(position.coords.latitude.toFixed(7));
         setLongitude(position.coords.longitude.toFixed(7));
       },
-      () => setError("Impossible de récupérer votre position. Autorisez la localisation dans votre navigateur."),
+      () => setError(t("Impossible de récupérer votre position. Autorisez la localisation dans votre navigateur.")),
     );
   }
 
@@ -88,16 +91,16 @@ export default function GateSettingsPage() {
         is_enabled: enabled,
       });
       applySettings(updated);
-      setNotice("Réglage enregistré.");
+      setNotice(t("Réglage enregistré."));
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'enregistrer le réglage."));
+      setError(getErrorMessage(failure, t("Impossible d'enregistrer le réglage.")));
     } finally {
       setIsSaving(false);
     }
   }
 
   async function handleRegenerate() {
-    if (!window.confirm("Régénérer le code invalide l'affiche déjà imprimée : il faudra la réimprimer. Continuer ?")) return;
+    if (!window.confirm(t("Régénérer le code invalide l'affiche déjà imprimée : il faudra la réimprimer. Continuer ?"))) return;
 
     setIsRegenerating(true);
     setError(null);
@@ -107,9 +110,9 @@ export default function GateSettingsPage() {
       const updated = await regenerateGateToken();
       applySettings(updated);
       await reloadQr();
-      setNotice("QR régénéré : téléchargez et affichez la nouvelle affiche.");
+      setNotice(t("QR régénéré : téléchargez et affichez la nouvelle affiche."));
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de régénérer le code."));
+      setError(getErrorMessage(failure, t("Impossible de régénérer le code.")));
     } finally {
       setIsRegenerating(false);
     }
@@ -119,16 +122,19 @@ export default function GateSettingsPage() {
     try {
       downloadBlob(await getGatePosterBlob(), "affiche-pointage-portail.pdf");
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de télécharger l'affiche."));
+      setError(getErrorMessage(failure, t("Impossible de télécharger l'affiche.")));
     }
   }
 
   return (
     <div>
-      <PageHeader title="Portail QR" description="Pointage géolocalisé : réglez les coordonnées du portail et imprimez l'affiche à scanner." />
+      <PageHeader
+        title={t("Portail QR")}
+        description={t("Pointage géolocalisé : réglez les coordonnées du portail et imprimez l'affiche à scanner.")}
+      />
 
       {isLoading ? (
-        <p className="text-sm text-muted">Chargement...</p>
+        <p className="text-sm text-muted">{t("Chargement...")}</p>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card accent="attendance">
@@ -149,7 +155,7 @@ export default function GateSettingsPage() {
                 </div>
 
                 <Button type="button" variant="secondary" size="sm" onClick={useCurrentPosition}>
-                  <Crosshair className="size-4" /> Utiliser ma position actuelle
+                  <Crosshair className="size-4" /> {t("Utiliser ma position actuelle")}
                 </Button>
 
                 <div>
@@ -159,14 +165,14 @@ export default function GateSettingsPage() {
 
                 <label className="flex items-center gap-2 text-sm text-foreground">
                   <input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} className="size-4 rounded border-border" />
-                  Activer le pointage par QR au portail
+                  {t("Activer le pointage par QR au portail")}
                 </label>
 
                 {error && <Alert>{error}</Alert>}
                 {notice && <p className="text-sm text-success">{notice}</p>}
 
                 <Button type="submit" loading={isSaving}>
-                  Enregistrer
+                  {t("Enregistrer")}
                 </Button>
               </form>
             </CardContent>
@@ -177,16 +183,18 @@ export default function GateSettingsPage() {
               <CardTitle>Affiche à imprimer</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-4">
-              {qrUrl && <img src={qrUrl} alt="QR code de pointage du portail" className="size-56 rounded-md border border-border" />}
+              {qrUrl && <img src={qrUrl} alt={t("QR code de pointage du portail")} className="size-56 rounded-md border border-border" />}
               {settings && !settings.is_enabled && (
-                <p className="text-center text-xs text-warning">Le pointage est désactivé : ce QR ne fonctionnera pas tant qu&apos;il n&apos;est pas activé.</p>
+                <p className="text-center text-xs text-warning">
+                  {t("Le pointage est désactivé : ce QR ne fonctionnera pas tant qu'il n'est pas activé.")}
+                </p>
               )}
               <div className="flex flex-wrap justify-center gap-2">
                 <Button type="button" variant="secondary" onClick={handleDownloadPoster}>
-                  <Download className="size-4" /> Télécharger l&apos;affiche (PDF)
+                  <Download className="size-4" /> {t("Télécharger l'affiche (PDF)")}
                 </Button>
                 <Button type="button" variant="danger" loading={isRegenerating} onClick={handleRegenerate}>
-                  <RefreshCw className="size-4" /> Régénérer le code
+                  <RefreshCw className="size-4" /> {t("Régénérer le code")}
                 </Button>
               </div>
             </CardContent>

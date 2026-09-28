@@ -20,9 +20,11 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { sanctionSchema, type SanctionFormInput } from "@/lib/validation/discipline";
 import { createSanction, listSanctions } from "@/lib/api/discipline";
 import { getErrorMessage } from "@/lib/api/error";
+import { useT } from "@/lib/i18n/store";
 import type { Sanction, Student } from "@/lib/api/types";
 
 export default function SanctionsPage() {
+  const { t } = useT();
   const [student, setStudent] = useState<Student | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -53,25 +55,23 @@ export default function SanctionsPage() {
       reset({ type: "avertissement" });
       reload();
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible d'enregistrer cette sanction."));
+      setServerError(getErrorMessage(error, t("Impossible d'enregistrer cette sanction.")));
     }
   }
 
   const columns: DataTableColumn<Sanction>[] = [
-    { key: "student", header: "Eleve", render: (row) => row.student.name },
+    { key: "student", header: "Élève", render: (row) => row.student.name },
     { key: "type", header: "Type", render: (row) => <Badge tone="danger">{row.type_label}</Badge> },
     { key: "reason", header: "Motif", render: (row) => row.reason },
-    { key: "start_date", header: "Debut", render: (row) => row.start_date },
+    { key: "start_date", header: "Début", render: (row) => row.start_date },
     { key: "end_date", header: "Fin", render: (row) => row.end_date ?? "—" },
-    { key: "notified", header: "Tuteur notifie", render: (row) => (row.notified_at ? "Oui" : "Non") },
+    { key: "notified", header: "Tuteur notifié", render: (row) => (row.notified_at ? t("Oui") : t("Non")) },
   ];
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-semibold text-foreground">Sanctions disciplinaires</h1>
-      <p className="mb-6 text-sm text-muted">
-        La creation d&apos;une sanction notifie immediatement le tuteur par e-mail ou SMS.
-      </p>
+      <h1 className="mb-1 text-xl font-semibold text-foreground">{t("Sanctions disciplinaires")}</h1>
+      <p className="mb-6 text-sm text-muted">{t("La création d'une sanction notifie immédiatement le tuteur par e-mail ou SMS.")}</p>
 
       <PeriodFilter filter={period} className="mb-4" />
 
@@ -96,20 +96,20 @@ export default function SanctionsPage() {
                 <div>
                   <Label htmlFor="type">Type</Label>
                   <Select id="type" {...register("type")}>
-                    <option value="avertissement">Avertissement</option>
-                    <option value="exclusion_temporaire">Exclusion temporaire</option>
-                    <option value="renvoi_definitif">Renvoi definitif</option>
+                    <option value="avertissement">{t("Avertissement")}</option>
+                    <option value="exclusion_temporaire">{t("Exclusion temporaire")}</option>
+                    <option value="renvoi_definitif">{t("Renvoi définitif")}</option>
                   </Select>
                 </div>
 
                 <div className="sm:col-span-2">
                   <Label htmlFor="reason">Motif</Label>
-                  <Input id="reason" placeholder="Motif de la sanction" {...register("reason")} />
+                  <Input id="reason" placeholder={t("Motif de la sanction")} {...register("reason")} />
                   <FieldError>{errors.reason?.message}</FieldError>
                 </div>
 
                 <div>
-                  <Label htmlFor="start_date">Date de debut</Label>
+                  <Label htmlFor="start_date">Date de début</Label>
                   <Input id="start_date" type="date" {...register("start_date")} />
                   <FieldError>{errors.start_date?.message}</FieldError>
                 </div>
@@ -121,7 +121,7 @@ export default function SanctionsPage() {
 
                 <div className="flex items-end sm:col-span-3">
                   <Button type="submit" variant="danger" loading={isSubmitting}>
-                    <ShieldAlert className="size-4" /> Enregistrer et notifier le tuteur
+                    <ShieldAlert className="size-4" /> {t("Enregistrer et notifier le tuteur")}
                   </Button>
                 </div>
               </form>
@@ -135,7 +135,7 @@ export default function SanctionsPage() {
         rows={data}
         rowKey={(row) => row.id}
         isLoading={isLoading}
-        emptyMessage={student ? "Aucune sanction pour cet élève sur cette période." : "Aucune sanction sur cette période."}
+        emptyMessage={student ? t("Aucune sanction pour cet élève sur cette période.") : t("Aucune sanction sur cette période.")}
       />
 
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
