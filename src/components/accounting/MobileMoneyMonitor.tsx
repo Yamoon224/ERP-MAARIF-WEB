@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { listMobileMoneyTransactions } from "@/lib/api/accounting";
 import type { MobileMoneyStatus, MobileMoneyTransaction } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { formatDateTime, formatMoney, formatMonth } from "@/lib/utils/format";
 
 const STATUS_TONE: Record<MobileMoneyStatus, "info" | "success" | "danger" | "neutral" | "warning"> = {
@@ -30,6 +31,7 @@ function monthsLabel(months: string[]): string {
  * qu'aucun parent n'a payé de cette façon.
  */
 export function MobileMoneyMonitor() {
+  const { t } = useT();
   const [transactions, setTransactions] = useState<MobileMoneyTransaction[]>([]);
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export function MobileMoneyMonitor() {
       header: "État",
       render: (row) => (
         <span>
-          <Badge tone={STATUS_TONE[row.status]}>{row.status_label}</Badge>
+          <Badge tone={STATUS_TONE[row.status]}>{t(row.status_label)}</Badge>
           {row.status === "successful" && row.receipt_number && <span className="mt-0.5 block font-mono text-xs text-muted">{row.receipt_number}</span>}
           {row.failure_reason && row.status !== "successful" && <span className="mt-0.5 block max-w-64 text-xs text-muted">{row.failure_reason}</span>}
         </span>
@@ -89,7 +91,7 @@ export function MobileMoneyMonitor() {
   return (
     <section aria-labelledby="mobile-money-heading" className="mb-8">
       <h2 id="mobile-money-heading" className="mb-3 text-base font-semibold text-foreground">
-        Paiements mobile money des parents
+        {t("Paiements mobile money des parents")}
       </h2>
       <DataTable exportName="Paiements mobile money" columns={columns} rows={transactions} rowKey={(row) => row.id} />
     </section>

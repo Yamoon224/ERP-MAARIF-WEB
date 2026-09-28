@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { StatCard } from "@/components/ui/StatCard";
 import type { TuitionStatement } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { INSTALLMENT_LABEL, INSTALLMENT_TONE } from "@/lib/labels";
 import { formatDate, formatMoney, formatMonth } from "@/lib/utils/format";
 
@@ -16,12 +19,13 @@ interface TuitionStatementViewProps {
  * son état (réglé, en retard, à payer, à venir) et le reçu qui l'a réglé.
  */
 export function TuitionStatementView({ statement, receiptHref }: TuitionStatementViewProps) {
+  const { t } = useT();
   const { installments, totals } = statement;
 
   if (installments.length === 0) {
     return (
       <p className="rounded-md border border-border bg-surface px-4 py-6 text-center text-sm text-muted">
-        Aucune échéance pour cette inscription : la scolarité mensuelle de la classe n&apos;est pas encore fixée.
+        {t("Aucune échéance pour cette inscription : la scolarité mensuelle de la classe n'est pas encore fixée.")}
       </p>
     );
   }
@@ -29,13 +33,23 @@ export function TuitionStatementView({ statement, receiptHref }: TuitionStatemen
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Scolarité de l'année" value={formatMoney(totals.total)} hint={`${totals.months_total} mois`} accent="accounting" />
-        <StatCard label="Réglé" value={formatMoney(totals.paid)} hint={`${totals.months_paid} mois payé(s)`} accent="grades" />
-        <StatCard label="Reste à payer" value={formatMoney(totals.remaining)} accent="attendance" />
         <StatCard
-          label="En retard"
+          label={t("Scolarité de l'année")}
+          value={formatMoney(totals.total)}
+          hint={t("{count} mois", { count: totals.months_total })}
+          accent="accounting"
+        />
+        <StatCard
+          label={t("Réglé")}
+          value={formatMoney(totals.paid)}
+          hint={t("{count} mois payé(s)", { count: totals.months_paid })}
+          accent="grades"
+        />
+        <StatCard label={t("Reste à payer")} value={formatMoney(totals.remaining)} accent="attendance" />
+        <StatCard
+          label={t("En retard")}
           value={formatMoney(totals.overdue_amount)}
-          hint={`${totals.overdue_months} mois échu(s) non réglé(s)`}
+          hint={t("{count} mois échu(s) non réglé(s)", { count: totals.overdue_months })}
           accent="discipline"
         />
       </div>
@@ -44,11 +58,11 @@ export function TuitionStatementView({ statement, receiptHref }: TuitionStatemen
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border text-xs tracking-wide text-muted uppercase">
-              <th className="px-4 py-3 font-medium">Mois</th>
-              <th className="px-4 py-3 font-medium">Montant</th>
-              <th className="px-4 py-3 font-medium">État</th>
-              <th className="px-4 py-3 font-medium">Payé le</th>
-              <th className="px-4 py-3 font-medium">Reçu</th>
+              <th className="px-4 py-3 font-medium">{t("Mois")}</th>
+              <th className="px-4 py-3 font-medium">{t("Montant")}</th>
+              <th className="px-4 py-3 font-medium">{t("État")}</th>
+              <th className="px-4 py-3 font-medium">{t("Payé le")}</th>
+              <th className="px-4 py-3 font-medium">{t("Reçu")}</th>
             </tr>
           </thead>
           <tbody>
@@ -57,7 +71,7 @@ export function TuitionStatementView({ statement, receiptHref }: TuitionStatemen
                 <td className="px-4 py-2.5 capitalize">{formatMonth(installment.month)}</td>
                 <td className="px-4 py-2.5">{formatMoney(installment.amount)}</td>
                 <td className="px-4 py-2.5">
-                  <Badge tone={INSTALLMENT_TONE[installment.status]}>{INSTALLMENT_LABEL[installment.status]}</Badge>
+                  <Badge tone={INSTALLMENT_TONE[installment.status]}>{t(INSTALLMENT_LABEL[installment.status])}</Badge>
                 </td>
                 <td className="px-4 py-2.5">{formatDate(installment.paid_at)}</td>
                 <td className="px-4 py-2.5">

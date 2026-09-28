@@ -13,6 +13,7 @@ import { getErrorMessage } from "@/lib/api/error";
 import type { AcademicYear, SchoolClass, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { defaultYear } from "@/lib/period/usePeriodFilter";
 import { CURRENCY, formatMoney, monthsBetween } from "@/lib/utils/format";
 
@@ -23,6 +24,7 @@ import { CURRENCY, formatMoney, monthsBetween } from "@/lib/utils/format";
  * les mois déjà payés gardent leur montant.
  */
 export default function FeesPage() {
+  const { t } = useT();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "accounting.manage");
 
   const [years, setYears] = useState<AcademicYear[]>([]);
@@ -39,8 +41,9 @@ export default function FeesPage() {
         setYears(loaded);
         setAcademicYear(defaultYear(loaded)?.label ?? "");
       })
-      .catch(() => setError("Impossible de charger les années scolaires."))
+      .catch(() => setError(t("Impossible de charger les années scolaires.")))
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function FeesPage() {
 
     const amount = Number(editing.value);
     if (!Number.isFinite(amount) || amount < 0) {
-      setError("Le montant doit être un nombre positif ou nul.");
+      setError(t("Le montant doit être un nombre positif ou nul."));
       return;
     }
 
@@ -70,7 +73,7 @@ export default function FeesPage() {
       setClasses((current) => current.map((row) => (row.id === updated.id ? { ...row, monthly_fee: updated.monthly_fee } : row)));
       setEditing(null);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de modifier ce tarif."));
+      setError(getErrorMessage(failure, t("Impossible de modifier ce tarif.")));
     } finally {
       setIsSaving(false);
     }
@@ -87,7 +90,7 @@ export default function FeesPage() {
         editing?.id === row.id ? (
           <div className="flex items-center gap-2">
             <Input
-              aria-label={`Scolarité mensuelle de ${row.name} (${CURRENCY})`}
+              aria-label={t("Scolarité mensuelle de {class} ({currency})", { class: row.name, currency: CURRENCY })}
               type="number"
               min={0}
               step="any"
@@ -100,17 +103,17 @@ export default function FeesPage() {
                 if (event.key === "Escape") setEditing(null);
               }}
             />
-            <Button size="sm" onClick={() => save(row)} loading={isSaving} aria-label="Enregistrer le tarif">
+            <Button size="sm" onClick={() => save(row)} loading={isSaving} aria-label={t("Enregistrer le tarif")}>
               <Check className="size-4" />
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => setEditing(null)} aria-label="Annuler">
+            <Button size="sm" variant="secondary" onClick={() => setEditing(null)} aria-label={t("Annuler")}>
               <X className="size-4" />
             </Button>
           </div>
         ) : row.monthly_fee > 0 ? (
           <span className="font-medium">{formatMoney(row.monthly_fee)}</span>
         ) : (
-          <span className="text-warning">Non fixée</span>
+          <span className="text-warning">{t("Non fixée")}</span>
         ),
     },
     {
@@ -130,7 +133,7 @@ export default function FeesPage() {
                   onClick={() => setEditing({ id: row.id, value: String(row.monthly_fee || "") })}
                   className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
                 >
-                  <Pencil className="size-4" aria-hidden="true" /> Modifier
+                  <Pencil className="size-4" aria-hidden="true" /> {t("Modifier")}
                 </button>
               ),
           },
@@ -141,11 +144,13 @@ export default function FeesPage() {
   return (
     <div>
       <PageHeader
-        title="Frais de scolarité"
-        description="Tarif mensuel par classe. Il s'applique à chaque mois de l'année scolaire, quelle que soit la formule de paiement (mois, trimestre, semestre, année)."
+        title={t("Frais de scolarité")}
+        description={t(
+          "Tarif mensuel par classe. Il s'applique à chaque mois de l'année scolaire, quelle que soit la formule de paiement (mois, trimestre, semestre, année).",
+        )}
         actions={
           <label className="flex flex-col text-xs font-medium text-muted">
-            Année scolaire
+            {t("Année scolaire")}
             <Select className="mt-1 h-9 w-44" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
               {years.map((year) => (
                 <option key={year.label} value={year.label}>

@@ -18,6 +18,7 @@ import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
+import { useT } from "@/lib/i18n/store";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
 import { fetchAllPages } from "@/lib/utils/fetchAllPages";
@@ -25,6 +26,7 @@ import { formatMoney, formatMonth } from "@/lib/utils/format";
 
 /** Élèves dont au moins un mois de scolarité, déjà terminé, n'est pas réglé - les plus endettés d'abord. */
 export default function ArrearsPage() {
+  const { t } = useT();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "accounting.manage");
   const period = usePeriodFilter();
   const classes = useSchoolClassOptions();
@@ -69,9 +71,9 @@ export default function ArrearsPage() {
             key: "pay",
             header: "",
             render: (row: ArrearsRow) => (
-              <Link href="/accounting/payments/new" aria-label={`Encaisser ${row.student.name}`}>
+              <Link href="/accounting/payments/new" aria-label={t("Encaisser {student}", { student: row.student.name })}>
                 <Button size="sm" variant="outline">
-                  Encaisser
+                  {t("Encaisser")}
                 </Button>
               </Link>
             ),
@@ -83,18 +85,18 @@ export default function ArrearsPage() {
   return (
     <div>
       <PageHeader
-        title="Impayés"
-        description="Mois de scolarité terminés et non réglés. Le mois en cours n'est pas un impayé."
+        title={t("Impayés")}
+        description={t("Mois de scolarité terminés et non réglés. Le mois en cours n'est pas un impayé.")}
       />
 
       <PeriodFilter filter={period} className="mb-4" />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Élève ou matricule..." />
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Élève ou matricule...")} />
         <label className="flex flex-col text-xs font-medium text-muted">
-          Classe
+          {t("Classe")}
           <Select className="mt-1 h-9 w-48" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
-            <option value="">Toutes les classes</option>
+            <option value="">{t("Toutes les classes")}</option>
             {classes
               .filter((schoolClass) => !period.year || schoolClass.academic_year === period.year.label)
               .map((schoolClass) => (

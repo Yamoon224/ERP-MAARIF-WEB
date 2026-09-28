@@ -19,6 +19,7 @@ import { useAuthStore } from "@/lib/auth/store";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import { PAYMENT_METHOD_LABEL, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
@@ -35,6 +36,7 @@ function monthsLabel(months: string[]): string {
 }
 
 export default function PaymentsPage() {
+  const { t } = useT();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "accounting.manage");
   const period = usePeriodFilter();
 
@@ -98,20 +100,20 @@ export default function PaymentsPage() {
     {
       key: "status",
       header: "Statut",
-      render: (row) => (row.status === "valid" ? <Badge tone="success">Valide</Badge> : <Badge tone="danger">Annulé</Badge>),
+      render: (row) => (row.status === "valid" ? <Badge tone="success">{t("Valide")}</Badge> : <Badge tone="danger">{t("Annulé")}</Badge>),
     },
   ];
 
   return (
     <div>
       <PageHeader
-        title="Paiements"
-        description="Historique des encaissements de scolarité. Cliquez sur un numéro de reçu pour l'ouvrir ou l'imprimer."
+        title={t("Paiements")}
+        description={t("Historique des encaissements de scolarité. Cliquez sur un numéro de reçu pour l'ouvrir ou l'imprimer.")}
         actions={
           canManage && (
             <Link href="/accounting/payments/new">
               <Button>
-                <Plus className="size-4" /> Nouveau paiement
+                <Plus className="size-4" /> {t("Nouveau paiement")}
               </Button>
             </Link>
           )
@@ -123,35 +125,35 @@ export default function PaymentsPage() {
       <PeriodFilter filter={period} className="mb-4" />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Élève, matricule ou n° de reçu..." />
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Élève, matricule ou n° de reçu...")} />
         <label className="flex flex-col text-xs font-medium text-muted">
-          Formule
+          {t("Formule")}
           <Select className="mt-1 h-9 w-40" value={periodType} onChange={(event) => setPeriodType(event.target.value as typeof periodType)}>
-            <option value="">Toutes</option>
+            <option value="">{t("Toutes")}</option>
             {(Object.keys(PAYMENT_PERIOD_LABEL) as PaymentPeriod[]).map((key) => (
               <option key={key} value={key}>
-                {PAYMENT_PERIOD_LABEL[key]}
+                {t(PAYMENT_PERIOD_LABEL[key])}
               </option>
             ))}
           </Select>
         </label>
         <label className="flex flex-col text-xs font-medium text-muted">
-          Mode
+          {t("Mode")}
           <Select className="mt-1 h-9 w-40" value={method} onChange={(event) => setMethod(event.target.value as typeof method)}>
-            <option value="">Tous</option>
+            <option value="">{t("Tous")}</option>
             {(Object.keys(PAYMENT_METHOD_LABEL) as PaymentMethod[]).map((key) => (
               <option key={key} value={key}>
-                {PAYMENT_METHOD_LABEL[key]}
+                {t(PAYMENT_METHOD_LABEL[key])}
               </option>
             ))}
           </Select>
         </label>
         <label className="flex flex-col text-xs font-medium text-muted">
-          Statut
+          {t("Statut")}
           <Select className="mt-1 h-9 w-36" value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
-            <option value="">Tous</option>
-            <option value="valid">Valides</option>
-            <option value="cancelled">Annulés</option>
+            <option value="">{t("Tous")}</option>
+            <option value="valid">{t("Valides")}</option>
+            <option value="cancelled">{t("Annulés")}</option>
           </Select>
         </label>
       </div>

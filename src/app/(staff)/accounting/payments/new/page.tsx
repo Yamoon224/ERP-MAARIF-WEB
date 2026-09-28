@@ -17,6 +17,7 @@ import { listEnrollments } from "@/lib/api/students";
 import type { Enrollment, PaymentMethod, PaymentPeriod, PaymentPreview, StaffUser, Student, TuitionStatement } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { PAYMENT_METHOD_LABEL, PAYMENT_PERIOD_HINT, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { cn } from "@/lib/utils/cn";
 import { formatMoney, formatMonth, today } from "@/lib/utils/format";
@@ -30,6 +31,7 @@ const PERIODS = Object.keys(PAYMENT_PERIOD_LABEL) as PaymentPeriod[];
  * avant de valider, la saisie ne les modifie pas.
  */
 export default function NewPaymentPage() {
+  const { t } = useT();
   const router = useRouter();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "accounting.manage");
 
@@ -60,7 +62,8 @@ export default function NewPaymentPage() {
         setEnrollments(loaded);
         setEnrollmentId(loaded[0]?.id ?? "");
       })
-      .catch(() => setError("Impossible de charger les inscriptions de l'élève."));
+      .catch(() => setError(t("Impossible de charger les inscriptions de l'élève.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student]);
 
   useEffect(() => {
@@ -73,12 +76,13 @@ export default function NewPaymentPage() {
         if (!cancelled) setStatement(loaded);
       })
       .catch(() => {
-        if (!cancelled) setError("Impossible de charger le relevé de scolarité.");
+        if (!cancelled) setError(t("Impossible de charger le relevé de scolarité."));
       });
 
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enrollmentId]);
 
   const remaining = statement?.totals.remaining ?? 0;
@@ -120,13 +124,13 @@ export default function NewPaymentPage() {
       });
       router.push(`/accounting/payments/${payment.id}`);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'enregistrer ce paiement."));
+      setError(getErrorMessage(failure, t("Impossible d'enregistrer ce paiement.")));
       setIsSaving(false);
     }
   }
 
   if (!canManage) {
-    return <Alert>Vous n&apos;avez pas le droit d&apos;encaisser des paiements.</Alert>;
+    return <Alert>{t("Vous n'avez pas le droit d'encaisser des paiements.")}</Alert>;
   }
 
   const shortfall = preview && preview.requested_months !== null && preview.months.length < preview.requested_months;
@@ -134,9 +138,12 @@ export default function NewPaymentPage() {
   return (
     <div>
       <Link href="/accounting/payments" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" /> Tous les paiements
+        <ArrowLeft className="size-4" aria-hidden="true" /> {t("Tous les paiements")}
       </Link>
-      <PageHeader title="Nouveau paiement" description="La scolarité est mensuelle : choisissez combien de mois la famille règle d'un coup." />
+      <PageHeader
+        title={t("Nouveau paiement")}
+        description={t("La scolarité est mensuelle : choisissez combien de mois la famille règle d'un coup.")}
+      />
 
       <div className="mb-6 grid max-w-3xl gap-4 sm:grid-cols-2">
         <div>
@@ -148,10 +155,10 @@ export default function NewPaymentPage() {
           <div>
             <Label htmlFor="enrollment">Année scolaire</Label>
             <Select id="enrollment" value={enrollmentId} onChange={(event) => setEnrollmentId(event.target.value)} disabled={enrollments.length === 0}>
-              {enrollments.length === 0 && <option value="">Aucune inscription</option>}
+              {enrollments.length === 0 && <option value="">{t("Aucune inscription")}</option>}
               {enrollments.map((enrollment) => (
                 <option key={enrollment.id} value={enrollment.id}>
-                  {enrollment.academic_year} · {enrollment.school_class?.name ?? "classe supprimée"}
+                  {enrollment.academic_year} · {enrollment.school_class?.name ?? t("classe supprimée")}
                 </option>
               ))}
             </Select>
@@ -162,7 +169,9 @@ export default function NewPaymentPage() {
       {error && <Alert className="mb-4">{error}</Alert>}
 
       {student && enrollments.length === 0 && (
-        <Alert className="mb-4">Cet élève n&apos;est inscrit dans aucune classe : inscrivez-le depuis son dossier avant d&apos;encaisser.</Alert>
+        <Alert className="mb-4">
+          {t("Cet élève n'est inscrit dans aucune classe : inscrivez-le depuis son dossier avant d'encaisser.")}
+        </Alert>
       )}
 
       {statement && (
@@ -176,17 +185,17 @@ export default function NewPaymentPage() {
 
           {statement.installments.length === 0 && (
             <Alert>
-              Aucune échéance : fixez d&apos;abord la scolarité mensuelle de la classe dans{" "}
+              {t("Aucune échéance : fixez d'abord la scolarité mensuelle de la classe dans")}{" "}
               <Link href="/accounting/fees" className="font-medium underline">
-                Frais de scolarité
+                {t("Frais de scolarité")}
               </Link>
-              , et vérifiez que les trimestres de l&apos;année sont définis.
+              {t(", et vérifiez que les trimestres de l'année sont définis.")}
             </Alert>
           )}
 
           {statement.installments.length > 0 && remaining === 0 && (
             <p className="rounded-md border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-              La scolarité de cette année est entièrement réglée.
+              {t("La scolarité de cette année est entièrement réglée.")}
             </p>
           )}
 
@@ -197,7 +206,7 @@ export default function NewPaymentPage() {
                   <CardTitle>Formule de paiement</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">
-                  <div role="radiogroup" aria-label="Formule de paiement" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div role="radiogroup" aria-label={t("Formule de paiement")} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {PERIODS.map((option) => (
                       <button
                         key={option}
@@ -210,8 +219,8 @@ export default function NewPaymentPage() {
                           period === option ? "selected-brand" : "border-border hover:bg-foreground/5",
                         )}
                       >
-                        <span className="block text-sm font-semibold text-foreground">{PAYMENT_PERIOD_LABEL[option]}</span>
-                        <span className="mt-0.5 block text-xs text-muted">{PAYMENT_PERIOD_HINT[option]}</span>
+                        <span className="block text-sm font-semibold text-foreground">{t(PAYMENT_PERIOD_LABEL[option])}</span>
+                        <span className="mt-0.5 block text-xs text-muted">{t(PAYMENT_PERIOD_HINT[option])}</span>
                       </button>
                     ))}
                   </div>
@@ -220,18 +229,22 @@ export default function NewPaymentPage() {
                     {preview ? (
                       <>
                         <p className="text-foreground">
-                          <span className="font-medium">{preview.months.length} mois :</span>{" "}
+                          <span className="font-medium">{t("{count} mois :", { count: preview.months.length })}</span>{" "}
                           {preview.months.map((month) => formatMonth(month)).join(", ")}
                         </p>
-                        <p className="mt-1 text-lg font-semibold text-foreground">Montant à encaisser : {formatMoney(preview.amount)}</p>
+                        <p className="mt-1 text-lg font-semibold text-foreground">
+                          {t("Montant à encaisser : {amount}", { amount: formatMoney(preview.amount) })}
+                        </p>
                         {shortfall && (
                           <p className="mt-1 text-xs text-warning">
-                            Il ne reste que {preview.months.length} mois à payer : la formule règle seulement ce qui reste.
+                            {t("Il ne reste que {count} mois à payer : la formule règle seulement ce qui reste.", {
+                              count: preview.months.length,
+                            })}
                           </p>
                         )}
                       </>
                     ) : (
-                      <p className="text-muted">Calcul du montant...</p>
+                      <p className="text-muted">{t("Calcul du montant...")}</p>
                     )}
                   </div>
 
@@ -241,14 +254,20 @@ export default function NewPaymentPage() {
                       <Select id="method" value={method} onChange={(event) => setMethod(event.target.value as PaymentMethod)}>
                         {(Object.keys(PAYMENT_METHOD_LABEL) as PaymentMethod[]).map((key) => (
                           <option key={key} value={key}>
-                            {PAYMENT_METHOD_LABEL[key]}
+                            {t(PAYMENT_METHOD_LABEL[key])}
                           </option>
                         ))}
                       </Select>
                     </div>
                     <div>
                       <Label htmlFor="reference">Référence (optionnel)</Label>
-                      <Input id="reference" value={reference} maxLength={100} placeholder="N° de transaction, de chèque..." onChange={(event) => setReference(event.target.value)} />
+                      <Input
+                        id="reference"
+                        value={reference}
+                        maxLength={100}
+                        placeholder={t("N° de transaction, de chèque...")}
+                        onChange={(event) => setReference(event.target.value)}
+                      />
                     </div>
                     <div>
                       <Label htmlFor="paid_at">Date du paiement</Label>
@@ -261,7 +280,7 @@ export default function NewPaymentPage() {
                   </div>
 
                   <Button type="submit" loading={isSaving} disabled={!preview}>
-                    <Check className="size-4" /> Encaisser {preview ? formatMoney(preview.amount) : ""}
+                    <Check className="size-4" /> {t("Encaisser {amount}", { amount: preview ? formatMoney(preview.amount) : "" })}
                   </Button>
                 </CardContent>
               </Card>

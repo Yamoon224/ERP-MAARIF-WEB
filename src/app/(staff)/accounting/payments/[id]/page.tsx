@@ -13,6 +13,7 @@ import { getErrorMessage } from "@/lib/api/error";
 import type { Payment, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { formatDate, formatDateTime, formatMoney, formatMonth } from "@/lib/utils/format";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -29,6 +30,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
  * feuille est imprimée). Un reçu annulé reste consultable, marqué ANNULÉ.
  */
 export default function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "accounting.manage");
 
@@ -41,7 +43,8 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     getPayment(id)
       .then(setPayment)
-      .catch(() => setError("Reçu introuvable."));
+      .catch(() => setError(t("Reçu introuvable.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function handleCancel(event: React.FormEvent) {
@@ -55,7 +58,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
       setPayment(await cancelPayment(payment.id, reason.trim()));
       setIsCancelling(false);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'annuler ce paiement."));
+      setError(getErrorMessage(failure, t("Impossible d'annuler ce paiement.")));
     } finally {
       setIsSaving(false);
     }
@@ -66,11 +69,11 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
       <div className="space-y-4">
         <Alert>{error}</Alert>
         <Link href="/accounting/payments" className="text-sm font-medium text-primary hover:underline">
-          Retour aux paiements
+          {t("Retour aux paiements")}
         </Link>
       </div>
     ) : (
-      <p className="text-sm text-muted">Chargement...</p>
+      <p className="text-sm text-muted">{t("Chargement...")}</p>
     );
   }
 
@@ -80,15 +83,15 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link href="/accounting/payments" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Tous les paiements
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("Tous les paiements")}
         </Link>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => window.print()}>
-            <Printer className="size-4" /> Imprimer
+            <Printer className="size-4" /> {t("Imprimer")}
           </Button>
           {canManage && !isCancelled && !isCancelling && (
             <Button variant="danger" onClick={() => setIsCancelling(true)}>
-              <Ban className="size-4" /> Annuler ce paiement
+              <Ban className="size-4" /> {t("Annuler ce paiement")}
             </Button>
           )}
         </div>
@@ -99,16 +102,18 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
       {isCancelling && (
         <form onSubmit={handleCancel} className="mb-6 max-w-xl rounded-md border border-danger/30 bg-danger/5 p-4 print:hidden" noValidate>
           <p className="mb-3 text-sm text-foreground">
-            Les {payment.months_count} mois réglés par ce reçu redeviendront « à payer ». Le reçu reste consultable, marqué annulé.
+            {t("Les {count} mois réglés par ce reçu redeviendront « à payer ». Le reçu reste consultable, marqué annulé.", {
+              count: payment.months_count,
+            })}
           </p>
           <Label htmlFor="reason">Motif de l&apos;annulation</Label>
           <Input id="reason" value={reason} maxLength={255} autoFocus onChange={(event) => setReason(event.target.value)} />
           <div className="mt-3 flex gap-2">
             <Button type="submit" variant="danger" loading={isSaving} disabled={!reason.trim()}>
-              Confirmer l&apos;annulation
+              {t("Confirmer l'annulation")}
             </Button>
             <Button type="button" variant="secondary" onClick={() => setIsCancelling(false)}>
-              Retour
+              {t("Retour")}
             </Button>
           </div>
         </form>
@@ -120,42 +125,45 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
             <Logo className="size-12" />
             <div>
               <p className="text-lg font-semibold text-foreground">ERP Maarif</p>
-              <p className="text-sm text-muted">Reçu de paiement de scolarité</p>
+              <p className="text-sm text-muted">{t("Reçu de paiement de scolarité")}</p>
             </div>
           </div>
           <div className="text-right">
             <p className="font-mono text-sm font-semibold text-foreground">{payment.receipt_number}</p>
             <p className="text-sm text-muted">{formatDate(payment.paid_at)}</p>
-            {isCancelled && <Badge tone="danger" className="mt-1">ANNULÉ</Badge>}
+            {isCancelled && <Badge tone="danger" className="mt-1">{t("ANNULÉ")}</Badge>}
           </div>
         </header>
 
         {isCancelled && (
           <p className="mt-4 rounded-md border border-danger/40 bg-danger/5 px-4 py-2 text-sm text-danger">
-            Reçu annulé le {formatDateTime(payment.cancelled_at)} - {payment.cancellation_reason}
+            {t("Reçu annulé le {date} - {reason}", {
+              date: formatDateTime(payment.cancelled_at),
+              reason: payment.cancellation_reason ?? "",
+            })}
           </p>
         )}
 
         <dl className="mt-4">
-          <Row label="Élève">
+          <Row label={t("Élève")}>
             {payment.student?.name} <span className="font-mono text-xs text-muted">({payment.student?.matricule})</span>
           </Row>
-          <Row label="Classe">{payment.enrollment?.school_class?.name ?? "-"}</Row>
-          <Row label="Année scolaire">{payment.enrollment?.academic_year}</Row>
-          <Row label="Formule">{payment.period_label}</Row>
-          <Row label="Mois réglés">
+          <Row label={t("Classe")}>{payment.enrollment?.school_class?.name ?? "-"}</Row>
+          <Row label={t("Année scolaire")}>{payment.enrollment?.academic_year}</Row>
+          <Row label={t("Formule")}>{payment.period_label}</Row>
+          <Row label={t("Mois réglés")}>
             <span className="capitalize">{payment.months.map((month) => formatMonth(month)).join(", ")}</span>
           </Row>
-          <Row label="Mode de paiement">
+          <Row label={t("Mode de paiement")}>
             {payment.method_label}
             {payment.reference ? ` · ${payment.reference}` : ""}
           </Row>
-          {payment.note && <Row label="Note">{payment.note}</Row>}
-          <Row label="Reçu par">{payment.received_by?.name ?? "-"}</Row>
+          {payment.note && <Row label={t("Note")}>{payment.note}</Row>}
+          <Row label={t("Reçu par")}>{payment.received_by?.name ?? "-"}</Row>
         </dl>
 
         <p className="mt-6 flex items-baseline justify-between border-t border-border pt-4">
-          <span className="text-sm text-muted">Montant reçu</span>
+          <span className="text-sm text-muted">{t("Montant reçu")}</span>
           <span className={isCancelled ? "text-2xl font-semibold text-muted line-through" : "text-2xl font-semibold text-foreground"}>
             {formatMoney(payment.amount)}
           </span>
