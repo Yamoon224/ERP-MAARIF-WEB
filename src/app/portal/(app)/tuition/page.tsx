@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getMyTuition, listMyPayments } from "@/lib/api/accounting";
 import type { Payment, TuitionStatement } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { formatDate, formatMoney, formatMonth } from "@/lib/utils/format";
 
 /**
@@ -18,6 +19,7 @@ import { formatDate, formatMoney, formatMonth } from "@/lib/utils/format";
  * money pour les mois restants.
  */
 export default function ParentTuitionPage() {
+  const { t } = useT();
   const [statements, setStatements] = useState<TuitionStatement[]>([]);
   const [academicYear, setAcademicYear] = useState("");
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -30,8 +32,9 @@ export default function ParentTuitionPage() {
         setStatements(loaded);
         setAcademicYear(loaded[0]?.enrollment.academic_year ?? "");
       })
-      .catch(() => setError("Impossible de charger la scolarité."))
+      .catch(() => setError(t("Impossible de charger la scolarité.")))
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPayments = useCallback(() => {
@@ -74,12 +77,14 @@ export default function ParentTuitionPage() {
   return (
     <div>
       <PageHeader
-        title="Frais de scolarité"
-        description="La scolarité est mensuelle. Réglez-la au mois, au trimestre, au semestre ou pour l'année, en ligne par mobile money ou auprès de la comptabilité de l'établissement."
+        title={t("Frais de scolarité")}
+        description={t(
+          "La scolarité est mensuelle. Réglez-la au mois, au trimestre, au semestre ou pour l'année, en ligne par mobile money ou auprès de la comptabilité de l'établissement.",
+        )}
         actions={
           statements.length > 1 && (
             <label className="flex flex-col text-xs font-medium text-muted">
-              Année scolaire
+              {t("Année scolaire")}
               <Select className="mt-1 h-9 w-44" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
                 {statements.map((entry) => (
                   <option key={entry.enrollment.id} value={entry.enrollment.academic_year}>
@@ -96,14 +101,14 @@ export default function ParentTuitionPage() {
 
       {!isLoading && !error && statements.length === 0 && (
         <p className="rounded-md border border-border bg-surface px-4 py-8 text-center text-sm text-muted">
-          Aucune inscription enregistrée pour le moment.
+          {t("Aucune inscription enregistrée pour le moment.")}
         </p>
       )}
 
       {statement && (
         <div className="space-y-8">
           <p className="text-sm text-muted">
-            {statement.enrollment.school_class?.name ?? "Classe non renseignée"} · {statement.enrollment.academic_year}
+            {statement.enrollment.school_class?.name ?? t("Classe non renseignée")} · {statement.enrollment.academic_year}
           </p>
 
           <MobileMoneyPayment
@@ -117,9 +122,15 @@ export default function ParentTuitionPage() {
 
           <section aria-labelledby="payments-heading">
             <h2 id="payments-heading" className="mb-3 text-base font-semibold text-foreground">
-              Paiements enregistrés
+              {t("Paiements enregistrés")}
             </h2>
-            <DataTable exportName="Paiements de scolarité" columns={columns} rows={payments} rowKey={(row) => row.id} emptyMessage="Aucun paiement enregistré pour cette année." />
+            <DataTable
+              exportName="Paiements de scolarité"
+              columns={columns}
+              rows={payments}
+              rowKey={(row) => row.id}
+              emptyMessage="Aucun paiement enregistré pour cette année."
+            />
           </section>
         </div>
       )}

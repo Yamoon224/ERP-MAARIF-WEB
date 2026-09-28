@@ -8,11 +8,13 @@ import { loadParentFeed } from "@/components/layout/notificationSources";
 import { parentLogout } from "@/lib/api/auth";
 import type { StudentAccount } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 
 const NOTIFICATIONS = { load: loadParentFeed, footer: { href: "/portal/tuition", label: "Voir la scolarité" } };
 
 /** Portail parent : suivi de l'élève dont le matricule a servi à la connexion. */
 export function ParentShell({ children }: { children: ReactNode }) {
+  const { t } = useT();
   const router = useRouter();
   const student = useAuthStore((state) => state.user as StudentAccount | null);
   const clear = useAuthStore((state) => state.clear);
@@ -33,7 +35,7 @@ export function ParentShell({ children }: { children: ReactNode }) {
       shortcutHrefs={PARENT_SHORTCUTS}
       brandSubtitle="Espace parent"
       user={{
-        name: student ? `${student.first_name} ${student.last_name}` : "Élève",
+        name: student ? `${student.first_name} ${student.last_name}` : t("Élève"),
         subtitle: student?.matricule ?? "",
       }}
       profileHref="/portal/profile"

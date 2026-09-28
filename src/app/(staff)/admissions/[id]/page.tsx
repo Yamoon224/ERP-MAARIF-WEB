@@ -16,6 +16,7 @@ import { getErrorMessage } from "@/lib/api/error";
 import type { Admission, AdmissionEnrollment, AdmissionStatus, SchoolClass, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { ADMISSION_LABEL, ADMISSION_TONE } from "@/lib/labels";
 import { formatDate, formatDateTime } from "@/lib/utils/format";
 
@@ -38,6 +39,7 @@ function Info({ label, children }: { label: string; children: React.ReactNode })
 }
 
 export default function AdmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const router = useRouter();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "admissions.manage");
@@ -53,7 +55,8 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
   useEffect(() => {
     getAdmission(id)
       .then(setAdmission)
-      .catch(() => setError("Candidature introuvable."));
+      .catch(() => setError(t("Candidature introuvable.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const academicYear = admission?.academic_year;
@@ -69,7 +72,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
 
   async function handleStatus(status: DecidableStatus) {
     if (status === "rejected" && !note.trim()) {
-      setError("Un refus doit être motivé : saisissez le motif dans la note.");
+      setError(t("Un refus doit être motivé : saisissez le motif dans la note."));
       return;
     }
 
@@ -80,7 +83,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
       setAdmission(await changeAdmissionStatus(id, status, note.trim() || undefined));
       setNote("");
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de changer le statut."));
+      setError(getErrorMessage(failure, t("Impossible de changer le statut.")));
     } finally {
       setBusy(false);
     }
@@ -98,14 +101,14 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
       setEnrollment(result);
       setAdmission(result.application);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'inscrire ce candidat."));
+      setError(getErrorMessage(failure, t("Impossible d'inscrire ce candidat.")));
     } finally {
       setBusy(false);
     }
   }
 
   async function handleDelete() {
-    if (!window.confirm("Supprimer définitivement ce dossier de candidature ?")) return;
+    if (!window.confirm(t("Supprimer définitivement ce dossier de candidature ?"))) return;
 
     setBusy(true);
     setError(null);
@@ -114,13 +117,13 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
       await deleteAdmission(id);
       router.push("/admissions");
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de supprimer ce dossier."));
+      setError(getErrorMessage(failure, t("Impossible de supprimer ce dossier.")));
       setBusy(false);
     }
   }
 
   if (!admission) {
-    return error ? <Alert>{error}</Alert> : <p className="text-sm text-muted">Chargement...</p>;
+    return error ? <Alert>{error}</Alert> : <p className="text-sm text-muted">{t("Chargement...")}</p>;
   }
 
   const isEnrolled = admission.status === "enrolled";
@@ -132,14 +135,14 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
         description={`${admission.reference} · ${admission.level} · ${admission.academic_year}`}
         actions={
           <>
-            <Badge tone={ADMISSION_TONE[admission.status]}>{ADMISSION_LABEL[admission.status]}</Badge>
+            <Badge tone={ADMISSION_TONE[admission.status]}>{t(ADMISSION_LABEL[admission.status])}</Badge>
             {canManage && !isEnrolled && (
               <Link href={`/admissions/${id}/edit`} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
-                <Pencil className="size-4" aria-hidden="true" /> Modifier le dossier
+                <Pencil className="size-4" aria-hidden="true" /> {t("Modifier le dossier")}
               </Link>
             )}
             <Link href="/admissions" className="text-sm font-medium text-primary hover:underline">
-              ← Toutes les candidatures
+              {t("← Toutes les candidatures")}
             </Link>
           </>
         }
@@ -153,11 +156,11 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Candidat</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Info label="Sexe">{admission.gender === "M" ? "Masculin" : "Féminin"}</Info>
-            <Info label="Naissance">{admission.birth_date ? formatDate(admission.birth_date) : null}</Info>
-            <Info label="Établissement d'origine">{admission.previous_school}</Info>
-            <Info label="Déposée le">{formatDate(admission.submitted_on)}</Info>
-            <Info label="Remarques">{admission.notes}</Info>
+            <Info label={t("Sexe")}>{admission.gender === "M" ? t("Masculin") : t("Féminin")}</Info>
+            <Info label={t("Naissance")}>{admission.birth_date ? formatDate(admission.birth_date) : null}</Info>
+            <Info label={t("Établissement d'origine")}>{admission.previous_school}</Info>
+            <Info label={t("Déposée le")}>{formatDate(admission.submitted_on)}</Info>
+            <Info label={t("Remarques")}>{admission.notes}</Info>
           </CardContent>
         </Card>
 
@@ -166,10 +169,10 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Tuteur</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Info label="Nom">{admission.guardian_name}</Info>
-            <Info label="Téléphone">{admission.guardian_phone}</Info>
-            <Info label="E-mail">{admission.guardian_email}</Info>
-            <Info label="Adresse">{admission.address}</Info>
+            <Info label={t("Nom")}>{admission.guardian_name}</Info>
+            <Info label={t("Téléphone")}>{admission.guardian_phone}</Info>
+            <Info label={t("E-mail")}>{admission.guardian_email}</Info>
+            <Info label={t("Adresse")}>{admission.address}</Info>
           </CardContent>
         </Card>
       </div>
@@ -180,10 +183,12 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Dernière décision</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Info label="Le">{formatDateTime(admission.decided_at)}</Info>
-            <Info label="Par">{admission.decided_by?.name}</Info>
-            <Info label="Note">{admission.decision_note}</Info>
-            <Info label="Tuteur notifié">{admission.notified_at ? `Oui, le ${formatDateTime(admission.notified_at)}` : "Non"}</Info>
+            <Info label={t("Le")}>{formatDateTime(admission.decided_at)}</Info>
+            <Info label={t("Par")}>{admission.decided_by?.name}</Info>
+            <Info label={t("Note")}>{admission.decision_note}</Info>
+            <Info label={t("Tuteur notifié")}>
+              {admission.notified_at ? t("Oui, le {date}", { date: formatDateTime(admission.notified_at) }) : t("Non")}
+            </Info>
           </CardContent>
         </Card>
       )}
@@ -195,7 +200,9 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted">
-              Admettre, mettre en liste d&apos;attente ou refuser prévient aussitôt le tuteur par e-mail ou SMS. La mise en étude reste interne.
+              {t(
+                "Admettre, mettre en liste d'attente ou refuser prévient aussitôt le tuteur par e-mail ou SMS. La mise en étude reste interne.",
+              )}
             </p>
             <div>
               <Label htmlFor="decision-note">Note (obligatoire pour un refus)</Label>
@@ -203,7 +210,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
                 id="decision-note"
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Motif ou commentaire lié à la décision"
+                placeholder={t("Motif ou commentaire lié à la décision")}
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -215,7 +222,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
                   disabled={busy || admission.status === status}
                   onClick={() => handleStatus(status)}
                 >
-                  <Icon className="size-4" /> {label}
+                  <Icon className="size-4" /> {t(label)}
                 </Button>
               ))}
             </div>
@@ -231,16 +238,16 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
           <CardContent className="space-y-4">
             {classes.length === 0 ? (
               <p className="text-sm text-muted">
-                Aucune classe n&apos;existe pour l&apos;année {admission.academic_year} : créez-la d&apos;abord dans{" "}
+                {t("Aucune classe n'existe pour l'année {year} : créez-la d'abord dans", { year: admission.academic_year })}{" "}
                 <Link href="/classes" className="font-medium text-primary hover:underline">
-                  Classes
+                  {t("Classes")}
                 </Link>
                 .
               </p>
             ) : (
               <div className="flex flex-wrap items-end gap-3">
                 <label className="text-sm font-medium text-foreground">
-                  Classe
+                  {t("Classe")}
                   <Select className="mt-1.5 w-56" value={selectedClassId || classes[0].id} onChange={(event) => setSelectedClassId(event.target.value)}>
                     {classes.map((schoolClass) => (
                       <option key={schoolClass.id} value={schoolClass.id}>
@@ -250,7 +257,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
                   </Select>
                 </label>
                 <Button type="button" loading={busy} onClick={handleEnroll}>
-                  <UserCheck className="size-4" /> Inscrire l&apos;élève
+                  <UserCheck className="size-4" /> {t("Inscrire l'élève")}
                 </Button>
               </div>
             )}
@@ -264,10 +271,10 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Élève inscrit</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <p className="text-muted">Remettez ces identifiants au tuteur : le mot de passe ne sera plus jamais affiché en clair.</p>
+            <p className="text-muted">{t("Remettez ces identifiants au tuteur : le mot de passe ne sera plus jamais affiché en clair.")}</p>
             <div className="rounded-md border border-border bg-background p-4 font-mono">
-              <p>Matricule : {enrollment.student.matricule}</p>
-              <p>Mot de passe : {enrollment.initial_password}</p>
+              <p>{t("Matricule : {matricule}", { matricule: enrollment.student.matricule })}</p>
+              <p>{t("Mot de passe : {password}", { password: enrollment.initial_password })}</p>
             </div>
           </CardContent>
         </Card>
@@ -277,9 +284,10 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
         <Card accent="grades">
           <CardContent className="flex flex-wrap items-center gap-3 pt-5 text-sm">
             <Clock className="size-4 text-muted" aria-hidden="true" />
-            Inscrit le {formatDateTime(admission.enrolled_at)} · matricule <span className="font-mono">{admission.student.matricule}</span>
+            {t("Inscrit le {date} · matricule", { date: formatDateTime(admission.enrolled_at) })}{" "}
+            <span className="font-mono">{admission.student.matricule}</span>
             <Link href={`/students/${admission.student.id}`} className="font-medium text-primary hover:underline">
-              Ouvrir le dossier de l&apos;élève
+              {t("Ouvrir le dossier de l'élève")}
             </Link>
           </CardContent>
         </Card>
@@ -288,7 +296,7 @@ export default function AdmissionDetailPage({ params }: { params: Promise<{ id: 
       {canManage && !isEnrolled && (
         <div>
           <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={handleDelete}>
-            <Trash2 className="size-4" /> Supprimer le dossier
+            <Trash2 className="size-4" /> {t("Supprimer le dossier")}
           </Button>
         </div>
       )}

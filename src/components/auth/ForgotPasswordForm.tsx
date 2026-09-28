@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
 import { requestParentPasswordReset, requestStaffPasswordReset } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
+import { useT } from "@/lib/i18n/store";
 import { parentForgotPasswordSchema, staffForgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validation/auth";
 
 const CONTENT = {
@@ -46,6 +47,7 @@ const CONTENT = {
  * tel quel évite de transformer ce formulaire public en oracle de comptes.
  */
 export function ForgotPasswordForm({ audience }: { audience: AuthAudience }) {
+  const { t } = useT();
   const content = CONTENT[audience];
   const [serverError, setServerError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export function ForgotPasswordForm({ audience }: { audience: AuthAudience }) {
     try {
       setConfirmation(await content.request(values.identifier));
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible d'envoyer le lien pour le moment. Réessayez dans un instant."));
+      setServerError(getErrorMessage(error, t("Impossible d'envoyer le lien pour le moment. Réessayez dans un instant.")));
     }
   }
 
@@ -73,7 +75,7 @@ export function ForgotPasswordForm({ audience }: { audience: AuthAudience }) {
           <CircleCheck className="size-6 text-success" aria-hidden="true" />
           <p className="mt-3 text-sm text-foreground">{confirmation}</p>
           <p className="mt-2 text-sm text-muted">
-            Le lien est à usage unique et expire rapidement. Pensez à vérifier vos courriers indésirables.
+            {t("Le lien est à usage unique et expire rapidement. Pensez à vérifier vos courriers indésirables.")}
           </p>
         </div>
       ) : (
@@ -92,7 +94,7 @@ export function ForgotPasswordForm({ audience }: { audience: AuthAudience }) {
           </AuthField>
 
           <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
-            Envoyer le lien
+            {t("Envoyer le lien")}
             {!isSubmitting && <ArrowRight className="size-4" aria-hidden="true" />}
           </Button>
         </form>
@@ -100,7 +102,7 @@ export function ForgotPasswordForm({ audience }: { audience: AuthAudience }) {
 
       <Link href={content.loginHref} className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
         <ArrowLeft className="size-4" aria-hidden="true" />
-        Retour à la connexion
+        {t("Retour à la connexion")}
       </Link>
     </AuthShell>
   );

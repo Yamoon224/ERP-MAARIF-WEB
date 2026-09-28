@@ -11,6 +11,7 @@ import { listAcademicYears } from "@/lib/api/academics";
 import type { AdmissionPayload } from "@/lib/api/admissions";
 import { getErrorMessage } from "@/lib/api/error";
 import type { AcademicYear } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { admissionSchema, type AdmissionFormInput } from "@/lib/validation/admissions";
 
 interface AdmissionFormProps {
@@ -24,6 +25,7 @@ interface AdmissionFormProps {
 
 /** Formulaire d'un dossier de candidature, partagé par la création et la modification. */
 export function AdmissionForm({ defaultValues, submitLabel, failureMessage, onSubmit, onCancel }: AdmissionFormProps) {
+  const { t } = useT();
   const [years, setYears] = useState<AcademicYear[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -82,25 +84,25 @@ export function AdmissionForm({ defaultValues, submitLabel, failureMessage, onSu
             </div>
             <div>
               <Label htmlFor="level">Niveau demandé</Label>
-              <Input id="level" placeholder="6ème" {...register("level")} />
+              <Input id="level" placeholder={t("6ème")} {...register("level")} />
               <FieldError>{errors.level?.message}</FieldError>
             </div>
             <div>
               <Label htmlFor="first_name">Prénom</Label>
-              <Input id="first_name" placeholder="Prénom du candidat" {...register("first_name")} />
+              <Input id="first_name" placeholder={t("Prénom du candidat")} {...register("first_name")} />
               <FieldError>{errors.first_name?.message}</FieldError>
             </div>
             <div>
               <Label htmlFor="last_name">Nom</Label>
-              <Input id="last_name" placeholder="Nom de famille" {...register("last_name")} />
+              <Input id="last_name" placeholder={t("Nom de famille")} {...register("last_name")} />
               <FieldError>{errors.last_name?.message}</FieldError>
             </div>
             <div>
               <Label htmlFor="gender">Sexe</Label>
               <Select id="gender" {...register("gender")}>
-                <option value="">Sélectionner...</option>
-                <option value="M">Masculin</option>
-                <option value="F">Féminin</option>
+                <option value="">{t("Sélectionner...")}</option>
+                <option value="M">{t("Masculin")}</option>
+                <option value="F">{t("Féminin")}</option>
               </Select>
               <FieldError>{errors.gender?.message}</FieldError>
             </div>
@@ -111,7 +113,7 @@ export function AdmissionForm({ defaultValues, submitLabel, failureMessage, onSu
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="previous_school">Établissement d&apos;origine (optionnel)</Label>
-              <Input id="previous_school" placeholder="École ou collège fréquenté" {...register("previous_school")} />
+              <Input id="previous_school" placeholder={t("École ou collège fréquenté")} {...register("previous_school")} />
             </div>
           </div>
 
@@ -120,12 +122,12 @@ export function AdmissionForm({ defaultValues, submitLabel, failureMessage, onSu
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="guardian_name">Nom du tuteur</Label>
-              <Input id="guardian_name" placeholder="Nom complet du tuteur" {...register("guardian_name")} />
+              <Input id="guardian_name" placeholder={t("Nom complet du tuteur")} {...register("guardian_name")} />
               <FieldError>{errors.guardian_name?.message}</FieldError>
             </div>
             <div>
               <Label htmlFor="guardian_phone">Téléphone du tuteur</Label>
-              <Input id="guardian_phone" placeholder="Numéro de téléphone" {...register("guardian_phone")} />
+              <Input id="guardian_phone" placeholder={t("Numéro de téléphone")} {...register("guardian_phone")} />
               <FieldError>{errors.guardian_phone?.message}</FieldError>
             </div>
             <div>
@@ -135,17 +137,17 @@ export function AdmissionForm({ defaultValues, submitLabel, failureMessage, onSu
             </div>
             <div>
               <Label htmlFor="address">Adresse</Label>
-              <Input id="address" placeholder="Rue, quartier, ville" {...register("address")} />
+              <Input id="address" placeholder={t("Rue, quartier, ville")} {...register("address")} />
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="notes">Remarques (optionnel)</Label>
-              <Textarea id="notes" placeholder="Informations utiles pour l'étude du dossier" {...register("notes")} />
+              <Textarea id="notes" placeholder={t("Informations utiles pour l'étude du dossier")} {...register("notes")} />
             </div>
           </div>
 
           <div className="flex justify-end gap-3">
             <Button type="button" variant="secondary" onClick={onCancel}>
-              Annuler
+              {t("Annuler")}
             </Button>
             <Button type="submit" loading={isSubmitting}>
               {submitLabel}

@@ -24,6 +24,7 @@ import { useAuthStore } from "@/lib/auth/store";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import { PAYMENT_METHOD_LABEL } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
@@ -39,6 +40,7 @@ function detail(expense: Expense): string {
 }
 
 export default function ExpensesPage() {
+  const { t } = useT();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "expenses.manage");
   const period = usePeriodFilter();
 
@@ -68,12 +70,13 @@ export default function ExpensesPage() {
         if (!cancelled) setSummary(loaded);
       })
       .catch(() => {
-        if (!cancelled) setSummaryError("Impossible de charger le bilan des dépenses.");
+        if (!cancelled) setSummaryError(t("Impossible de charger le bilan des dépenses."));
       });
 
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period.isReady, period.params]);
 
   const filters = useMemo(
@@ -127,26 +130,26 @@ export default function ExpensesPage() {
     {
       key: "status",
       header: "Statut",
-      render: (row) => (row.status === "valid" ? <Badge tone="success">Valide</Badge> : <Badge tone="danger">Annulée</Badge>),
+      render: (row) => (row.status === "valid" ? <Badge tone="success">{t("Valide")}</Badge> : <Badge tone="danger">{t("Annulée")}</Badge>),
     },
   ];
 
   return (
     <div>
       <PageHeader
-        title="Dépenses et approvisionnements"
-        description="Achats de craies, de registres et de fournitures, factures et réparations de l'établissement."
+        title={t("Dépenses et approvisionnements")}
+        description={t("Achats de craies, de registres et de fournitures, factures et réparations de l'établissement.")}
         actions={
           canManage && (
             <>
               <Link href="/expenses/categories">
                 <Button variant="secondary">
-                  <Tags className="size-4" /> Catégories
+                  <Tags className="size-4" /> {t("Catégories")}
                 </Button>
               </Link>
               <Link href="/expenses/new">
                 <Button>
-                  <Plus className="size-4" /> Nouvelle dépense
+                  <Plus className="size-4" /> {t("Nouvelle dépense")}
                 </Button>
               </Link>
             </>
@@ -162,23 +165,31 @@ export default function ExpensesPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <StatCard
-              label="Total dépensé"
+              label={t("Total dépensé")}
               value={formatMoney(summary.total.total)}
-              hint="Dépenses valides de la période"
+              hint={t("Dépenses valides de la période")}
               icon={<Receipt className="size-4" />}
               accent="attendance"
             />
             <StatCard
-              label="Achats enregistrés"
+              label={t("Achats enregistrés")}
               value={summary.total.count}
-              hint={summary.total.count > 0 ? `${formatMoney(summary.total.total / summary.total.count)} en moyenne` : "Aucune dépense"}
+              hint={
+                summary.total.count > 0
+                  ? t("{amount} en moyenne", { amount: formatMoney(summary.total.total / summary.total.count) })
+                  : t("Aucune dépense")
+              }
               icon={<Tags className="size-4" />}
               accent="grades"
             />
             <StatCard
-              label="Premier poste"
+              label={t("Premier poste")}
               value={topCategory ? topCategory.name : "-"}
-              hint={topCategory ? `${formatMoney(topCategory.total)} · ${topCategory.count} dépense(s)` : "Aucune dépense"}
+              hint={
+                topCategory
+                  ? t("{amount} · {count} dépense(s)", { amount: formatMoney(topCategory.total), count: topCategory.count })
+                  : t("Aucune dépense")
+              }
               icon={<Trophy className="size-4" />}
               accent="academics"
             />
@@ -191,11 +202,11 @@ export default function ExpensesPage() {
               </CardHeader>
               <CardContent>
                 {summary.by_month.length === 0 ? (
-                  <p className="text-sm text-muted">Aucune dépense.</p>
+                  <p className="text-sm text-muted">{t("Aucune dépense.")}</p>
                 ) : (
                   <ColumnChart
-                    ariaLabel="Dépenses par mois"
-                    series={[{ key: "spent", label: "Dépenses", color: seriesColor(1) }]}
+                    ariaLabel={t("Dépenses par mois")}
+                    series={[{ key: "spent", label: t("Dépenses"), color: seriesColor(1) }]}
                     data={summary.by_month.map((entry, index) => ({
                       label: formatMonthAxis(entry.month, index),
                       fullLabel: formatMonth(entry.month),
@@ -213,12 +224,12 @@ export default function ExpensesPage() {
               </CardHeader>
               <CardContent>
                 <DonutChart
-                  ariaLabel="Répartition des dépenses par catégorie"
+                  ariaLabel={t("Répartition des dépenses par catégorie")}
                   slices={toSlices(summary.by_category.map((category) => ({ key: category.id, label: category.name, value: category.total })))}
                   formatValue={formatMoney}
                   formatCenter={formatTick}
-                  totalLabel="dépensés"
-                  emptyMessage="Aucune dépense sur la période."
+                  totalLabel={t("dépensés")}
+                  emptyMessage={t("Aucune dépense sur la période.")}
                 />
               </CardContent>
             </Card>
@@ -227,11 +238,11 @@ export default function ExpensesPage() {
       )}
 
       <div className="mt-8 mb-4 flex flex-wrap items-end gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Désignation, fournisseur, n° de facture..." />
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Désignation, fournisseur, n° de facture...")} />
         <label className="flex flex-col text-xs font-medium text-muted">
-          Catégorie
+          {t("Catégorie")}
           <Select className="mt-1 h-9 w-56" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
-            <option value="">Toutes</option>
+            <option value="">{t("Toutes")}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -240,22 +251,22 @@ export default function ExpensesPage() {
           </Select>
         </label>
         <label className="flex flex-col text-xs font-medium text-muted">
-          Mode
+          {t("Mode")}
           <Select className="mt-1 h-9 w-40" value={method} onChange={(event) => setMethod(event.target.value as typeof method)}>
-            <option value="">Tous</option>
+            <option value="">{t("Tous")}</option>
             {(Object.keys(PAYMENT_METHOD_LABEL) as PaymentMethod[]).map((key) => (
               <option key={key} value={key}>
-                {PAYMENT_METHOD_LABEL[key]}
+                {t(PAYMENT_METHOD_LABEL[key])}
               </option>
             ))}
           </Select>
         </label>
         <label className="flex flex-col text-xs font-medium text-muted">
-          Statut
+          {t("Statut")}
           <Select className="mt-1 h-9 w-36" value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
-            <option value="">Tous</option>
-            <option value="valid">Valides</option>
-            <option value="cancelled">Annulées</option>
+            <option value="">{t("Tous")}</option>
+            <option value="valid">{t("Valides")}</option>
+            <option value="cancelled">{t("Annulées")}</option>
           </Select>
         </label>
       </div>

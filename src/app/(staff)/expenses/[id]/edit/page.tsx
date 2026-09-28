@@ -8,6 +8,7 @@ import { Alert } from "@/components/ui/Alert";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getExpense, updateExpense } from "@/lib/api/expenses";
 import type { Expense } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import type { ExpenseFormInput } from "@/lib/validation/expenses";
 
 /** Valeurs du formulaire d'après une dépense : les champs vides de l'API deviennent des chaînes vides. */
@@ -27,6 +28,7 @@ function toFormValues(expense: Expense): ExpenseFormInput {
 }
 
 export default function EditExpensePage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const router = useRouter();
   const [expense, setExpense] = useState<Expense | null>(null);
@@ -38,8 +40,8 @@ export default function EditExpensePage({ params }: { params: Promise<{ id: stri
       .catch(() => setFailed(true));
   }, [id]);
 
-  if (failed) return <Alert>Dépense introuvable.</Alert>;
-  if (!expense) return <p className="text-sm text-muted">Chargement...</p>;
+  if (failed) return <Alert>{t("Dépense introuvable.")}</Alert>;
+  if (!expense) return <p className="text-sm text-muted">{t("Chargement...")}</p>;
 
   const back = `/expenses/${id}`;
 
@@ -47,9 +49,9 @@ export default function EditExpensePage({ params }: { params: Promise<{ id: stri
   if (expense.status === "cancelled") {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <Alert>Cette dépense est annulée : elle ne peut plus être modifiée. Saisissez-en une nouvelle.</Alert>
+        <Alert>{t("Cette dépense est annulée : elle ne peut plus être modifiée. Saisissez-en une nouvelle.")}</Alert>
         <Link href={back} className="text-sm font-medium text-primary hover:underline">
-          ← Retour à la dépense
+          {t("← Retour à la dépense")}
         </Link>
       </div>
     );
@@ -57,13 +59,16 @@ export default function EditExpensePage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title={`Modifier ${expense.number}`} description="Le numéro et l'auteur de la saisie ne changent pas ; le montant est recalculé." />
+      <PageHeader
+        title={t("Modifier {number}", { number: expense.number })}
+        description={t("Le numéro et l'auteur de la saisie ne changent pas ; le montant est recalculé.")}
+      />
 
       <ExpenseForm
         defaultValues={toFormValues(expense)}
         currentCategory={expense.category}
-        submitLabel="Enregistrer les modifications"
-        failureMessage="Impossible de modifier cette dépense."
+        submitLabel={t("Enregistrer les modifications")}
+        failureMessage={t("Impossible de modifier cette dépense.")}
         onSubmit={async (payload) => {
           await updateExpense(id, payload);
           router.push(back);

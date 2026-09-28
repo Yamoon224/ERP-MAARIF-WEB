@@ -17,8 +17,10 @@ import { staffLoginSchema, type StaffLoginInput } from "@/lib/validation/auth";
 import { staffLogin } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 
 export default function StaffLoginPage() {
+  const { t } = useT();
   const router = useRouter();
   const setSession = useAuthStore((state) => state.setSession);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function StaffLoginPage() {
       setSession(token, "staff", user, values.remember);
       router.push("/dashboard");
     } catch (error) {
-      setServerError(getErrorMessage(error, "Identifiants invalides."));
+      setServerError(getErrorMessage(error, t("Identifiants invalides.")));
     }
   }
 
@@ -65,21 +67,21 @@ export default function StaffLoginPage() {
           <PasswordInput
             id="password"
             autoComplete="current-password"
-            placeholder="Votre mot de passe"
+            placeholder={t("Votre mot de passe")}
             className="h-11 pl-10"
             {...register("password")}
           />
         </AuthField>
 
         <div className="flex items-center justify-between gap-4">
-          <Checkbox label="Se souvenir de moi" {...register("remember")} />
+          <Checkbox label={t("Se souvenir de moi")} {...register("remember")} />
           <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
-            Mot de passe oublié ?
+            {t("Mot de passe oublié ?")}
           </Link>
         </div>
 
         <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
-          Se connecter
+          {t("Se connecter")}
           {!isSubmitting && <ArrowRight className="size-4" aria-hidden="true" />}
         </Button>
       </form>

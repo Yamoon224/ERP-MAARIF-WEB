@@ -14,6 +14,7 @@ import {
 } from "@/lib/api/accounting";
 import { getErrorMessage } from "@/lib/api/error";
 import type { MobileMoneyOperator, MobileMoneyTransaction, PaymentPeriod, PaymentPreview } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { PAYMENT_PERIOD_HINT, PAYMENT_PERIOD_LABEL } from "@/lib/labels";
 import { cn } from "@/lib/utils/cn";
 import { formatMoney, formatMonth } from "@/lib/utils/format";
@@ -51,6 +52,7 @@ function monthsLabel(months: string[]): string {
  * interroge l'opérateur jusqu'à la confirmation, qui délivre le reçu.
  */
 export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollIntervalMs = 3000 }: MobileMoneyPaymentProps) {
+  const { t } = useT();
   const [period, setPeriod] = useState<PaymentPeriod>("monthly");
   const [preview, setPreview] = useState<PaymentPreview | null>(null);
   const [operator, setOperator] = useState<MobileMoneyOperator>("orange_money");
@@ -108,7 +110,7 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
     try {
       setTransaction(await startMobileMoneyPayment({ enrollment_id: enrollmentId, period, operator, phone }));
     } catch (submitError) {
-      setError(getErrorMessage(submitError, "Impossible de lancer le paiement."));
+      setError(getErrorMessage(submitError, t("Impossible de lancer le paiement.")));
     } finally {
       setIsSubmitting(false);
     }
@@ -124,25 +126,25 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Smartphone className="size-5 text-primary" aria-hidden="true" />
-          Payer par mobile money
+          {t("Payer par mobile money")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {remaining <= 0 ? (
-          <p className="text-sm text-muted">La scolarité de cette année est entièrement réglée. Merci !</p>
+          <p className="text-sm text-muted">{t("La scolarité de cette année est entièrement réglée. Merci !")}</p>
         ) : transaction ? (
           <Outcome transaction={transaction} onReset={reset} />
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <p className="text-sm text-muted">
-              Choisissez ce que vous réglez, puis validez la demande sur votre téléphone. Les mois les plus anciens sont réglés en premier.
+              {t("Choisissez ce que vous réglez, puis validez la demande sur votre téléphone. Les mois les plus anciens sont réglés en premier.")}
             </p>
 
             {error && <Alert>{error}</Alert>}
 
             <fieldset>
-              <legend className="mb-2 text-sm font-medium text-foreground">Formule</legend>
-              <div role="radiogroup" aria-label="Formule de paiement" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <legend className="mb-2 text-sm font-medium text-foreground">{t("Formule")}</legend>
+              <div role="radiogroup" aria-label={t("Formule de paiement")} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {PERIODS.map((option) => (
                   <button
                     key={option}
@@ -155,8 +157,8 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
                       period === option ? "selected-brand" : "border-border hover:bg-foreground/5",
                     )}
                   >
-                    <span className="block text-sm font-semibold text-foreground">{PAYMENT_PERIOD_LABEL[option]}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{PAYMENT_PERIOD_HINT[option]}</span>
+                    <span className="block text-sm font-semibold text-foreground">{t(PAYMENT_PERIOD_LABEL[option])}</span>
+                    <span className="mt-0.5 block text-xs text-muted">{t(PAYMENT_PERIOD_HINT[option])}</span>
                   </button>
                 ))}
               </div>
@@ -164,14 +166,15 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
 
             {preview && preview.months.length > 0 && (
               <p className="rounded-md bg-background px-4 py-3 text-sm" aria-live="polite">
-                <span className="capitalize">{monthsLabel(preview.months)}</span> · {preview.months.length} mois ·{" "}
+                <span className="capitalize">{monthsLabel(preview.months)}</span> ·{" "}
+                {t("{count} mois", { count: preview.months.length })} ·{" "}
                 <span className="font-semibold text-foreground">{formatMoney(preview.amount)}</span>
               </p>
             )}
 
             <fieldset>
-              <legend className="mb-2 text-sm font-medium text-foreground">Opérateur</legend>
-              <div role="radiogroup" aria-label="Opérateur mobile money" className="grid gap-3 sm:grid-cols-3">
+              <legend className="mb-2 text-sm font-medium text-foreground">{t("Opérateur")}</legend>
+              <div role="radiogroup" aria-label={t("Opérateur mobile money")} className="grid gap-3 sm:grid-cols-3">
                 {OPERATORS.map((option) => (
                   <button
                     key={option.value}
@@ -191,7 +194,7 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
             </fieldset>
 
             <div className="max-w-sm">
-              <Label htmlFor="mobile-money-phone">Numéro mobile money</Label>
+              <Label htmlFor="mobile-money-phone">{t("Numéro mobile money")}</Label>
               <Input
                 id="mobile-money-phone"
                 type="tel"
@@ -201,11 +204,11 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
               />
-              <p className="mt-1.5 text-xs text-muted">Le numéro du compte qui paie. Vous recevrez la demande sur ce téléphone.</p>
+              <p className="mt-1.5 text-xs text-muted">{t("Le numéro du compte qui paie. Vous recevrez la demande sur ce téléphone.")}</p>
             </div>
 
             <Button type="submit" loading={isSubmitting} disabled={!preview || preview.months.length === 0 || phone.trim() === ""}>
-              {preview && preview.months.length > 0 ? `Payer ${formatMoney(preview.amount)}` : "Payer"}
+              {preview && preview.months.length > 0 ? t("Payer {amount}", { amount: formatMoney(preview.amount) }) : t("Payer")}
             </Button>
           </form>
         )}
@@ -215,6 +218,7 @@ export function MobileMoneyPayment({ enrollmentId, remaining, onPaid, pollInterv
 }
 
 function Outcome({ transaction, onReset }: { transaction: MobileMoneyTransaction; onReset: () => void }) {
+  const { t } = useT();
   const summary = (
     <p className="mt-1 text-sm text-muted">
       <span className="capitalize">{monthsLabel(transaction.months)}</span> · {formatMoney(transaction.amount)} · {transaction.operator_label} ·{" "}
@@ -227,10 +231,11 @@ function Outcome({ transaction, onReset }: { transaction: MobileMoneyTransaction
       <div role="status" aria-live="polite" className="flex items-start gap-3">
         <Loader2 className="mt-0.5 size-5 shrink-0 animate-spin text-primary" aria-hidden="true" />
         <div>
-          <p className="font-medium text-foreground">En attente de votre validation…</p>
+          <p className="font-medium text-foreground">{t("En attente de votre validation…")}</p>
           <p className="mt-1 text-sm text-muted">
-            Une demande de paiement vient d&apos;être envoyée à votre téléphone. Ouvrez-la et saisissez votre code secret pour confirmer.
-            Cette page se met à jour toute seule.
+            {t(
+              "Une demande de paiement vient d'être envoyée à votre téléphone. Ouvrez-la et saisissez votre code secret pour confirmer. Cette page se met à jour toute seule.",
+            )}
           </p>
           {summary}
         </div>
@@ -243,13 +248,13 @@ function Outcome({ transaction, onReset }: { transaction: MobileMoneyTransaction
       <div role="status" className="flex items-start gap-3">
         <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
         <div>
-          <p className="font-medium text-foreground">Paiement confirmé</p>
+          <p className="font-medium text-foreground">{t("Paiement confirmé")}</p>
           <p className="mt-1 text-sm text-muted">
-            Reçu <span className="font-mono text-foreground">{transaction.receipt_number}</span>. Votre relevé est à jour.
+            {t("Reçu")} <span className="font-mono text-foreground">{transaction.receipt_number}</span>. {t("Votre relevé est à jour.")}
           </p>
           {summary}
           <Button variant="outline" size="sm" className="mt-3" onClick={onReset}>
-            <RotateCcw className="size-4" aria-hidden="true" /> Nouveau paiement
+            <RotateCcw className="size-4" aria-hidden="true" /> {t("Nouveau paiement")}
           </Button>
         </div>
       </div>
@@ -259,9 +264,9 @@ function Outcome({ transaction, onReset }: { transaction: MobileMoneyTransaction
   const isReview = transaction.status === "needs_review";
   const Icon = isReview ? Clock : XCircle;
   const title = {
-    failed: "Paiement refusé",
-    expired: "Demande expirée",
-    needs_review: "Paiement à vérifier",
+    failed: t("Paiement refusé"),
+    expired: t("Demande expirée"),
+    needs_review: t("Paiement à vérifier"),
     pending: "",
     successful: "",
   }[transaction.status];
@@ -272,13 +277,13 @@ function Outcome({ transaction, onReset }: { transaction: MobileMoneyTransaction
       <div>
         <p className="font-medium text-foreground">{title}</p>
         <p className="mt-1 text-sm text-muted">
-          {transaction.failure_reason ?? "Le paiement n'a pas abouti."}
-          {isReview && " Ne renouvelez pas le paiement : la comptabilité de l'établissement vous contactera pour régulariser."}
-          {!isReview && " Aucun montant n'a été imputé à votre scolarité."}
+          {transaction.failure_reason ?? t("Le paiement n'a pas abouti.")}
+          {isReview && ` ${t("Ne renouvelez pas le paiement : la comptabilité de l'établissement vous contactera pour régulariser.")}`}
+          {!isReview && ` ${t("Aucun montant n'a été imputé à votre scolarité.")}`}
         </p>
         {summary}
         <Button variant="outline" size="sm" className="mt-3" onClick={onReset}>
-          <RotateCcw className="size-4" aria-hidden="true" /> {isReview ? "Fermer" : "Réessayer"}
+          <RotateCcw className="size-4" aria-hidden="true" /> {isReview ? t("Fermer") : t("Réessayer")}
         </Button>
       </div>
     </div>

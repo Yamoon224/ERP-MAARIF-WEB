@@ -15,6 +15,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { createExpenseCategory, deleteExpenseCategory, listExpenseCategories, updateExpenseCategory } from "@/lib/api/expenses";
 import { getErrorMessage } from "@/lib/api/error";
 import type { ExpenseCategory } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { expenseCategorySchema, type ExpenseCategoryFormInput } from "@/lib/validation/expenses";
 
 /**
@@ -23,6 +24,7 @@ import { expenseCategorySchema, type ExpenseCategoryFormInput } from "@/lib/vali
  * désactive, et elle n'est plus proposée à la saisie.
  */
 export default function ExpenseCategoriesPage() {
+  const { t } = useT();
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +41,9 @@ export default function ExpenseCategoriesPage() {
   const load = useCallback(() => {
     listExpenseCategories()
       .then(setCategories)
-      .catch(() => setError("Impossible de charger les catégories."))
+      .catch(() => setError(t("Impossible de charger les catégories.")))
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(load, [load]);
@@ -53,7 +56,7 @@ export default function ExpenseCategoriesPage() {
       reset();
       load();
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'ajouter cette catégorie."));
+      setError(getErrorMessage(failure, t("Impossible d'ajouter cette catégorie.")));
     }
   }
 
@@ -82,16 +85,16 @@ export default function ExpenseCategoriesPage() {
         editing?.id === row.id ? (
           <div className="space-y-2">
             <Input
-              aria-label={`Nom de ${row.name}`}
+              aria-label={t("Nom de {category}", { category: row.name })}
               value={editing.name}
               maxLength={100}
               onChange={(event) => setEditing({ ...editing, name: event.target.value })}
             />
             <Input
-              aria-label={`Description de ${row.name}`}
+              aria-label={t("Description de {category}", { category: row.name })}
               value={editing.description}
               maxLength={255}
-              placeholder="Description (facultatif)"
+              placeholder={t("Description (facultatif)")}
               onChange={(event) => setEditing({ ...editing, description: event.target.value })}
             />
           </div>
@@ -106,7 +109,7 @@ export default function ExpenseCategoriesPage() {
     {
       key: "status",
       header: "Statut",
-      render: (row) => (row.is_active ? <Badge tone="success">Active</Badge> : <Badge tone="neutral">Désactivée</Badge>),
+      render: (row) => (row.is_active ? <Badge tone="success">{t("Active")}</Badge> : <Badge tone="neutral">{t("Désactivée")}</Badge>),
     },
     {
       key: "actions",
@@ -118,14 +121,18 @@ export default function ExpenseCategoriesPage() {
               size="sm"
               loading={busyId === row.id}
               disabled={!editing.name.trim()}
-              aria-label={`Enregistrer ${row.name}`}
+              aria-label={t("Enregistrer {category}", { category: row.name })}
               onClick={() =>
-                run(row, () => updateExpenseCategory(row.id, { name: editing.name.trim(), description: editing.description.trim() || null }), "Impossible de modifier cette catégorie.")
+                run(
+                  row,
+                  () => updateExpenseCategory(row.id, { name: editing.name.trim(), description: editing.description.trim() || null }),
+                  t("Impossible de modifier cette catégorie."),
+                )
               }
             >
               <Check className="size-4" />
             </Button>
-            <Button size="sm" variant="secondary" aria-label="Annuler la modification" onClick={() => setEditing(null)}>
+            <Button size="sm" variant="secondary" aria-label={t("Annuler la modification")} onClick={() => setEditing(null)}>
               <X className="size-4" />
             </Button>
           </div>
@@ -134,7 +141,7 @@ export default function ExpenseCategoriesPage() {
             <Button
               size="sm"
               variant="secondary"
-              aria-label={`Renommer ${row.name}`}
+              aria-label={t("Renommer {category}", { category: row.name })}
               disabled={busyId !== null}
               onClick={() => setEditing({ id: row.id, name: row.name, description: row.description ?? "" })}
             >
@@ -143,9 +150,19 @@ export default function ExpenseCategoriesPage() {
             <Button
               size="sm"
               variant="secondary"
-              aria-label={`${row.is_active ? "Désactiver" : "Réactiver"} ${row.name}`}
+              aria-label={
+                row.is_active
+                  ? t("Désactiver {category}", { category: row.name })
+                  : t("Réactiver {category}", { category: row.name })
+              }
               disabled={busyId !== null}
-              onClick={() => run(row, () => updateExpenseCategory(row.id, { name: row.name, description: row.description, is_active: !row.is_active }), "Impossible de modifier cette catégorie.")}
+              onClick={() =>
+                run(
+                  row,
+                  () => updateExpenseCategory(row.id, { name: row.name, description: row.description, is_active: !row.is_active }),
+                  t("Impossible de modifier cette catégorie."),
+                )
+              }
             >
               <Power className="size-4" />
             </Button>
@@ -153,11 +170,11 @@ export default function ExpenseCategoriesPage() {
               <Button
                 size="sm"
                 variant="danger"
-                aria-label={`Supprimer ${row.name}`}
+                aria-label={t("Supprimer {category}", { category: row.name })}
                 disabled={busyId !== null}
                 onClick={() => {
-                  if (window.confirm(`Supprimer la catégorie « ${row.name} » ?`)) {
-                    void run(row, () => deleteExpenseCategory(row.id), "Impossible de supprimer cette catégorie.");
+                  if (window.confirm(t("Supprimer la catégorie « {category} » ?", { category: row.name }))) {
+                    void run(row, () => deleteExpenseCategory(row.id), t("Impossible de supprimer cette catégorie."));
                   }
                 }}
               >
@@ -172,10 +189,13 @@ export default function ExpenseCategoriesPage() {
   return (
     <div>
       <Link href="/expenses" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" /> Dépenses
+        <ArrowLeft className="size-4" aria-hidden="true" /> {t("Dépenses")}
       </Link>
 
-      <PageHeader title="Catégories de dépenses" description="Les postes proposés à la saisie d'une dépense : fournitures, registres, entretien..." />
+      <PageHeader
+        title={t("Catégories de dépenses")}
+        description={t("Les postes proposés à la saisie d'une dépense : fournitures, registres, entretien...")}
+      />
 
       {error && <Alert className="mb-4">{error}</Alert>}
 
@@ -184,7 +204,7 @@ export default function ExpenseCategoriesPage() {
           <form onSubmit={handleSubmit(add)} className="grid items-start gap-4 sm:grid-cols-[1fr_1.5fr_auto]" noValidate>
             <div>
               <Label htmlFor="category-name">Nouvelle catégorie</Label>
-              <Input id="category-name" placeholder="Sorties pédagogiques" maxLength={100} {...register("name")} />
+              <Input id="category-name" placeholder={t("Sorties pédagogiques")} maxLength={100} {...register("name")} />
               <FieldError>{errors.name?.message}</FieldError>
             </div>
             <div>
@@ -193,7 +213,7 @@ export default function ExpenseCategoriesPage() {
               <FieldError>{errors.description?.message}</FieldError>
             </div>
             <Button type="submit" className="sm:mt-6" loading={isSubmitting}>
-              <Plus className="size-4" /> Ajouter
+              <Plus className="size-4" /> {t("Ajouter")}
             </Button>
           </form>
         </CardContent>

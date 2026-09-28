@@ -10,11 +10,13 @@ import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { listMySanctions } from "@/lib/api/discipline";
 import type { Sanction } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
 import { formatDate } from "@/lib/utils/format";
 
 export default function ParentSanctionsPage() {
+  const { t } = useT();
   const period = usePeriodFilter({ source: "parent" });
   const { page, perPage, setPage, setPerPage } = usePagination(JSON.stringify(period.params));
   const fetcher = useMemo(
@@ -32,9 +34,16 @@ export default function ParentSanctionsPage() {
 
   return (
     <div>
-      <PageHeader title="Sanctions" />
+      <PageHeader title={t("Sanctions")} />
       <PeriodFilter filter={period} className="mb-4" />
-      <DataTable exportName="Sanctions" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune sanction sur cette période." />
+      <DataTable
+        exportName="Sanctions"
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucune sanction sur cette période."
+      />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

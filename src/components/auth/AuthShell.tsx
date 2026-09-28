@@ -1,9 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { type ComponentType, type ReactNode } from "react";
 import { ClipboardCheck, NotebookPen, Wallet } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 export type AuthAudience = "staff" | "parent";
@@ -75,6 +78,7 @@ interface AuthShellProps {
  * lui qui garantit le contraste du texte blanc sur n'importe quelle photo.
  */
 export function AuthShell({ audience, title, subtitle, children }: AuthShellProps) {
+  const { t } = useT();
   const { image, imageClassName, headline, tagline, highlights } = CONTENT[audience];
 
   return (
@@ -97,8 +101,8 @@ export function AuthShell({ audience, title, subtitle, children }: AuthShellProp
           </div>
 
           <div className="max-w-xl">
-            <h2 className="text-4xl leading-tight font-semibold tracking-tight text-balance xl:text-5xl">{headline}</h2>
-            <p className="mt-4 text-lg text-white/80">{tagline}</p>
+            <h2 className="text-4xl leading-tight font-semibold tracking-tight text-balance xl:text-5xl">{t(headline)}</h2>
+            <p className="mt-4 text-lg text-white/80">{t(tagline)}</p>
 
             <ul className="mt-8 flex flex-wrap gap-2.5">
               {highlights.map(({ icon: Icon, label }) => (
@@ -107,7 +111,7 @@ export function AuthShell({ audience, title, subtitle, children }: AuthShellProp
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur-sm"
                 >
                   <Icon className="size-4" />
-                  {label}
+                  {t(label)}
                 </li>
               ))}
             </ul>
@@ -126,7 +130,7 @@ export function AuthShell({ audience, title, subtitle, children }: AuthShellProp
 
         <div className="flex flex-1 items-center justify-center px-6 pb-12 sm:px-10">
           <div className="auth-rise w-full max-w-sm">
-            <nav aria-label="Type de compte" className="mb-8 grid grid-cols-2 rounded-full border border-border bg-surface p-1 text-sm font-medium">
+            <nav aria-label={t("Type de compte")} className="mb-8 grid grid-cols-2 rounded-full border border-border bg-surface p-1 text-sm font-medium">
               {AUDIENCES.map((item) => {
                 const active = item.key === audience;
 
@@ -141,14 +145,14 @@ export function AuthShell({ audience, title, subtitle, children }: AuthShellProp
                       active ? "bg-brand text-primary-foreground shadow-sm" : "text-muted hover:text-foreground",
                     )}
                   >
-                    {item.label}
+                    {t(item.label)}
                   </Link>
                 );
               })}
             </nav>
 
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
-            <p className="mt-2 mb-8 text-sm text-muted">{subtitle}</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">{t(title)}</h1>
+            <p className="mt-2 mb-8 text-sm text-muted">{t(subtitle)}</p>
 
             {children}
           </div>

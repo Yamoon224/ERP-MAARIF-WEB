@@ -12,6 +12,7 @@ import { getErrorMessage } from "@/lib/api/error";
 import type { Expense, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/utils/format";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -25,6 +26,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 /** Fiche d'une dépense. Une dépense annulée reste consultable, marquée ANNULÉE, avec son motif. */
 export default function ExpenseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "expenses.manage");
 
@@ -37,7 +39,8 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     getExpense(id)
       .then(setExpense)
-      .catch(() => setError("Dépense introuvable."));
+      .catch(() => setError(t("Dépense introuvable.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function handleCancel(event: React.FormEvent) {
@@ -51,7 +54,7 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
       setExpense(await cancelExpense(expense.id, reason.trim()));
       setIsCancelling(false);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'annuler cette dépense."));
+      setError(getErrorMessage(failure, t("Impossible d'annuler cette dépense.")));
     } finally {
       setIsSaving(false);
     }
@@ -62,11 +65,11 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
       <div className="space-y-4">
         <Alert>{error}</Alert>
         <Link href="/expenses" className="text-sm font-medium text-primary hover:underline">
-          Retour aux dépenses
+          {t("Retour aux dépenses")}
         </Link>
       </div>
     ) : (
-      <p className="text-sm text-muted">Chargement...</p>
+      <p className="text-sm text-muted">{t("Chargement...")}</p>
     );
   }
 
@@ -76,17 +79,17 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Link href="/expenses" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Toutes les dépenses
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("Toutes les dépenses")}
         </Link>
         {canManage && !isCancelled && !isCancelling && (
           <div className="flex items-center gap-2">
             <Link href={`/expenses/${expense.id}/edit`}>
               <Button variant="secondary">
-                <Pencil className="size-4" /> Modifier
+                <Pencil className="size-4" /> {t("Modifier")}
               </Button>
             </Link>
             <Button variant="danger" onClick={() => setIsCancelling(true)}>
-              <Ban className="size-4" /> Annuler cette dépense
+              <Ban className="size-4" /> {t("Annuler cette dépense")}
             </Button>
           </div>
         )}
@@ -97,16 +100,16 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
       {isCancelling && (
         <form onSubmit={handleCancel} className="mb-6 max-w-xl rounded-md border border-danger/30 bg-danger/5 p-4" noValidate>
           <p className="mb-3 text-sm text-foreground">
-            La dépense sortira des totaux et des graphiques. Elle reste au registre, marquée annulée, avec le motif.
+            {t("La dépense sortira des totaux et des graphiques. Elle reste au registre, marquée annulée, avec le motif.")}
           </p>
           <Label htmlFor="reason">Motif de l&apos;annulation</Label>
           <Input id="reason" value={reason} maxLength={255} autoFocus onChange={(event) => setReason(event.target.value)} />
           <div className="mt-3 flex gap-2">
             <Button type="submit" variant="danger" loading={isSaving} disabled={!reason.trim()}>
-              Confirmer l&apos;annulation
+              {t("Confirmer l'annulation")}
             </Button>
             <Button type="button" variant="secondary" onClick={() => setIsCancelling(false)}>
-              Retour
+              {t("Retour")}
             </Button>
           </div>
         </form>
@@ -123,7 +126,7 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
             <p className="text-sm text-muted">{formatDate(expense.spent_at)}</p>
             {isCancelled && (
               <Badge tone="danger" className="mt-1">
-                ANNULÉE
+                {t("ANNULÉE")}
               </Badge>
             )}
           </div>
@@ -131,25 +134,28 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
 
         {isCancelled && (
           <p className="mt-4 rounded-md border border-danger/40 bg-danger/5 px-4 py-2 text-sm text-danger">
-            Dépense annulée le {formatDateTime(expense.cancelled_at)} - {expense.cancellation_reason}
+            {t("Dépense annulée le {date} - {reason}", {
+              date: formatDateTime(expense.cancelled_at),
+              reason: expense.cancellation_reason ?? "",
+            })}
           </p>
         )}
 
         <dl className="mt-4">
-          <Row label="Fournisseur">{expense.supplier_name ?? "-"}</Row>
-          <Row label="Quantité">
+          <Row label={t("Fournisseur")}>{expense.supplier_name ?? "-"}</Row>
+          <Row label={t("Quantité")}>
             {expense.quantity.toLocaleString("fr-FR")}
             {expense.unit ? ` ${expense.unit}` : ""}
           </Row>
-          <Row label="Prix unitaire">{formatMoney(expense.unit_price)}</Row>
-          <Row label="Mode de paiement">{expense.method_label}</Row>
-          <Row label="N° de facture ou de bon">{expense.invoice_reference ?? "-"}</Row>
-          {expense.note && <Row label="Note">{expense.note}</Row>}
-          <Row label="Saisie par">{expense.recorded_by?.name ?? "-"}</Row>
+          <Row label={t("Prix unitaire")}>{formatMoney(expense.unit_price)}</Row>
+          <Row label={t("Mode de paiement")}>{expense.method_label}</Row>
+          <Row label={t("N° de facture ou de bon")}>{expense.invoice_reference ?? "-"}</Row>
+          {expense.note && <Row label={t("Note")}>{expense.note}</Row>}
+          <Row label={t("Saisie par")}>{expense.recorded_by?.name ?? "-"}</Row>
         </dl>
 
         <p className="mt-6 flex items-baseline justify-between border-t border-border pt-4">
-          <span className="text-sm text-muted">Montant total</span>
+          <span className="text-sm text-muted">{t("Montant total")}</span>
           <span className={isCancelled ? "text-2xl font-semibold text-muted line-through" : "text-2xl font-semibold text-foreground"}>
             {formatMoney(expense.amount)}
           </span>

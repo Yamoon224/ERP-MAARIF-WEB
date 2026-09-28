@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 import type { Slice } from "@/components/ui/charts/chartUtils";
 
@@ -37,15 +38,16 @@ export function DonutChart({
   ariaLabel,
   formatValue,
   formatCenter = formatValue,
-  totalLabel = "au total",
-  emptyMessage = "Aucune donnée sur la période.",
+  totalLabel,
+  emptyMessage,
   className,
 }: DonutChartProps) {
+  const { t } = useT();
   const [hovered, setHovered] = useState<string | null>(null);
   const total = slices.reduce((sum, slice) => sum + slice.value, 0);
 
   if (total <= 0) {
-    return <p className={cn("text-sm text-muted", className)}>{emptyMessage}</p>;
+    return <p className={cn("text-sm text-muted", className)}>{emptyMessage ?? t("Aucune donnée sur la période.")}</p>;
   }
 
   const focus = slices.find((slice) => slice.key === hovered) ?? null;
@@ -84,11 +86,11 @@ export function DonutChart({
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
           <span className="text-base leading-tight font-semibold text-foreground">{formatCenter(focus?.value ?? total)}</span>
-          <span className="mt-0.5 max-w-24 truncate text-xs text-muted">{focus ? focus.label : totalLabel}</span>
+          <span className="mt-0.5 max-w-24 truncate text-xs text-muted">{focus ? focus.label : (totalLabel ?? t("au total"))}</span>
         </div>
       </div>
 
-      <ul className="w-full min-w-0 flex-1 space-y-1.5 text-sm" aria-label="Légende">
+      <ul className="w-full min-w-0 flex-1 space-y-1.5 text-sm" aria-label={t("Légende")}>
         {slices.map((slice) => (
           <li
             key={slice.key}

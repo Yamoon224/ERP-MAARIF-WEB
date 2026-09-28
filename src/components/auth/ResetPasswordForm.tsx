@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { resetParentPassword, resetStaffPassword } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/error";
+import { useT } from "@/lib/i18n/store";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validation/auth";
 
 const LINKS = {
@@ -29,6 +30,7 @@ interface ResetPasswordFormProps {
 
 /** Choix d'un nouveau mot de passe depuis le lien reçu par e-mail ou SMS. */
 export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFormProps) {
+  const { t } = useT();
   const links = LINKS[audience];
   const [serverError, setServerError] = useState<string | null>(null);
   const [isDone, setIsDone] = useState(false);
@@ -51,7 +53,7 @@ export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFo
 
       setIsDone(true);
     } catch (error) {
-      setServerError(getErrorMessage(error, "Impossible de modifier le mot de passe pour le moment. Réessayez dans un instant."));
+      setServerError(getErrorMessage(error, t("Impossible de modifier le mot de passe pour le moment. Réessayez dans un instant.")));
     }
   }
 
@@ -59,7 +61,7 @@ export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFo
     return (
       <AuthShell audience={audience} title="Lien invalide" subtitle="Ce lien de réinitialisation est incomplet ou a expiré.">
         <Link href={links.forgot} className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
-          Demander un nouveau lien
+          {t("Demander un nouveau lien")}
           <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </AuthShell>
@@ -71,13 +73,13 @@ export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFo
       <AuthShell audience={audience} title="Mot de passe modifié" subtitle="Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.">
         <div role="status" className="mb-6 flex items-center gap-3 rounded-md border border-border bg-surface p-5 text-sm text-foreground">
           <CircleCheck className="size-6 shrink-0 text-success" aria-hidden="true" />
-          Les sessions ouvertes ailleurs ont été fermées.
+          {t("Les sessions ouvertes ailleurs ont été fermées.")}
         </div>
         <Link
           href={links.login}
           className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-6 text-base font-medium text-primary-foreground transition-[filter] hover:brightness-110"
         >
-          Se connecter
+          {t("Se connecter")}
           <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </AuthShell>
@@ -91,7 +93,7 @@ export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFo
           <Alert>
             {serverError}{" "}
             <Link href={links.forgot} className="font-medium underline">
-              Demander un nouveau lien
+              {t("Demander un nouveau lien")}
             </Link>
           </Alert>
         )}
@@ -105,7 +107,7 @@ export function ResetPasswordForm({ audience, token, identity }: ResetPasswordFo
         </AuthField>
 
         <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
-          Enregistrer le mot de passe
+          {t("Enregistrer le mot de passe")}
           {!isSubmitting && <ArrowRight className="size-4" aria-hidden="true" />}
         </Button>
       </form>

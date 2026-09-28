@@ -10,6 +10,7 @@ import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/Fiel
 import { listExpenseCategories, listSuppliers, type ExpensePayload } from "@/lib/api/expenses";
 import { getErrorMessage } from "@/lib/api/error";
 import type { ExpenseCategory, PaymentMethod } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { PAYMENT_METHOD_LABEL } from "@/lib/labels";
 import { formatMoney, today } from "@/lib/utils/format";
 import { expenseSchema, parseAmount, type ExpenseFormInput } from "@/lib/validation/expenses";
@@ -30,6 +31,7 @@ interface ExpenseFormProps {
 
 /** Formulaire d'une dépense ou d'un approvisionnement, partagé par la saisie et la correction. */
 export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failureMessage, onSubmit, onCancel }: ExpenseFormProps) {
+  const { t } = useT();
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [suppliers, setSuppliers] = useState<string[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -97,7 +99,7 @@ export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failu
               <Label htmlFor="expense_category_id">Catégorie</Label>
               <Select id="expense_category_id" {...register("expense_category_id")}>
                 <option value="" disabled>
-                  Choisir une catégorie
+                  {t("Choisir une catégorie")}
                 </option>
                 {options.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -111,7 +113,7 @@ export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failu
 
           <div>
             <Label htmlFor="label">Désignation</Label>
-            <Input id="label" placeholder="Craies blanches, registres d'appel..." maxLength={150} {...register("label")} />
+            <Input id="label" placeholder={t("Craies blanches, registres d'appel...")} maxLength={150} {...register("label")} />
             <FieldError>{errors.label?.message}</FieldError>
           </div>
 
@@ -150,7 +152,7 @@ export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failu
           </div>
 
           <p className="flex items-baseline justify-between rounded-md border border-border bg-background px-4 py-3" aria-live="polite">
-            <span className="text-sm text-muted">Montant total</span>
+            <span className="text-sm text-muted">{t("Montant total")}</span>
             <span className="text-lg font-semibold text-foreground">{hasTotal ? formatMoney(total) : "-"}</span>
           </p>
 
@@ -160,7 +162,7 @@ export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failu
               <Select id="method" {...register("method")}>
                 {(Object.keys(PAYMENT_METHOD_LABEL) as PaymentMethod[]).map((method) => (
                   <option key={method} value={method}>
-                    {PAYMENT_METHOD_LABEL[method]}
+                    {t(PAYMENT_METHOD_LABEL[method])}
                   </option>
                 ))}
               </Select>
@@ -184,7 +186,7 @@ export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failu
               {submitLabel}
             </Button>
             <Button type="button" variant="secondary" onClick={onCancel}>
-              Annuler
+              {t("Annuler")}
             </Button>
           </div>
         </form>

@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { AdmissionForm } from "@/components/staff/AdmissionForm";
 import { getAdmission, updateAdmission } from "@/lib/api/admissions";
 import type { Admission } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import type { AdmissionFormInput } from "@/lib/validation/admissions";
 
 /** Valeurs du formulaire d'après un dossier : les champs vides de l'API deviennent des chaînes vides. */
@@ -29,6 +30,7 @@ function toFormValues(admission: Admission): AdmissionFormInput {
 }
 
 export default function EditAdmissionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const router = useRouter();
   const [admission, setAdmission] = useState<Admission | null>(null);
@@ -40,8 +42,8 @@ export default function EditAdmissionPage({ params }: { params: Promise<{ id: st
       .catch(() => setFailed(true));
   }, [id]);
 
-  if (failed) return <Alert>Candidature introuvable.</Alert>;
-  if (!admission) return <p className="text-sm text-muted">Chargement...</p>;
+  if (failed) return <Alert>{t("Candidature introuvable.")}</Alert>;
+  if (!admission) return <p className="text-sm text-muted">{t("Chargement...")}</p>;
 
   const back = `/admissions/${id}`;
 
@@ -49,9 +51,9 @@ export default function EditAdmissionPage({ params }: { params: Promise<{ id: st
   if (admission.status === "enrolled") {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <Alert>Ce candidat est déjà inscrit : son dossier ne peut plus être modifié.</Alert>
+        <Alert>{t("Ce candidat est déjà inscrit : son dossier ne peut plus être modifié.")}</Alert>
         <Link href={back} className="text-sm font-medium text-primary hover:underline">
-          ← Retour au dossier
+          {t("← Retour au dossier")}
         </Link>
       </div>
     );
@@ -59,12 +61,15 @@ export default function EditAdmissionPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title={`Modifier ${admission.full_name}`} description={`${admission.reference} · statut actuel : ${admission.status_label}`} />
+      <PageHeader
+        title={t("Modifier {name}", { name: admission.full_name })}
+        description={t("{reference} · statut actuel : {status}", { reference: admission.reference, status: admission.status_label })}
+      />
 
       <AdmissionForm
         defaultValues={toFormValues(admission)}
-        submitLabel="Enregistrer les modifications"
-        failureMessage="Impossible de modifier cette candidature."
+        submitLabel={t("Enregistrer les modifications")}
+        failureMessage={t("Impossible de modifier cette candidature.")}
         onSubmit={async (payload) => {
           await updateAdmission(id, payload);
           router.push(back);

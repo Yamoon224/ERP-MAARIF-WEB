@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { QrScanner } from "@/components/attendance/QrScanner";
 import { checkInAtGate } from "@/lib/api/attendance";
 import { getErrorMessage } from "@/lib/api/error";
+import { useT } from "@/lib/i18n/store";
 
 type Phase = "scan" | "locating" | "checking" | "success" | "error";
 
@@ -27,6 +28,7 @@ function extractToken(decodedText: string): string {
  * l'affiche, ou l'élève/parent scanne depuis le scanner intégré ci-dessous.
  */
 export function CheckInView({ initialToken }: { initialToken: string }) {
+  const { t } = useT();
   const [phase, setPhase] = useState<Phase>(initialToken ? "locating" : "scan");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -36,7 +38,7 @@ export function CheckInView({ initialToken }: { initialToken: string }) {
 
     if (!("geolocation" in navigator)) {
       setPhase("error");
-      setMessage("Votre navigateur ne permet pas la géolocalisation, nécessaire pour pointer votre arrivée.");
+      setMessage(t("Votre navigateur ne permet pas la géolocalisation, nécessaire pour pointer votre arrivée."));
       return;
     }
 
@@ -47,15 +49,16 @@ export function CheckInView({ initialToken }: { initialToken: string }) {
           .then(() => setPhase("success"))
           .catch((failure) => {
             setPhase("error");
-            setMessage(getErrorMessage(failure, "Impossible d'enregistrer votre pointage."));
+            setMessage(getErrorMessage(failure, t("Impossible d'enregistrer votre pointage.")));
           });
       },
       () => {
         setPhase("error");
-        setMessage("Autorisez la localisation dans votre navigateur pour pointer votre arrivée.");
+        setMessage(t("Autorisez la localisation dans votre navigateur pour pointer votre arrivée."));
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -72,7 +75,7 @@ export function CheckInView({ initialToken }: { initialToken: string }) {
       <CardContent className="flex flex-col items-center gap-4 py-6 text-center">
         {phase === "scan" && (
           <>
-            <p className="text-sm text-muted">Scannez le QR code affiché au portail de l&apos;établissement.</p>
+            <p className="text-sm text-muted">{t("Scannez le QR code affiché au portail de l'établissement.")}</p>
             <QrScanner active onScan={(decoded) => runCheckIn(extractToken(decoded))} />
           </>
         )}
@@ -80,21 +83,23 @@ export function CheckInView({ initialToken }: { initialToken: string }) {
         {phase === "locating" && (
           <>
             <MapPin className="size-10 animate-pulse text-primary" aria-hidden="true" />
-            <p className="text-sm text-muted">Localisation en cours... autorisez l&apos;accès à votre position si votre navigateur le demande.</p>
+            <p className="text-sm text-muted">
+              {t("Localisation en cours... autorisez l'accès à votre position si votre navigateur le demande.")}
+            </p>
           </>
         )}
 
         {phase === "checking" && (
           <>
             <ScanLine className="size-10 animate-pulse text-primary" aria-hidden="true" />
-            <p className="text-sm text-muted">Vérification de votre présence au portail...</p>
+            <p className="text-sm text-muted">{t("Vérification de votre présence au portail...")}</p>
           </>
         )}
 
         {phase === "success" && (
           <>
             <CheckCircle2 className="size-10 text-success" aria-hidden="true" />
-            <p className="text-sm font-medium text-foreground">Votre présence a été enregistrée.</p>
+            <p className="text-sm font-medium text-foreground">{t("Votre présence a été enregistrée.")}</p>
           </>
         )}
 
@@ -102,7 +107,7 @@ export function CheckInView({ initialToken }: { initialToken: string }) {
           <>
             {message && <Alert>{message}</Alert>}
             <Button type="button" onClick={() => setPhase("scan")}>
-              Réessayer
+              {t("Réessayer")}
             </Button>
           </>
         )}

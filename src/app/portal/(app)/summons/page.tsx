@@ -10,12 +10,14 @@ import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { listMySummons } from "@/lib/api/discipline";
 import type { Summon } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { SUMMON_LABEL, SUMMON_TONE } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
 import { formatDateTime } from "@/lib/utils/format";
 
 export default function ParentSummonsPage() {
+  const { t } = useT();
   const period = usePeriodFilter({ source: "parent" });
   const { page, perPage, setPage, setPerPage } = usePagination(JSON.stringify(period.params));
   const fetcher = useMemo(
@@ -28,14 +30,21 @@ export default function ParentSummonsPage() {
     { key: "reason", header: "Motif", render: (row) => row.reason },
     { key: "date", header: "Date prévue", render: (row) => formatDateTime(row.scheduled_at) },
     { key: "location", header: "Lieu", render: (row) => row.location ?? "-" },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={SUMMON_TONE[row.status]}>{SUMMON_LABEL[row.status]}</Badge> },
+    { key: "status", header: "Statut", render: (row) => <Badge tone={SUMMON_TONE[row.status]}>{t(SUMMON_LABEL[row.status])}</Badge> },
   ];
 
   return (
     <div>
-      <PageHeader title="Convocations" />
+      <PageHeader title={t("Convocations")} />
       <PeriodFilter filter={period} className="mb-4" />
-      <DataTable exportName="Convocations" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucune convocation sur cette période." />
+      <DataTable
+        exportName="Convocations"
+        columns={columns}
+        rows={data}
+        rowKey={(row) => row.id}
+        isLoading={isLoading}
+        emptyMessage="Aucune convocation sur cette période."
+      />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}
     </div>
   );

@@ -1,5 +1,6 @@
 import { type InputHTMLAttributes, forwardRef } from "react";
 import { Search, X } from "lucide-react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 
 interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "onChange"> {
@@ -9,7 +10,9 @@ interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "
 }
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ className, value, onChange, onClear, placeholder = "Rechercher...", ...props }, ref) => {
+  ({ className, value, onChange, onClear, placeholder, ...props }, ref) => {
+    const { t } = useT();
+
     return (
       <div className={cn("relative w-full max-w-sm", className)}>
         <Search
@@ -21,7 +24,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           type="search"
           role="searchbox"
           value={value}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("Rechercher...")}
           onChange={(event) => onChange(event.target.value)}
           className={cn(
             // rounded-full : les champs de recherche partagent la forme des boutons.
@@ -33,7 +36,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         {value.length > 0 && (
           <button
             type="button"
-            aria-label="Effacer la recherche"
+            aria-label={t("Effacer la recherche")}
             onClick={() => {
               onChange("");
               onClear?.();

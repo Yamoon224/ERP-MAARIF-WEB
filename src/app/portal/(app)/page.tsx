@@ -4,18 +4,20 @@ import Link from "next/link";
 import { NotebookPen, ClipboardCheck, Megaphone, ShieldAlert, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import type { StudentAccount } from "@/lib/api/types";
 
 export default function ParentHomePage() {
+  const { t } = useT();
   const student = useAuthStore((state) => state.user as StudentAccount | null);
 
   return (
     <div>
       <h1 className="text-xl font-semibold text-foreground">
-        Bonjour, suivi de {student?.first_name} {student?.last_name}
+        {t("Bonjour, suivi de {name}", { name: `${student?.first_name ?? ""} ${student?.last_name ?? ""}` })}
       </h1>
       <p className="mt-1 text-sm text-muted">
-        Matricule {student?.matricule}
+        {t("Matricule {matricule}", { matricule: student?.matricule ?? "" })}
         {student?.school_class ? ` - ${student.school_class.name}` : ""}
       </p>
 
@@ -27,7 +29,7 @@ export default function ParentHomePage() {
                 <NotebookPen className="size-4 text-accent-grades" /> Bulletin
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted">Notes et moyennes par matière, trimestre par trimestre.</CardContent>
+            <CardContent className="text-sm text-muted">{t("Notes et moyennes par matière, trimestre par trimestre.")}</CardContent>
           </Card>
         </Link>
 
@@ -38,7 +40,7 @@ export default function ParentHomePage() {
                 <ClipboardCheck className="size-4 text-accent-attendance" /> Présences
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted">Historique des présences, absences et retards.</CardContent>
+            <CardContent className="text-sm text-muted">{t("Historique des présences, absences et retards.")}</CardContent>
           </Card>
         </Link>
 
@@ -49,7 +51,7 @@ export default function ParentHomePage() {
                 <Megaphone className="size-4 text-accent-discipline" /> Convocations
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted">Convocations de l&apos;établissement.</CardContent>
+            <CardContent className="text-sm text-muted">{t("Convocations de l'établissement.")}</CardContent>
           </Card>
         </Link>
 
@@ -60,7 +62,7 @@ export default function ParentHomePage() {
                 <ShieldAlert className="size-4 text-accent-discipline" /> Sanctions
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted">Historique des sanctions disciplinaires.</CardContent>
+            <CardContent className="text-sm text-muted">{t("Historique des sanctions disciplinaires.")}</CardContent>
           </Card>
         </Link>
 
@@ -71,7 +73,7 @@ export default function ParentHomePage() {
                 <Wallet className="size-4 text-accent-accounting" /> Frais de scolarité
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted">Mois réglés, reste à payer et reçus.</CardContent>
+            <CardContent className="text-sm text-muted">{t("Mois réglés, reste à payer et reçus.")}</CardContent>
           </Card>
         </Link>
       </div>

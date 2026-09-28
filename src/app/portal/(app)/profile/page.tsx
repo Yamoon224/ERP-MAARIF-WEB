@@ -6,15 +6,20 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { changeParentPassword } from "@/lib/api/auth";
 import type { StudentAccount } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 
 export default function ParentProfilePage() {
+  const { t } = useT();
   const student = useAuthStore((state) => state.user as StudentAccount | null);
 
   if (!student) return null;
 
   return (
     <div>
-      <PageHeader title="Profil" description="Le compte du portail est celui de votre enfant : son matricule sert d'identifiant." />
+      <PageHeader
+        title={t("Profil")}
+        description={t("Le compte du portail est celui de votre enfant : son matricule sert d'identifiant.")}
+      />
 
       <div className="grid items-stretch gap-6 lg:grid-cols-2">
         <Card accent="primary" className="h-full">
@@ -24,18 +29,18 @@ export default function ParentProfilePage() {
           <CardContent>
             <dl className="grid gap-4 text-sm">
               <div>
-                <dt className="text-muted">Nom</dt>
+                <dt className="text-muted">{t("Nom")}</dt>
                 <dd className="mt-0.5 font-medium text-foreground">
                   {student.first_name} {student.last_name}
                 </dd>
               </div>
               <div>
-                <dt className="text-muted">Matricule</dt>
+                <dt className="text-muted">{t("Matricule")}</dt>
                 <dd className="mt-0.5 font-mono font-medium text-foreground">{student.matricule}</dd>
               </div>
               <div>
-                <dt className="text-muted">Classe</dt>
-                <dd className="mt-0.5 font-medium text-foreground">{student.school_class?.name ?? "Non affecté"}</dd>
+                <dt className="text-muted">{t("Classe")}</dt>
+                <dd className="mt-0.5 font-medium text-foreground">{student.school_class?.name ?? t("Non affecté")}</dd>
               </div>
             </dl>
           </CardContent>

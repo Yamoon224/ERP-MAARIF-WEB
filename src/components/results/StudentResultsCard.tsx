@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/Field";
 import { listAcademicYears, listMyAcademicYears } from "@/lib/api/academics";
 import { getMyResults, getStudentResults } from "@/lib/api/results";
 import type { AcademicYear, StudentPeriodResult, StudentResults } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { DECISION_TONE } from "@/lib/labels";
 import { formatAverage } from "@/lib/utils/format";
 
@@ -29,6 +30,7 @@ export function formatRank(rank: number | null, rankedCount: number | null): str
  * par matière suit la période sélectionnée.
  */
 export function StudentResultsCard({ source, studentId }: StudentResultsCardProps) {
+  const { t } = useT();
   const [years, setYears] = useState<AcademicYear[]>([]);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [results, setResults] = useState<StudentResults | null>(null);
@@ -77,7 +79,7 @@ export function StudentResultsCard({ source, studentId }: StudentResultsCardProp
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
         <CardTitle>Résultats</CardTitle>
         <label className="flex items-center gap-2 text-xs font-medium text-muted">
-          Année scolaire
+          {t("Année scolaire")}
           <Select
             className="h-9 w-40"
             value={year ?? ""}
@@ -97,29 +99,29 @@ export function StudentResultsCard({ source, studentId }: StudentResultsCardProp
       </CardHeader>
 
       <CardContent className="space-y-5">
-        {failed && <p className="text-sm text-danger">Impossible de charger les résultats.</p>}
-        {!failed && years.length === 0 && <p className="text-sm text-muted">Aucune année scolaire n&apos;est encore définie.</p>}
-        {!failed && results && periods.length === 0 && <p className="text-sm text-muted">Aucun trimestre n&apos;est défini pour cette année.</p>}
+        {failed && <p className="text-sm text-danger">{t("Impossible de charger les résultats.")}</p>}
+        {!failed && years.length === 0 && <p className="text-sm text-muted">{t("Aucune année scolaire n'est encore définie.")}</p>}
+        {!failed && results && periods.length === 0 && <p className="text-sm text-muted">{t("Aucun trimestre n'est défini pour cette année.")}</p>}
 
         {results && periods.length > 0 && (
           <>
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="text-muted">Classe :</span>
-              <span className="font-medium text-foreground">{results.school_class?.name ?? "Non inscrit cette année"}</span>
+              <span className="text-muted">{t("Classe :")}</span>
+              <span className="font-medium text-foreground">{results.school_class?.name ?? t("Non inscrit cette année")}</span>
               {results.decision && (
                 <Badge tone={DECISION_TONE[results.decision.value]}>{results.decision.label}</Badge>
               )}
-              {suggested && <Badge tone="neutral">Suggéré : {suggested.label}</Badge>}
+              {suggested && <Badge tone="neutral">{t("Suggéré : {label}", { label: suggested.label })}</Badge>}
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-xs tracking-wide text-muted uppercase">
-                    <th className="py-2 pr-4 font-medium">Période</th>
-                    <th className="py-2 pr-4 font-medium">Moyenne</th>
-                    <th className="py-2 pr-4 font-medium">Rang</th>
-                    <th className="py-2 font-medium">Mention</th>
+                    <th className="py-2 pr-4 font-medium">{t("Période")}</th>
+                    <th className="py-2 pr-4 font-medium">{t("Moyenne")}</th>
+                    <th className="py-2 pr-4 font-medium">{t("Rang")}</th>
+                    <th className="py-2 font-medium">{t("Mention")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -144,17 +146,19 @@ export function StudentResultsCard({ source, studentId }: StudentResultsCardProp
 
             {selected && (
               <div>
-                <h3 className="mb-2 text-sm font-semibold text-foreground">Détail par matière - {selected.label}</h3>
+                <h3 className="mb-2 text-sm font-semibold text-foreground">
+                  {t("Détail par matière - {label}", { label: selected.label })}
+                </h3>
                 {selected.subjects.length === 0 ? (
-                  <p className="text-sm text-muted">Aucune note sur cette période.</p>
+                  <p className="text-sm text-muted">{t("Aucune note sur cette période.")}</p>
                 ) : (
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="text-xs tracking-wide text-muted uppercase">
-                        <th className="py-1.5 font-medium">Matière</th>
-                        <th className="py-1.5 font-medium">Coefficient</th>
-                        <th className="py-1.5 font-medium">Notes</th>
-                        <th className="py-1.5 font-medium">Moyenne</th>
+                        <th className="py-1.5 font-medium">{t("Matière")}</th>
+                        <th className="py-1.5 font-medium">{t("Coefficient")}</th>
+                        <th className="py-1.5 font-medium">{t("Notes")}</th>
+                        <th className="py-1.5 font-medium">{t("Moyenne")}</th>
                       </tr>
                     </thead>
                     <tbody>

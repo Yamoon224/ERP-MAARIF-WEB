@@ -7,10 +7,12 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { PeriodFilter } from "@/components/ui/PeriodFilter";
 import { downloadMyBulletin, getMyBulletin } from "@/lib/api/grades";
 import type { Bulletin } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { formatAverage } from "@/lib/utils/format";
 
 export default function ParentBulletinPage() {
+  const { t } = useT();
   // Un bulletin est propre à un trimestre : année scolaire, puis trimestre.
   const period = usePeriodFilter({ source: "parent", forceMode: "term" });
   const termId = period.params.term_id;
@@ -30,18 +32,19 @@ export default function ParentBulletinPage() {
       .catch(() => {
         if (!cancelled) {
           setBulletin(null);
-          setError("Bulletin indisponible pour ce trimestre.");
+          setError(t("Bulletin indisponible pour ce trimestre."));
         }
       });
 
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [termId]);
 
   return (
     <div>
-      <PageHeader title="Bulletin" description="Notes et moyennes de votre enfant, trimestre par trimestre." />
+      <PageHeader title={t("Bulletin")} description={t("Notes et moyennes de votre enfant, trimestre par trimestre.")} />
 
       <PeriodFilter filter={period} modes={["term"]} className="mb-6" />
 
@@ -58,7 +61,7 @@ export default function ParentBulletinPage() {
           {error && <p className="text-sm text-muted">{error}</p>}
 
           {!error && bulletin && bulletin.subjects.length === 0 && (
-            <p className="text-sm text-muted">Aucune note enregistrée pour ce trimestre.</p>
+            <p className="text-sm text-muted">{t("Aucune note enregistrée pour ce trimestre.")}</p>
           )}
 
           {!error && bulletin && bulletin.subjects.length > 0 && (
@@ -66,9 +69,9 @@ export default function ParentBulletinPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="text-xs tracking-wide text-muted uppercase">
-                    <th className="py-1.5 font-medium">Matière</th>
-                    <th className="py-1.5 font-medium">Coefficient</th>
-                    <th className="py-1.5 font-medium">Moyenne</th>
+                    <th className="py-1.5 font-medium">{t("Matière")}</th>
+                    <th className="py-1.5 font-medium">{t("Coefficient")}</th>
+                    <th className="py-1.5 font-medium">{t("Moyenne")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -82,7 +85,7 @@ export default function ParentBulletinPage() {
                 </tbody>
               </table>
               <div className="rounded-md bg-background p-4 text-base font-semibold text-foreground">
-                Moyenne générale : {formatAverage(bulletin.overall_average)}
+                {t("Moyenne générale : {average}", { average: formatAverage(bulletin.overall_average) })}
               </div>
             </div>
           )}

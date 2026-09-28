@@ -20,6 +20,7 @@ import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useT } from "@/lib/i18n/store";
 import { ADMISSION_LABEL, ADMISSION_TONE } from "@/lib/labels";
 import { formatDate } from "@/lib/utils/format";
 
@@ -34,6 +35,7 @@ const SUMMARY_CARDS: ReadonlyArray<{ status: AdmissionStatus; accent: "primary" 
 ];
 
 export default function AdmissionsPage() {
+  const { t } = useT();
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "admissions.manage");
 
   const [search, setSearch] = useState("");
@@ -78,13 +80,13 @@ export default function AdmissionsPage() {
       ),
     },
     { key: "submitted", header: "Déposée le", render: (row) => formatDate(row.submitted_on) },
-    { key: "status", header: "Statut", render: (row) => <Badge tone={ADMISSION_TONE[row.status]}>{ADMISSION_LABEL[row.status]}</Badge> },
+    { key: "status", header: "Statut", render: (row) => <Badge tone={ADMISSION_TONE[row.status]}>{t(ADMISSION_LABEL[row.status])}</Badge> },
     {
       key: "actions",
       header: "",
       render: (row) => (
         <Link href={`/admissions/${row.id}`} className="text-sm font-medium text-primary hover:underline">
-          Voir le dossier
+          {t("Voir le dossier")}
         </Link>
       ),
     },
@@ -93,13 +95,13 @@ export default function AdmissionsPage() {
   return (
     <div>
       <PageHeader
-        title="Admissions"
-        description="Candidatures des futurs élèves : dépôt, étude du dossier, décision, puis inscription dans une classe."
+        title={t("Admissions")}
+        description={t("Candidatures des futurs élèves : dépôt, étude du dossier, décision, puis inscription dans une classe.")}
         actions={
           canManage && (
             <Link href="/admissions/new">
               <Button>
-                <Plus className="size-4" /> Nouvelle candidature
+                <Plus className="size-4" /> {t("Nouvelle candidature")}
               </Button>
             </Link>
           )
@@ -109,15 +111,15 @@ export default function AdmissionsPage() {
       {summary && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SUMMARY_CARDS.map((card) => (
-            <StatCard key={card.status} accent={card.accent} label={ADMISSION_LABEL[card.status]} value={summary.by_status[card.status]} />
+            <StatCard key={card.status} accent={card.accent} label={t(ADMISSION_LABEL[card.status])} value={summary.by_status[card.status]} />
           ))}
         </div>
       )}
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un candidat, une référence, un tuteur..." />
-        <Select aria-label="Année scolaire" className="h-10 w-48" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
-          <option value="">Toutes les années</option>
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Rechercher un candidat, une référence, un tuteur...")} />
+        <Select aria-label={t("Année scolaire")} className="h-10 w-48" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)}>
+          <option value="">{t("Toutes les années")}</option>
           {years.map((year) => (
             <option key={year.label} value={year.label}>
               {year.label}
@@ -125,15 +127,15 @@ export default function AdmissionsPage() {
           ))}
         </Select>
         <Select
-          aria-label="Statut"
+          aria-label={t("Statut")}
           className="h-10 w-48"
           value={status}
           onChange={(event) => setStatus(event.target.value as AdmissionStatus | "")}
         >
-          <option value="">Tous les statuts</option>
+          <option value="">{t("Tous les statuts")}</option>
           {STATUSES.map((value) => (
             <option key={value} value={value}>
-              {ADMISSION_LABEL[value]}
+              {t(ADMISSION_LABEL[value])}
             </option>
           ))}
         </Select>
