@@ -25,7 +25,7 @@ describe("StudentImportPage", () => {
   });
 
   it("downloads a fillable CSV template", async () => {
-    const createObjectURL = vi.fn((_blob: Blob) => "blob:mock");
+    const createObjectURL = vi.fn<(blob: Blob) => string>(() => "blob:mock");
     vi.stubGlobal("URL", { ...URL, createObjectURL, revokeObjectURL: vi.fn() });
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
