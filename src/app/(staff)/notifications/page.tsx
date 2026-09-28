@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { RotateCw } from "lucide-react";
+import { Check, RotateCw, Undo2 } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -13,12 +13,19 @@ import { Pagination } from "@/components/ui/Pagination";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { StatCard } from "@/components/ui/StatCard";
 import { getErrorMessage } from "@/lib/api/error";
-import { getNotificationSummary, listNotificationLogs, resendNotification } from "@/lib/api/notifications";
+import {
+  getNotificationSummary,
+  listNotificationLogs,
+  markNotificationRead,
+  markNotificationUnread,
+  resendNotification,
+} from "@/lib/api/notifications";
 import type { NotificationLog, NotificationSummary, StaffUser } from "@/lib/api/types";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { fetchAllPages } from "@/lib/utils/fetchAllPages";
+import { useT } from "@/lib/i18n/store";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import {
@@ -28,6 +35,8 @@ import {
   NOTIFICATION_TYPE_LABEL,
 } from "@/lib/labels";
 import { formatDateTime } from "@/lib/utils/format";
+
+type ReadFilter = "" | "read" | "unread";
 
 const TYPES = Object.keys(NOTIFICATION_TYPE_LABEL) as NotificationLog["type"][];
 const CHANNELS = Object.keys(NOTIFICATION_CHANNEL_LABEL) as NotificationLog["channel"][];
@@ -63,18 +72,21 @@ function Concerned({ log }: { log: NotificationLog }) {
  * tracée, échecs compris, avec le texte envoyé et la raison d'un échec.
  */
 export default function NotificationsPage() {
+  const { t } = useT();
   const canResend = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "notifications.manage");
 
   const [search, setSearch] = useState("");
   const [type, setType] = useState<NotificationLog["type"] | "">("");
   const [channel, setChannel] = useState<NotificationLog["channel"] | "">("");
   const [status, setStatus] = useState<NotificationLog["status"] | "">("");
+  const [readFilter, setReadFilter] = useState<ReadFilter>("");
   const [summary, setSummary] = useState<NotificationSummary | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
+  const [readTogglingId, setReadTogglingId] = useState<string | null>(null);
   const [resendNotice, setResendNotice] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [summaryToken, setSummaryToken] = useState(0);
   const debouncedSearch = useDebouncedValue(search);
-  const { page, perPage, setPage, setPerPage } = usePagination(`${debouncedSearch}|${type}|${channel}|${status}`);
+  const { page, perPage, setPage, setPerPage } = usePagination(`${debouncedSearch}|${type}|${channel}|${status}|${readFilter}`);
 
   // Les cartes suivent le type, le canal et la recherche, mais pas le statut : filtrer sur « échec » ne les vide pas.
   useEffect(() => {
@@ -89,8 +101,9 @@ export default function NotificationsPage() {
       type: type || undefined,
       channel: channel || undefined,
       status: status || undefined,
+      read: readFilter === "" ? undefined : readFilter === "read",
     }),
-    [debouncedSearch, type, channel, status],
+    [debouncedSearch, type, channel, status, readFilter],
   );
   const fetcher = useMemo(() => () => listNotificationLogs({ ...filters, page, per_page: perPage }), [filters, page, perPage]);
   const { data, meta, isLoading, reload } = usePaginatedResource(fetcher, [filters, page, perPage]);
@@ -103,29 +116,42 @@ export default function NotificationsPage() {
       const result = await resendNotification(log.id);
       setResendNotice(
         result.status === "sent"
-          ? { tone: "success", text: `Message renvoyé à ${result.recipient}.` }
-          : { tone: "error", text: `Le renvoi a échoué : ${result.error ?? "raison inconnue"}.` },
+          ? { tone: "success", text: t("Message renvoyé à {recipient}.", { recipient: result.recipient }) }
+          : { tone: "error", text: t("Le renvoi a échoué : {reason}.", { reason: result.error ?? t("raison inconnue") }) },
       );
       reload();
       setSummaryToken((token) => token + 1);
     } catch (failure) {
-      setResendNotice({ tone: "error", text: getErrorMessage(failure, "Impossible de renvoyer ce message.") });
+      setResendNotice({ tone: "error", text: getErrorMessage(failure, t("Impossible de renvoyer ce message.")) });
     } finally {
       setResendingId(null);
+    }
+  }
+
+  async function handleToggleRead(log: NotificationLog) {
+    setReadTogglingId(log.id);
+
+    try {
+      await (log.is_read ? markNotificationUnread(log.id) : markNotificationRead(log.id));
+      reload();
+    } catch {
+      // Un aide-mémoire de consultation : un échec silencieux (réseau, permission) n'empêche pas de relire le journal.
+    } finally {
+      setReadTogglingId(null);
     }
   }
 
   const columns: DataTableColumn<NotificationLog>[] = [
     { key: "date", header: "Date", render: (row) => formatDateTime(row.created_at) },
     { key: "concerned", header: "Concerné", render: (row) => <Concerned log={row} /> },
-    { key: "type", header: "Type", render: (row) => <Badge tone="info">{NOTIFICATION_TYPE_LABEL[row.type]}</Badge> },
+    { key: "type", header: "Type", render: (row) => <Badge tone="info">{t(NOTIFICATION_TYPE_LABEL[row.type])}</Badge> },
     {
       key: "recipient",
       header: "Envoyé à",
       render: (row) => (
         <div>
           <p>{row.recipient}</p>
-          <p className="text-xs text-muted">{NOTIFICATION_CHANNEL_LABEL[row.channel]}</p>
+          <p className="text-xs text-muted">{t(NOTIFICATION_CHANNEL_LABEL[row.channel])}</p>
         </div>
       ),
     },
@@ -137,10 +163,10 @@ export default function NotificationsPage() {
         <div className="space-y-1">
           <p className="font-medium">{row.subject ?? "—"}</p>
           <details className="text-xs text-muted">
-            <summary className="cursor-pointer text-primary">Voir le message</summary>
+            <summary className="cursor-pointer text-primary">{t("Voir le message")}</summary>
             <p className="mt-1 whitespace-pre-line">{row.body}</p>
           </details>
-          {row.error && <p className="text-xs text-danger">Échec : {row.error}</p>}
+          {row.error && <p className="text-xs text-danger">{t("Échec : {error}", { error: row.error })}</p>}
         </div>
       ),
     },
@@ -149,9 +175,9 @@ export default function NotificationsPage() {
       header: "Statut",
       render: (row) => (
         <div>
-          <Badge tone={NOTIFICATION_STATUS_TONE[row.status]}>{NOTIFICATION_STATUS_LABEL[row.status]}</Badge>
+          <Badge tone={NOTIFICATION_STATUS_TONE[row.status]}>{t(NOTIFICATION_STATUS_LABEL[row.status])}</Badge>
           {row.sent_at && <p className="mt-1 text-xs text-muted">{formatDateTime(row.sent_at)}</p>}
-          {row.attempts > 1 && <p className="mt-1 text-xs text-muted">{row.attempts} tentatives</p>}
+          {row.attempts > 1 && <p className="mt-1 text-xs text-muted">{t("{count} tentatives", { count: row.attempts })}</p>}
           {canResend && row.status === "failed" && (
             <Button
               type="button"
@@ -160,12 +186,39 @@ export default function NotificationsPage() {
               className="mt-2"
               loading={resendingId === row.id}
               disabled={resendingId !== null}
-              aria-label={`Renvoyer le message à ${row.recipient}`}
+              aria-label={t("Renvoyer le message à {recipient}", { recipient: row.recipient })}
               onClick={() => handleResend(row)}
             >
-              <RotateCw className="size-4" /> Renvoyer
+              <RotateCw className="size-4" /> {t("Renvoyer")}
             </Button>
           )}
+        </div>
+      ),
+    },
+    {
+      key: "read",
+      header: "Lu",
+      render: (row) => (
+        <div>
+          <Badge tone={row.is_read ? "success" : "neutral"}>{row.is_read ? t("Lu") : t("Non lu")}</Badge>
+          {row.is_read && row.read_at && <p className="mt-1 text-xs text-muted">{formatDateTime(row.read_at)}</p>}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="mt-2"
+            loading={readTogglingId === row.id}
+            disabled={readTogglingId !== null}
+            aria-label={
+              row.is_read
+                ? t("Marquer comme non lu le message à {recipient}", { recipient: row.recipient })
+                : t("Marquer comme lu le message à {recipient}", { recipient: row.recipient })
+            }
+            onClick={() => handleToggleRead(row)}
+          >
+            {row.is_read ? <Undo2 className="size-4" /> : <Check className="size-4" />}
+            {row.is_read ? t("Marquer non lu") : t("Marquer comme lu")}
+          </Button>
         </div>
       ),
     },
@@ -174,8 +227,8 @@ export default function NotificationsPage() {
   return (
     <div>
       <PageHeader
-        title="Notifications"
-        description="Journal des messages envoyés aux tuteurs : convocations, sanctions et décisions d'admission."
+        title={t("Notifications")}
+        description={t("Journal des messages envoyés aux tuteurs : convocations, sanctions et décisions d'admission.")}
       />
 
       {resendNotice &&
@@ -189,47 +242,57 @@ export default function NotificationsPage() {
 
       {summary && (
         <div className="mb-6 grid gap-4 sm:grid-cols-3">
-          <StatCard accent="grades" label="Envoyés" value={summary.by_status.sent} hint={`${summary.total} message(s) au total`} />
-          <StatCard accent="discipline" label="En échec" value={summary.by_status.failed} hint="À vérifier avec le tuteur" />
-          <StatCard accent="academics" label="En attente" value={summary.by_status.pending} />
+          <StatCard
+            accent="grades"
+            label={t("Envoyés")}
+            value={summary.by_status.sent}
+            hint={t("{count} message(s) au total", { count: summary.total })}
+          />
+          <StatCard accent="discipline" label={t("En échec")} value={summary.by_status.failed} hint={t("À vérifier avec le tuteur")} />
+          <StatCard accent="academics" label={t("En attente")} value={summary.by_status.pending} />
         </div>
       )}
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un élève, un candidat, un destinataire..." />
-        <Select aria-label="Type" className="h-10 w-44" value={type} onChange={(event) => setType(event.target.value as NotificationLog["type"] | "")}>
-          <option value="">Tous les types</option>
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Rechercher un élève, un candidat, un destinataire...")} />
+        <Select aria-label={t("Type")} className="h-10 w-44" value={type} onChange={(event) => setType(event.target.value as NotificationLog["type"] | "")}>
+          <option value="">{t("Tous les types")}</option>
           {TYPES.map((value) => (
             <option key={value} value={value}>
-              {NOTIFICATION_TYPE_LABEL[value]}
+              {t(NOTIFICATION_TYPE_LABEL[value])}
             </option>
           ))}
         </Select>
         <Select
-          aria-label="Canal"
+          aria-label={t("Canal")}
           className="h-10 w-40"
           value={channel}
           onChange={(event) => setChannel(event.target.value as NotificationLog["channel"] | "")}
         >
-          <option value="">Tous les canaux</option>
+          <option value="">{t("Tous les canaux")}</option>
           {CHANNELS.map((value) => (
             <option key={value} value={value}>
-              {NOTIFICATION_CHANNEL_LABEL[value]}
+              {t(NOTIFICATION_CHANNEL_LABEL[value])}
             </option>
           ))}
         </Select>
         <Select
-          aria-label="Statut"
+          aria-label={t("Statut")}
           className="h-10 w-44"
           value={status}
           onChange={(event) => setStatus(event.target.value as NotificationLog["status"] | "")}
         >
-          <option value="">Tous les statuts</option>
+          <option value="">{t("Tous les statuts")}</option>
           {STATUSES.map((value) => (
             <option key={value} value={value}>
-              {NOTIFICATION_STATUS_LABEL[value]}
+              {t(NOTIFICATION_STATUS_LABEL[value])}
             </option>
           ))}
+        </Select>
+        <Select aria-label={t("Lu")} className="h-10 w-36" value={readFilter} onChange={(event) => setReadFilter(event.target.value as ReadFilter)}>
+          <option value="">{t("Tous")}</option>
+          <option value="unread">{t("Non lus")}</option>
+          <option value="read">{t("Lus")}</option>
         </Select>
       </div>
 

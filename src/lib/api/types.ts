@@ -234,6 +234,9 @@ export interface NotificationLog {
   attempts: number;
   error: string | null;
   sent_at: string | null;
+  /** Marque de lecture partagée entre tout le personnel (pas par utilisateur). */
+  read_at: string | null;
+  is_read: boolean;
   created_at: string;
 }
 

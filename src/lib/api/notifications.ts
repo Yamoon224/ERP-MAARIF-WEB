@@ -6,6 +6,8 @@ export interface NotificationLogParams {
   type?: NotificationLog["type"];
   channel?: NotificationLog["channel"];
   status?: NotificationLog["status"];
+  /** `true` : messages déjà lus seulement ; `false` : non lus seulement. */
+  read?: boolean;
   student_id?: string;
   page?: number;
   per_page?: number;
@@ -30,5 +32,17 @@ export async function getNotificationSummary(params: Omit<NotificationLogParams,
  */
 export async function resendNotification(id: string) {
   const { data } = await apiClient.post<{ data: NotificationLog }>(`/notification-logs/${id}/resend`);
+  return data.data;
+}
+
+/** Marque le message comme lu : un aide-mémoire partagé, ne modifie ni n'envoie rien. */
+export async function markNotificationRead(id: string) {
+  const { data } = await apiClient.post<{ data: NotificationLog }>(`/notification-logs/${id}/read`);
+  return data.data;
+}
+
+/** Annule la marque de lecture. */
+export async function markNotificationUnread(id: string) {
+  const { data } = await apiClient.delete<{ data: NotificationLog }>(`/notification-logs/${id}/read`);
   return data.data;
 }

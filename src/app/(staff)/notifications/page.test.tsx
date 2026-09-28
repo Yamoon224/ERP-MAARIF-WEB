@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -22,6 +22,8 @@ const LOGS: NotificationLog[] = [
     attempts: 1,
     error: null,
     sent_at: "2026-03-10T09:00:05Z",
+    read_at: null,
+    is_read: false,
     created_at: "2026-03-10T09:00:00Z",
   },
   {
@@ -37,6 +39,8 @@ const LOGS: NotificationLog[] = [
     attempts: 1,
     error: "Operateur SMS indisponible",
     sent_at: null,
+    read_at: null,
+    is_read: false,
     created_at: "2026-03-11T10:00:00Z",
   },
 ];
@@ -51,14 +55,39 @@ function mockApi(logRequests: URLSearchParams[] = [], summaryRequests: URLSearch
       const params = new URL(request.url).searchParams;
       logRequests.push(params);
       const status = params.get("status");
-      const rows = status ? LOGS.filter((log) => log.status === status) : LOGS;
+      const read = params.get("read");
+      let rows = status ? LOGS.filter((log) => log.status === status) : LOGS;
+      if (read !== null) rows = rows.filter((log) => log.is_read === (read === "true"));
 
       return HttpResponse.json({ data: rows, meta: { current_page: 1, last_page: 1, per_page: 10, total: rows.length } });
+    }),
+    http.post(`${API_URL}/notification-logs/:id/read`, ({ params }) => {
+      const log = LOGS.find((candidate) => candidate.id === params.id);
+      if (log) {
+        log.is_read = true;
+        log.read_at = "2026-03-12T08:00:00Z";
+      }
+      return HttpResponse.json({ data: log });
+    }),
+    http.delete(`${API_URL}/notification-logs/:id/read`, ({ params }) => {
+      const log = LOGS.find((candidate) => candidate.id === params.id);
+      if (log) {
+        log.is_read = false;
+        log.read_at = null;
+      }
+      return HttpResponse.json({ data: log });
     }),
   );
 }
 
 describe("NotificationsPage", () => {
+  afterEach(() => {
+    for (const log of LOGS) {
+      log.is_read = false;
+      log.read_at = null;
+    }
+  });
+
   it("lists the messages with who they concern, the message text and the failure reason", async () => {
     mockApi();
     render(<NotificationsPage />);
@@ -98,6 +127,35 @@ describe("NotificationsPage", () => {
     expect(screen.getByText("Mariama Barry")).toBeInTheDocument();
     expect(logRequests.at(-1)?.get("status")).toBe("failed");
     expect(summaryRequests.every((params) => !params.has("status"))).toBe(true);
+  });
+
+  it("marks a message as read, then back as unread", async () => {
+    mockApi();
+    const user = userEvent.setup();
+    render(<NotificationsPage />);
+
+    const table = await screen.findByRole("table");
+    const row = (await within(table).findByText("Awa Camara")).closest("tr")!;
+    expect(within(row).getByText("Non lu")).toBeInTheDocument();
+
+    await user.click(within(row).getByRole("button", { name: "Marquer comme lu le message à tuteur@example.test" }));
+    expect(await within(row).findByText("Lu")).toBeInTheDocument();
+
+    await user.click(within(row).getByRole("button", { name: "Marquer comme non lu le message à tuteur@example.test" }));
+    expect(await within(row).findByText("Non lu")).toBeInTheDocument();
+  });
+
+  it("filters by read status", async () => {
+    const logRequests: URLSearchParams[] = [];
+    mockApi(logRequests);
+    const user = userEvent.setup();
+    render(<NotificationsPage />);
+
+    await screen.findByText("Awa Camara");
+    await user.selectOptions(screen.getByLabelText("Lu"), "unread");
+
+    await waitFor(() => expect(logRequests.at(-1)?.get("read")).toBe("false"));
+    expect(screen.getByText("Awa Camara")).toBeInTheDocument();
   });
 
   it("filters by type and channel", async () => {
