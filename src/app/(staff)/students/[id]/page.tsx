@@ -17,8 +17,10 @@ import { downloadStudentBulletin, getStudentBulletin } from "@/lib/api/grades";
 import { downloadBlob, slugify } from "@/lib/export/tableExport";
 import { listAllTerms } from "@/lib/api/academics";
 import type { Bulletin, StaffUser, Student, Term } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 export default function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useT();
   const { id } = use(params);
   const canViewResults = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "results.view");
 
@@ -59,14 +61,14 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
     try {
       downloadBlob(await getStudentCardBlob(id), `${slugify(`carte ${student?.matricule ?? id}`)}.pdf`);
     } catch (failure) {
-      setCardError(getErrorMessage(failure, "Impossible de télécharger la carte."));
+      setCardError(getErrorMessage(failure, t("Impossible de télécharger la carte.")));
     } finally {
       setIsDownloadingCard(false);
     }
   }
 
   async function handleRegenerateCard() {
-    if (!window.confirm("Régénérer le QR invalide la carte déjà imprimée : il faudra la réimprimer. Continuer ?")) return;
+    if (!window.confirm(t("Régénérer le QR invalide la carte déjà imprimée : il faudra la réimprimer. Continuer ?"))) return;
 
     setIsRegeneratingCard(true);
     setCardError(null);
@@ -74,14 +76,14 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
     try {
       await regenerateStudentCardToken(id);
     } catch (failure) {
-      setCardError(getErrorMessage(failure, "Impossible de régénérer le QR."));
+      setCardError(getErrorMessage(failure, t("Impossible de régénérer le QR.")));
     } finally {
       setIsRegeneratingCard(false);
     }
   }
 
   if (!student) {
-    return <p className="text-sm text-muted">Chargement...</p>;
+    return <p className="text-sm text-muted">{t("Chargement...")}</p>;
   }
 
   return (
@@ -93,7 +95,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
           </h1>
           <p className="mt-1 font-mono text-sm text-muted">{student.matricule}</p>
         </div>
-        <Badge tone={student.is_active ? "success" : "neutral"}>{student.is_active ? "Actif" : "Inactif"}</Badge>
+        <Badge tone={student.is_active ? "success" : "neutral"}>{student.is_active ? t("Actif") : t("Inactif")}</Badge>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -103,42 +105,44 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              <span className="text-muted">Classe : </span>
-              {student.school_class?.name ?? "Non affecte"}
+              <span className="text-muted">{t("Classe : ")}</span>
+              {student.school_class?.name ?? t("Non affecté")}
             </p>
             <p>
-              <span className="text-muted">Naissance : </span>
+              <span className="text-muted">{t("Naissance : ")}</span>
               {student.birth_date ?? "—"}
             </p>
             <p>
-              <span className="text-muted">Tuteur : </span>
+              <span className="text-muted">{t("Tuteur : ")}</span>
               {student.guardian_name}
             </p>
             <p>
-              <span className="text-muted">Telephone : </span>
+              <span className="text-muted">{t("Téléphone : ")}</span>
               {student.guardian_phone}
             </p>
             <p>
-              <span className="text-muted">E-mail : </span>
+              <span className="text-muted">{t("E-mail : ")}</span>
               {student.guardian_email ?? "—"}
             </p>
 
             <div className="flex flex-wrap gap-2 pt-3">
               <Button variant="secondary" size="sm" onClick={handleResetPassword}>
                 <KeyRound className="size-4" />
-                Reinitialiser le mot de passe
+                {t("Réinitialiser le mot de passe")}
               </Button>
               <Button variant="secondary" size="sm" loading={isDownloadingCard} onClick={handleDownloadCard}>
                 <IdCard className="size-4" />
-                Carte élève (PDF)
+                {t("Carte élève (PDF)")}
               </Button>
               <Button variant="secondary" size="sm" loading={isRegeneratingCard} onClick={handleRegenerateCard}>
                 <RefreshCw className="size-4" />
-                Régénérer le QR
+                {t("Régénérer le QR")}
               </Button>
             </div>
             {resetPassword && (
-              <p className="mt-2 rounded-md bg-background p-2 font-mono text-xs">Nouveau mot de passe : {resetPassword}</p>
+              <p className="mt-2 rounded-md bg-background p-2 font-mono text-xs">
+                {t("Nouveau mot de passe : {password}", { password: resetPassword })}
+              </p>
             )}
             {cardError && <p className="mt-2 text-xs text-danger">{cardError}</p>}
           </CardContent>
@@ -168,15 +172,15 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
           </CardHeader>
           <CardContent>
             {!bulletin || bulletin.subjects.length === 0 ? (
-              <p className="text-sm text-muted">Aucune note pour ce trimestre.</p>
+              <p className="text-sm text-muted">{t("Aucune note pour ce trimestre.")}</p>
             ) : (
               <div className="space-y-3">
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="text-xs tracking-wide text-muted uppercase">
-                      <th className="py-1.5 font-medium">Matiere</th>
-                      <th className="py-1.5 font-medium">Coefficient</th>
-                      <th className="py-1.5 font-medium">Moyenne</th>
+                      <th className="py-1.5 font-medium">{t("Matière")}</th>
+                      <th className="py-1.5 font-medium">{t("Coefficient")}</th>
+                      <th className="py-1.5 font-medium">{t("Moyenne")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -190,7 +194,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
                   </tbody>
                 </table>
                 <div className="rounded-md bg-background p-3 text-sm font-semibold text-foreground">
-                  Moyenne generale : {bulletin.overall_average}/20
+                  {t("Moyenne générale : {average}/20", { average: bulletin.overall_average ?? "—" })}
                 </div>
               </div>
             )}

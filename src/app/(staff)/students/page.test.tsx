@@ -31,7 +31,7 @@ describe("StudentsPage", () => {
 
     await user.type(screen.getByRole("searchbox"), "Zzzzz");
 
-    expect(await screen.findByText("Aucun eleve trouve.")).toBeInTheDocument();
+    expect(await screen.findByText("Aucun élève trouvé.")).toBeInTheDocument();
   });
   it("opens each student's file from a blue-to-white button carrying a graduation cap", async () => {
     render(<StudentsPage />);

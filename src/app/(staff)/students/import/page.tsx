@@ -12,6 +12,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { getErrorMessage } from "@/lib/api/error";
 import { importStudents } from "@/lib/api/students";
 import type { StudentImportError, StudentImportResult, StudentImportStudent } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { buildSql, downloadBlob, exportXlsx } from "@/lib/export/tableExport";
 import type { ExportTable } from "@/lib/utils/tableData";
 
@@ -67,6 +68,7 @@ function downloadSqlTemplate() {
  * personnel corrige le fichier avant de confirmer l'import définitif.
  */
 export default function StudentImportPage() {
+  const { t } = useT();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<StudentImportResult | null>(null);
@@ -93,7 +95,7 @@ export default function StudentImportPage() {
     try {
       setPreview(await importStudents(file, true));
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'analyser ce fichier."));
+      setError(getErrorMessage(failure, t("Impossible d'analyser ce fichier.")));
     } finally {
       setIsAnalyzing(false);
     }
@@ -109,7 +111,7 @@ export default function StudentImportPage() {
       setImported(await importStudents(file, false));
       setPreview(null);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'importer ce fichier."));
+      setError(getErrorMessage(failure, t("Impossible d'importer ce fichier.")));
     } finally {
       setIsImporting(false);
     }
@@ -133,11 +135,11 @@ export default function StudentImportPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <Link href="/students" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" /> Élèves
+        <ArrowLeft className="size-4" aria-hidden="true" /> {t("Élèves")}
       </Link>
       <PageHeader
-        title="Importer des élèves"
-        description="Migrez les élèves d'un système existant (ex. un tableau Excel) sans les ressaisir un par un."
+        title={t("Importer des élèves")}
+        description={t("Migrez les élèves d'un système existant (ex. un tableau Excel) sans les ressaisir un par un.")}
       />
 
       {error && <Alert className="mb-4">{error}</Alert>}
@@ -149,15 +151,15 @@ export default function StudentImportPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <StatCard accent="primary" label="Élèves importés" value={imported.valid} />
-              <StatCard accent="discipline" label="Lignes en erreur" value={imported.invalid} />
+              <StatCard accent="primary" label={t("Élèves importés")} value={imported.valid} />
+              <StatCard accent="discipline" label={t("Lignes en erreur")} value={imported.invalid} />
             </div>
 
             {imported.students.length > 0 && (
               <div>
                 <p className="mb-2 flex items-center gap-1.5 text-sm text-muted">
                   <CheckCircle2 className="size-4 text-success" aria-hidden="true" />
-                  Remettez ces identifiants aux tuteurs concernés : les mots de passe ne seront plus jamais affichés en clair.
+                  {t("Remettez ces identifiants aux tuteurs concernés : les mots de passe ne seront plus jamais affichés en clair.")}
                 </p>
                 <DataTable
                   columns={studentColumns}
@@ -171,7 +173,7 @@ export default function StudentImportPage() {
 
             {imported.errors.length > 0 && (
               <div>
-                <p className="mb-2 text-sm text-muted">Ces lignes n&apos;ont pas été importées :</p>
+                <p className="mb-2 text-sm text-muted">{t("Ces lignes n'ont pas été importées :")}</p>
                 <DataTable
                   columns={errorColumns}
                   rows={imported.errors}
@@ -184,10 +186,10 @@ export default function StudentImportPage() {
 
             <div className="flex gap-3">
               <Link href="/students">
-                <Button>Retour à la liste</Button>
+                <Button>{t("Retour à la liste")}</Button>
               </Link>
               <Button variant="secondary" onClick={reset}>
-                Importer un autre fichier
+                {t("Importer un autre fichier")}
               </Button>
             </div>
           </CardContent>
@@ -200,15 +202,16 @@ export default function StudentImportPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted">
-                Formats acceptés : CSV, Excel (.xlsx, .xls) ou export SQL (.sql), 5 Mo maximum. Pour un tableur, la première
-                ligne doit contenir les en-têtes de colonnes ; l&apos;ordre des colonnes n&apos;a pas d&apos;importance. Pour un
-                fichier SQL, seules les instructions <code className="font-mono">INSERT INTO</code> dont les colonnes sont
-                reconnues sont lues — le fichier n&apos;est jamais exécuté, ses autres tables (paiements, classes...) sont
-                simplement ignorées.
+                {t(
+                  "Formats acceptés : CSV, Excel (.xlsx, .xls) ou export SQL (.sql), 5 Mo maximum. Pour un tableur, la première ligne doit contenir les en-têtes de colonnes ; l'ordre des colonnes n'a pas d'importance.",
+                )}{" "}
+                {t(
+                  "Pour un fichier SQL, seules les instructions INSERT INTO dont les colonnes sont reconnues sont lues — le fichier n'est jamais exécuté, ses autres tables (paiements, classes...) sont simplement ignorées.",
+                )}
               </p>
 
               <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-background px-4 py-3">
-                <span className="text-xs font-medium text-muted">Un modèle à remplir, selon le format choisi :</span>
+                <span className="text-xs font-medium text-muted">{t("Un modèle à remplir, selon le format choisi :")}</span>
                 <Button type="button" variant="secondary" size="sm" onClick={downloadCsvTemplate}>
                   <FileText className="size-4" /> CSV
                 </Button>
@@ -222,8 +225,8 @@ export default function StudentImportPage() {
 
               <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed border-border bg-background px-4 py-8 text-center hover:border-primary">
                 <UploadCloud className="size-6 text-muted" aria-hidden="true" />
-                <span className="text-sm font-medium text-foreground">{file ? file.name : "Choisir un fichier"}</span>
-                <span className="text-xs text-muted">CSV, XLSX, XLS ou SQL</span>
+                <span className="text-sm font-medium text-foreground">{file ? file.name : t("Choisir un fichier")}</span>
+                <span className="text-xs text-muted">CSV, XLSX, XLS {t("ou")} SQL</span>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -237,13 +240,13 @@ export default function StudentImportPage() {
               </label>
 
               <details className="text-sm text-muted">
-                <summary className="cursor-pointer font-medium text-foreground">Colonnes reconnues</summary>
+                <summary className="cursor-pointer font-medium text-foreground">{t("Colonnes reconnues")}</summary>
                 <table className="mt-2 w-full text-left text-xs">
                   <tbody>
                     {COLUMN_HINTS.map(([column, hint]) => (
                       <tr key={column} className="border-b border-border last:border-0">
                         <td className="py-1.5 pr-3 font-mono">{column}</td>
-                        <td className="py-1.5 text-muted">{hint}</td>
+                        <td className="py-1.5 text-muted">{t(hint)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -252,7 +255,7 @@ export default function StudentImportPage() {
 
               <div className="flex justify-end">
                 <Button type="button" loading={isAnalyzing} disabled={!file} onClick={handleAnalyze}>
-                  <FileUp className="size-4" /> Analyser le fichier
+                  <FileUp className="size-4" /> {t("Analyser le fichier")}
                 </Button>
               </div>
             </CardContent>
@@ -265,14 +268,14 @@ export default function StudentImportPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <StatCard accent="neutral" label="Lignes lues" value={preview.total} />
-                  <StatCard accent="primary" label="Valides" value={preview.valid} />
-                  <StatCard accent="discipline" label="En erreur" value={preview.invalid} />
+                  <StatCard accent="neutral" label={t("Lignes lues")} value={preview.total} />
+                  <StatCard accent="primary" label={t("Valides")} value={preview.valid} />
+                  <StatCard accent="discipline" label={t("En erreur")} value={preview.invalid} />
                 </div>
 
                 {preview.errors.length > 0 && (
                   <div>
-                    <p className="mb-2 text-sm text-muted">Corrigez ces lignes dans le fichier, puis analysez-le à nouveau :</p>
+                    <p className="mb-2 text-sm text-muted">{t("Corrigez ces lignes dans le fichier, puis analysez-le à nouveau :")}</p>
                     <DataTable
                       columns={errorColumns}
                       rows={preview.errors}
@@ -284,11 +287,11 @@ export default function StudentImportPage() {
                 )}
 
                 {preview.valid === 0 ? (
-                  <p className="text-sm text-danger">Aucune ligne valide : rien à importer.</p>
+                  <p className="text-sm text-danger">{t("Aucune ligne valide : rien à importer.")}</p>
                 ) : (
                   <div className="flex justify-end">
                     <Button type="button" loading={isImporting} onClick={handleConfirm}>
-                      Confirmer l&apos;import de {preview.valid} élève(s)
+                      {t("Confirmer l'import de {count} élève(s)", { count: preview.valid })}
                     </Button>
                   </div>
                 )}

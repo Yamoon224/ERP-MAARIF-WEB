@@ -10,6 +10,7 @@ import { Input, Select } from "@/components/ui/Field";
 import { getErrorMessage } from "@/lib/api/error";
 import { duplicateGradeScale, getGradeScale, saveGradeScale, type GradeScaleBandInput } from "@/lib/api/results";
 import type { PromotionDecisionValue, SchoolClass } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 import { DECISION_LABEL } from "@/lib/labels";
 
 interface GradeScaleCardProps {
@@ -37,6 +38,7 @@ const DECISION_VALUES = Object.keys(DECISION_LABEL) as PromotionDecisionValue[];
  * personnalisation est donc sans risque pour les classes déjà en place.
  */
 export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardProps) {
+  const { t } = useT();
   const [rows, setRows] = useState<BandRow[] | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,9 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
           })),
         ),
       )
-      .catch((failure) => setError(getErrorMessage(failure, "Impossible de charger le barème.")));
+      .catch((failure) => setError(getErrorMessage(failure, t("Impossible de charger le barème."))));
+    // Recharger à chaque changement de langue effacerait les tranches en cours de modification.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schoolClass.id]);
 
   function updateRow(key: string, patch: Partial<BandRow>) {
@@ -94,9 +98,9 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
           decision: band.decision?.value ?? null,
         })),
       );
-      setNotice("Barème enregistré.");
+      setNotice(t("Barème enregistré."));
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible d'enregistrer ce barème."));
+      setError(getErrorMessage(failure, t("Impossible d'enregistrer ce barème.")));
     } finally {
       setIsSaving(false);
     }
@@ -111,10 +115,10 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
 
     try {
       await duplicateGradeScale(schoolClass.id, targetIds);
-      setNotice(`Barème dupliqué vers ${targetIds.length} classe(s).`);
+      setNotice(t("Barème dupliqué vers {count} classe(s).", { count: targetIds.length }));
       setTargetIds([]);
     } catch (failure) {
-      setError(getErrorMessage(failure, "Impossible de dupliquer ce barème."));
+      setError(getErrorMessage(failure, t("Impossible de dupliquer ce barème.")));
     } finally {
       setIsDuplicating(false);
     }
@@ -127,23 +131,24 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted">
-          Chaque tranche de moyenne annuelle donne une appréciation (ex. « Bien », « Redouble ») et, en option, une décision de
-          passage suggérée dans le tableau des résultats. Sans tranche définie ici, {schoolClass.name} garde les mentions et le
-          seuil de passage par défaut de l&apos;école.
+          {t(
+            "Chaque tranche de moyenne annuelle donne une appréciation (ex. « Bien », « Redouble ») et, en option, une décision de passage suggérée dans le tableau des résultats. Sans tranche définie ici, {className} garde les mentions et le seuil de passage par défaut de l'école.",
+            { className: schoolClass.name },
+          )}
         </p>
 
         {rows === null ? (
-          <p className="text-sm text-muted">Chargement...</p>
+          <p className="text-sm text-muted">{t("Chargement...")}</p>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-xs tracking-wide text-muted uppercase">
-                    <th className="py-2 pr-3 font-medium">Moyenne min</th>
-                    <th className="py-2 pr-3 font-medium">Moyenne max</th>
-                    <th className="py-2 pr-3 font-medium">Appréciation</th>
-                    <th className="py-2 pr-3 font-medium">Décision suggérée</th>
+                    <th className="py-2 pr-3 font-medium">{t("Moyenne min")}</th>
+                    <th className="py-2 pr-3 font-medium">{t("Moyenne max")}</th>
+                    <th className="py-2 pr-3 font-medium">{t("Appréciation")}</th>
+                    <th className="py-2 pr-3 font-medium">{t("Décision suggérée")}</th>
                     <th className="py-2 font-medium" />
                   </tr>
                 </thead>
@@ -151,7 +156,7 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
                   {rows.length === 0 && (
                     <tr>
                       <td colSpan={5} className="py-3 text-sm text-muted">
-                        Aucune tranche : ajoutez-en une pour personnaliser le barème de cette classe.
+                        {t("Aucune tranche : ajoutez-en une pour personnaliser le barème de cette classe.")}
                       </td>
                     </tr>
                   )}
@@ -181,7 +186,7 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
                       </td>
                       <td className="py-2 pr-3">
                         <Input
-                          placeholder="Bien, Redouble..."
+                          placeholder={t("Bien, Redouble...")}
                           className="w-40"
                           value={row.label}
                           onChange={(event) => updateRow(row.key, { label: event.target.value })}
@@ -195,10 +200,10 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
                             updateRow(row.key, { decision: (event.target.value || null) as PromotionDecisionValue | null })
                           }
                         >
-                          <option value="">Aucune (seuil global)</option>
+                          <option value="">{t("Aucune (seuil global)")}</option>
                           {DECISION_VALUES.map((value) => (
                             <option key={value} value={value}>
-                              {DECISION_LABEL[value]}
+                              {t(DECISION_LABEL[value])}
                             </option>
                           ))}
                         </Select>
@@ -206,7 +211,7 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
                       <td className="py-2 text-right">
                         <button
                           type="button"
-                          aria-label="Supprimer cette tranche"
+                          aria-label={t("Supprimer cette tranche")}
                           className="text-muted hover:text-danger"
                           onClick={() => removeRow(row.key)}
                         >
@@ -221,16 +226,16 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
 
             <div className="flex flex-wrap items-center gap-3">
               <Button type="button" variant="secondary" size="sm" onClick={() => setRows((current) => [...(current ?? []), emptyRow()])}>
-                <Plus className="size-4" /> Ajouter une tranche
+                <Plus className="size-4" /> {t("Ajouter une tranche")}
               </Button>
               <Button type="button" size="sm" loading={isSaving} onClick={handleSave}>
-                <Save className="size-4" /> Enregistrer le barème
+                <Save className="size-4" /> {t("Enregistrer le barème")}
               </Button>
             </div>
 
             {siblingClasses.length > 0 && (
               <div className="rounded-md border border-border bg-background px-4 py-3">
-                <p className="mb-2 text-xs font-medium text-muted">Dupliquer ce barème vers d&apos;autres classes</p>
+                <p className="mb-2 text-xs font-medium text-muted">{t("Dupliquer ce barème vers d'autres classes")}</p>
                 <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1.5">
                   {siblingClasses.map((candidate) => (
                     <Checkbox
@@ -253,7 +258,7 @@ export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardPr
                   disabled={targetIds.length === 0}
                   onClick={handleDuplicate}
                 >
-                  <Copy className="size-4" /> Dupliquer
+                  <Copy className="size-4" /> {t("Dupliquer")}
                 </Button>
               </div>
             )}

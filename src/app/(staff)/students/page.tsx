@@ -16,8 +16,10 @@ import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { listAcademicYears } from "@/lib/api/academics";
 import { listStudents } from "@/lib/api/students";
 import type { AcademicYear, Student } from "@/lib/api/types";
+import { useT } from "@/lib/i18n/store";
 
 export default function StudentsPage() {
+  const { t } = useT();
   const [search, setSearch] = useState("");
   const [academicYear, setAcademicYear] = useState("");
   const [years, setYears] = useState<AcademicYear[]>([]);
@@ -47,7 +49,7 @@ export default function StudentsPage() {
     {
       key: "status",
       header: "Statut",
-      render: (row) => <Badge tone={row.is_active ? "success" : "neutral"}>{row.is_active ? "Actif" : "Inactif"}</Badge>,
+      render: (row) => <Badge tone={row.is_active ? "success" : "neutral"}>{row.is_active ? t("Actif") : t("Inactif")}</Badge>,
     },
     {
       key: "actions",
@@ -56,7 +58,7 @@ export default function StudentsPage() {
       render: (row) => (
         <Link href={`/students/${row.id}`} className={buttonClasses({ variant: "gradient", size: "sm" })}>
           <GraduationCap className="size-4" aria-hidden="true" />
-          Dossier scolaire
+          {t("Dossier scolaire")}
         </Link>
       ),
     },
@@ -66,35 +68,35 @@ export default function StudentsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Eleves</h1>
-          <p className="mt-1 text-sm text-muted">Dossiers, matricules et affectation aux classes.</p>
+          <h1 className="text-xl font-semibold text-foreground">{t("Élèves")}</h1>
+          <p className="mt-1 text-sm text-muted">{t("Dossiers, matricules et affectation aux classes.")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/students/import">
             <Button variant="secondary">
-              <Upload className="size-4" /> Importer
+              <Upload className="size-4" /> {t("Importer")}
             </Button>
           </Link>
           <Link href="/students/new">
             <Button>
-              <Plus className="size-4" /> Inscrire un eleve
+              <Plus className="size-4" /> {t("Inscrire un élève")}
             </Button>
           </Link>
         </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un eleve, un matricule..." />
+        <SearchInput value={search} onChange={setSearch} placeholder={t("Rechercher un élève, un matricule...")} />
         <Select
-          aria-label="Année scolaire"
+          aria-label={t("Année scolaire")}
           className="h-10 w-48"
           value={academicYear}
           onChange={(event) => setAcademicYear(event.target.value)}
         >
-          <option value="">Toutes les années</option>
+          <option value="">{t("Toutes les années")}</option>
           {years.map((year) => (
             <option key={year.label} value={year.label}>
-              Inscrits en {year.label}
+              {t("Inscrits en {year}", { year: year.label })}
             </option>
           ))}
         </Select>
@@ -105,7 +107,7 @@ export default function StudentsPage() {
         rows={data}
         rowKey={(row) => row.id}
         isLoading={isLoading}
-        emptyMessage="Aucun eleve trouve."
+        emptyMessage="Aucun élève trouvé."
         exportName="Élèves"
         exportAll={() => fetchAllPages((exportPage, exportPerPage) => listStudents({ ...filters, page: exportPage, per_page: exportPerPage }))}
       />

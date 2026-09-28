@@ -11,10 +11,12 @@ import { DashboardCharts } from "@/components/staff/DashboardCharts";
 import { getDashboardStats } from "@/lib/api/dashboard";
 import type { DashboardStats, StaffUser } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
+import { useT } from "@/lib/i18n/store";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { formatAverage, formatDate, formatMoney, formatPercent } from "@/lib/utils/format";
 
 export default function StaffDashboardPage() {
+  const { t } = useT();
   const user = useAuthStore((state) => state.user as StaffUser | null);
   const period = usePeriodFilter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -30,17 +32,21 @@ export default function StaffDashboardPage() {
         if (!cancelled) setStats(loaded);
       })
       .catch(() => {
-        if (!cancelled) setError("Impossible de charger les indicateurs.");
+        if (!cancelled) setError(t("Impossible de charger les indicateurs."));
       });
 
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period.isReady, period.params]);
 
   return (
     <div>
-      <PageHeader title={`Bonjour, ${user?.name ?? ""}`} description="Vue d'ensemble de l'établissement sur la période choisie." />
+      <PageHeader
+        title={t("Bonjour, {name}", { name: user?.name ?? "" })}
+        description={t("Vue d'ensemble de l'établissement sur la période choisie.")}
+      />
 
       <PeriodFilter filter={period} className="mb-6" />
 
@@ -50,33 +56,36 @@ export default function StaffDashboardPage() {
         <>
           {stats.period && (
             <p className="mb-4 text-sm text-muted">
-              Période : du {formatDate(stats.period.from)} au {formatDate(stats.period.to)}
+              {t("Période : du {from} au {to}", { from: formatDate(stats.period.from), to: formatDate(stats.period.to) })}
             </p>
           )}
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Link href="/students" className="block">
               <StatCard
-                label="Élèves inscrits"
+                label={t("Élèves inscrits")}
                 value={stats.students}
-                hint={`${stats.classes} classe(s) · ${stats.academic_year ?? ""}`}
+                hint={t("{classes} classe(s) · {year}", { classes: stats.classes, year: stats.academic_year ?? "" })}
                 icon={<GraduationCap className="size-4" />}
                 accent="primary"
                 className="h-full transition-shadow hover:shadow-md"
               />
             </Link>
             <StatCard
-              label="Moyenne générale"
+              label={t("Moyenne générale")}
               value={formatAverage(stats.grades.average)}
-              hint={`${stats.grades.count} note(s) saisie(s)`}
+              hint={t("{count} note(s) saisie(s)", { count: stats.grades.count })}
               icon={<NotebookPen className="size-4" />}
               accent="grades"
             />
             <Link href="/absences" className="block">
               <StatCard
-                label="Absences"
+                label={t("Absences")}
                 value={stats.attendance.absent}
-                hint={`${stats.attendance.unjustified_absences} non justifiée(s) · ${stats.attendance.late} retard(s)`}
+                hint={t("{unjustified} non justifiée(s) · {late} retard(s)", {
+                  unjustified: stats.attendance.unjustified_absences,
+                  late: stats.attendance.late,
+                })}
                 icon={<ClipboardCheck className="size-4" />}
                 accent="attendance"
                 className="h-full transition-shadow hover:shadow-md"
@@ -84,9 +93,12 @@ export default function StaffDashboardPage() {
             </Link>
             {stats.discipline && (
               <StatCard
-                label="Sanctions"
+                label={t("Sanctions")}
                 value={stats.discipline.sanctions}
-                hint={`${stats.discipline.summons} convocation(s), dont ${stats.discipline.summons_pending} en attente`}
+                hint={t("{summons} convocation(s), dont {pending} en attente", {
+                  summons: stats.discipline.summons,
+                  pending: stats.discipline.summons_pending,
+                })}
                 icon={<ShieldAlert className="size-4" />}
                 accent="discipline"
               />
@@ -98,32 +110,32 @@ export default function StaffDashboardPage() {
           {(stats.accounting || stats.expenses) && (
             <section className="mt-8" aria-labelledby="accounting-heading">
               <h2 id="accounting-heading" className="mb-3 text-base font-semibold text-foreground">
-                Comptabilité
+                {t("Comptabilité")}
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.accounting && (
                   <>
                     <StatCard
-                      label="Encaissements"
+                      label={t("Encaissements")}
                       value={formatMoney(stats.accounting.collected)}
-                      hint="Scolarité encaissée sur la période"
+                      hint={t("Scolarité encaissée sur la période")}
                       icon={<Wallet className="size-4" />}
                       accent="accounting"
                     />
                     <Link href="/accounting/unpaid" className="block">
                       <StatCard
-                        label="Impayés"
+                        label={t("Impayés")}
                         value={formatMoney(stats.accounting.arrears)}
-                        hint="Mois terminés non réglés"
+                        hint={t("Mois terminés non réglés")}
                         icon={<TriangleAlert className="size-4" />}
                         accent="discipline"
                         className="h-full transition-shadow hover:shadow-md"
                       />
                     </Link>
                     <StatCard
-                      label="Taux de recouvrement"
+                      label={t("Taux de recouvrement")}
                       value={formatPercent(stats.accounting.recovery_rate)}
-                      hint="Réglé / dû sur les mois de la période"
+                      hint={t("Réglé / dû sur les mois de la période")}
                       accent="accounting"
                     />
                   </>
@@ -131,9 +143,9 @@ export default function StaffDashboardPage() {
                 {stats.expenses && (
                   <Link href="/expenses" className="block">
                     <StatCard
-                      label="Dépenses"
+                      label={t("Dépenses")}
                       value={formatMoney(stats.expenses.total)}
-                      hint={`${stats.expenses.count} achat(s) et dépense(s) sur la période`}
+                      hint={t("{count} achat(s) et dépense(s) sur la période", { count: stats.expenses.count })}
                       icon={<Receipt className="size-4" />}
                       accent="attendance"
                       className="h-full transition-shadow hover:shadow-md"
@@ -142,9 +154,9 @@ export default function StaffDashboardPage() {
                 )}
                 {stats.accounting && stats.expenses && (
                   <StatCard
-                    label="Solde"
+                    label={t("Solde")}
                     value={formatMoney(stats.accounting.collected - stats.expenses.total)}
-                    hint="Encaissé moins dépensé sur la période"
+                    hint={t("Encaissé moins dépensé sur la période")}
                     icon={<PiggyBank className="size-4" />}
                     accent={stats.accounting.collected - stats.expenses.total < 0 ? "discipline" : "accounting"}
                   />
@@ -155,7 +167,7 @@ export default function StaffDashboardPage() {
 
           {!stats.discipline && !stats.accounting && !stats.expenses && (
             <p className="mt-6 flex items-center gap-2 text-sm text-muted">
-              <Megaphone className="size-4" aria-hidden="true" /> Les indicateurs affichés dépendent de vos droits d&apos;accès.
+              <Megaphone className="size-4" aria-hidden="true" /> {t("Les indicateurs affichés dépendent de vos droits d'accès.")}
             </p>
           )}
         </>
