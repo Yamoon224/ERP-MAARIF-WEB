@@ -998,6 +998,11 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Connectez-vous avec le matricule de votre enfant pour suivre sa scolarité.":
     "Log in with your child's student ID to follow their schooling.",
   "Accéder au portail": "Go to the portal",
+  "Voir les valeurs": "See the values",
+  "Exporter le bulletin": "Export the report card",
+  "Bulletin PDF": "PDF report card",
+  "Bulletin Excel": "Excel report card",
+  "Le bulletin n'a pas pu être exporté. Veuillez réessayer.": "The report card could not be exported. Please try again.",
   "Portail parent": "Parent portal",
   "Connectez-vous avec le matricule de votre enfant. Le mot de passe vous est remis par l'établissement.":
     "Log in with your child's student ID. The password is given to you by the school.",

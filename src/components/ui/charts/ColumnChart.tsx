@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n/store";
 import { cn } from "@/lib/utils/cn";
 import { formatTick, niceScale } from "@/components/ui/charts/chartUtils";
 
@@ -42,6 +43,7 @@ interface ColumnChartProps {
  * tableau repliable, pour le clavier et les lecteurs d'écran.
  */
 export function ColumnChart({ series, data, ariaLabel, formatValue, integer = false, height = 200, className }: ColumnChartProps) {
+  const { t } = useT();
   const [hovered, setHovered] = useState<number | null>(null);
 
   const peak = Math.max(0, ...data.flatMap((datum) => series.map((entry) => datum.values[entry.key] ?? 0)));
@@ -51,7 +53,7 @@ export function ColumnChart({ series, data, ariaLabel, formatValue, integer = fa
   return (
     <figure className={cn("w-full", className)}>
       {series.length > 1 && (
-        <ul className="mb-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted" aria-label="Légende">
+        <ul className="mb-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted" aria-label={t("Légende")}>
           {series.map((entry) => (
             <li key={entry.key} className="flex items-center gap-2">
               <span className="size-2.5 rounded-sm" style={{ backgroundColor: entry.color }} aria-hidden="true" />
@@ -133,7 +135,7 @@ export function ColumnChart({ series, data, ariaLabel, formatValue, integer = fa
       </div>
 
       <details className="mt-3 text-xs">
-        <summary className="cursor-pointer text-primary">Voir les valeurs</summary>
+        <summary className="cursor-pointer text-primary">{t("Voir les valeurs")}</summary>
         <table className="mt-2 w-full text-left">
           <caption className="sr-only">{ariaLabel}</caption>
           <thead>
