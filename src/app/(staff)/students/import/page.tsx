@@ -206,7 +206,7 @@ export default function StudentImportPage() {
                   "Formats acceptés : CSV, Excel (.xlsx, .xls) ou export SQL (.sql), 5 Mo maximum. Pour un tableur, la première ligne doit contenir les en-têtes de colonnes ; l'ordre des colonnes n'a pas d'importance.",
                 )}{" "}
                 {t(
-                  "Pour un fichier SQL, seules les instructions INSERT INTO dont les colonnes sont reconnues sont lues — le fichier n'est jamais exécuté, ses autres tables (paiements, classes...) sont simplement ignorées.",
+                  "Pour un fichier SQL, seules les instructions INSERT INTO dont les colonnes sont reconnues sont lues - le fichier n'est jamais exécuté, ses autres tables (paiements, classes...) sont simplement ignorées.",
                 )}
               </p>
 

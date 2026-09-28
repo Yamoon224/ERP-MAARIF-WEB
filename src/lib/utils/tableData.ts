@@ -49,7 +49,7 @@ function toSortKey(value: CellValue | undefined): SortKey | null {
   if (typeof value === "number") return Number.isFinite(value) ? { kind: "number", value } : null;
 
   const text = normalizeSpaces(value);
-  if (text === "" || text === "—") return null;
+  if (text === "" || text === "-") return null;
 
   const date = DATE_FR.exec(text);
   if (date) return { kind: "text", value: `${date[3]}-${date[2]}-${date[1]}${date[4] ? ` ${date[4]}` : ""}` };

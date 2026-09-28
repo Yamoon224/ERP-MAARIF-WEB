@@ -23,8 +23,8 @@ export function TermClassesTab({ term }: { term: Term }) {
   const columns: DataTableColumn<SchoolClass>[] = [
     { key: "name", header: "Classe", render: (row) => <span className="font-medium">{row.name}</span> },
     { key: "level", header: "Niveau", render: (row) => row.level },
-    { key: "students", header: "Effectif", render: (row) => row.students_count ?? "—" },
-    { key: "teacher", header: "Titulaire", render: (row) => row.main_teacher?.name ?? "—" },
+    { key: "students", header: "Effectif", render: (row) => row.students_count ?? "-" },
+    { key: "teacher", header: "Titulaire", render: (row) => row.main_teacher?.name ?? "-" },
   ];
 
   return (

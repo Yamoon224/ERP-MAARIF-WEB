@@ -16,7 +16,7 @@ export default function ParentHomePage() {
       </h1>
       <p className="mt-1 text-sm text-muted">
         Matricule {student?.matricule}
-        {student?.school_class ? ` — ${student.school_class.name}` : ""}
+        {student?.school_class ? ` - ${student.school_class.name}` : ""}
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -82,7 +82,7 @@ export async function enrollStudent(studentId: string, schoolClassId: string) {
   return data.data;
 }
 
-// --- Carte scolaire (QR code de pointage — option 2) ----------------------------
+// --- Carte scolaire (QR code de pointage - option 2) ----------------------------
 
 export async function getStudentCardBlob(studentId: string) {
   const { data } = await apiClient.get<Blob>(`/students/${studentId}/card`, { responseType: "blob" });

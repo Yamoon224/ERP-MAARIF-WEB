@@ -294,7 +294,7 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "{count} élève": "{count} student",
   "{count} élèves": "{count} students",
 
-  // Élèves — liste, fiche, inscription, import
+  // Élèves - liste, fiche, inscription, import
   "Dossiers, matricules et affectation aux classes.": "Records, student IDs and class assignment.",
   "Importer": "Import",
   "Inscrire un élève": "Enroll a student",
@@ -342,7 +342,7 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Moyenne": "Average",
   "Moyenne générale : {average}/20": "Overall average: {average}/20",
 
-  // Import en masse d'élèves — modèles, aperçu et confirmation
+  // Import en masse d'élèves - modèles, aperçu et confirmation
   "Élèves importés": "Students imported",
   "Lignes en erreur": "Rows with errors",
   "Remettez ces identifiants aux tuteurs concernés : les mots de passe ne seront plus jamais affichés en clair.":
@@ -351,8 +351,8 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Importer un autre fichier": "Import another file",
   "Formats acceptés : CSV, Excel (.xlsx, .xls) ou export SQL (.sql), 5 Mo maximum. Pour un tableur, la première ligne doit contenir les en-têtes de colonnes ; l'ordre des colonnes n'a pas d'importance.":
     "Accepted formats: CSV, Excel (.xlsx, .xls) or an SQL export (.sql), 5 MB maximum. For a spreadsheet, the first row must contain the column headers; the column order does not matter.",
-  "Pour un fichier SQL, seules les instructions INSERT INTO dont les colonnes sont reconnues sont lues — le fichier n'est jamais exécuté, ses autres tables (paiements, classes...) sont simplement ignorées.":
-    "For an SQL file, only INSERT INTO statements whose columns are recognized are read — the file is never executed, its other tables (payments, classes...) are simply ignored.",
+  "Pour un fichier SQL, seules les instructions INSERT INTO dont les colonnes sont reconnues sont lues - le fichier n'est jamais exécuté, ses autres tables (paiements, classes...) sont simplement ignorées.":
+    "For an SQL file, only INSERT INTO statements whose columns are recognized are read - the file is never executed, its other tables (payments, classes...) are simply ignored.",
   "Un modèle à remplir, selon le format choisi :": "A template to fill in, matching the format you choose:",
   "Choisir un fichier": "Choose a file",
   "ou": "or",
@@ -397,7 +397,7 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Dupliquer ce barème vers d'autres classes": "Duplicate this scale to other classes",
   "Dupliquer": "Duplicate",
 
-  // Notifications — journal des messages envoyés aux tuteurs
+  // Notifications - journal des messages envoyés aux tuteurs
   "Journal des messages envoyés aux tuteurs : convocations, sanctions et décisions d'admission.":
     "Log of messages sent to guardians: summons, sanctions and admission decisions.",
   "Voir le message": "View the message",
@@ -536,7 +536,7 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "{count} non justifiée(s)": "{count} unexcused",
   "Justifiée": "Excused",
 
-  // Présences — appel de classe
+  // Présences - appel de classe
   "Suivi et justification des absences →": "Track and excuse absences →",
   "Choisir une classe...": "Choose a class...",
   "Date de l'appel": "Roll call date",
@@ -585,7 +585,7 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Changer": "Change",
   "Rechercher un élève par nom ou matricule...": "Search a student by name or student ID...",
 
-  // Discipline — convocations et sanctions
+  // Discipline - convocations et sanctions
   "Scanner une carte": "Scan a card",
   "Portail QR": "QR gate",
   "Impossible de créer cette convocation.": "Unable to create this summons.",

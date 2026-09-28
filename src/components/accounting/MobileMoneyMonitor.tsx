@@ -16,7 +16,7 @@ const STATUS_TONE: Record<MobileMoneyStatus, "info" | "success" | "danger" | "ne
 };
 
 function monthsLabel(months: string[]): string {
-  if (months.length === 0) return "—";
+  if (months.length === 0) return "-";
   if (months.length === 1) return formatMonth(months[0]);
 
   return `${formatMonth(months[0])} → ${formatMonth(months[months.length - 1])}`;
@@ -47,7 +47,7 @@ export function MobileMoneyMonitor() {
       header: "Élève",
       render: (row) => (
         <span>
-          <span className="font-medium">{row.student?.name ?? "—"}</span>
+          <span className="font-medium">{row.student?.name ?? "-"}</span>
           <span className="ml-2 text-xs text-muted">{row.enrollment?.school_class?.name}</span>
         </span>
       ),

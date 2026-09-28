@@ -64,7 +64,7 @@ export default function SanctionsPage() {
     { key: "type", header: "Type", render: (row) => <Badge tone="danger">{row.type_label}</Badge> },
     { key: "reason", header: "Motif", render: (row) => row.reason },
     { key: "start_date", header: "Début", render: (row) => row.start_date },
-    { key: "end_date", header: "Fin", render: (row) => row.end_date ?? "—" },
+    { key: "end_date", header: "Fin", render: (row) => row.end_date ?? "-" },
     { key: "notified", header: "Tuteur notifié", render: (row) => (row.notified_at ? t("Oui") : t("Non")) },
   ];
 

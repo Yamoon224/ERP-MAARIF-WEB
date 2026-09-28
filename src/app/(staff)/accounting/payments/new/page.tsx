@@ -26,7 +26,7 @@ const PERIODS = Object.keys(PAYMENT_PERIOD_LABEL) as PaymentPeriod[];
 /**
  * Encaissement de la scolarité : on choisit l'élève et l'année, on voit son
  * relevé, puis la formule (mois, trimestre, semestre ou année). Les mois
- * réglés et le montant sont calculés par le serveur — l'aperçu les montre
+ * réglés et le montant sont calculés par le serveur - l'aperçu les montre
  * avant de valider, la saisie ne les modifie pas.
  */
 export default function NewPaymentPage() {

@@ -32,7 +32,7 @@ function Info({ label, children }: { label: string; children: React.ReactNode })
   return (
     <p>
       <span className="text-muted">{label} : </span>
-      {children || "—"}
+      {children || "-"}
     </p>
   );
 }

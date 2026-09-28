@@ -110,7 +110,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
             </p>
             <p>
               <span className="text-muted">{t("Naissance : ")}</span>
-              {student.birth_date ?? "—"}
+              {student.birth_date ?? "-"}
             </p>
             <p>
               <span className="text-muted">{t("Tuteur : ")}</span>
@@ -122,7 +122,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
             </p>
             <p>
               <span className="text-muted">{t("E-mail : ")}</span>
-              {student.guardian_email ?? "—"}
+              {student.guardian_email ?? "-"}
             </p>
 
             <div className="flex flex-wrap gap-2 pt-3">
@@ -194,7 +194,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
                   </tbody>
                 </table>
                 <div className="rounded-md bg-background p-3 text-sm font-semibold text-foreground">
-                  {t("Moyenne générale : {average}/20", { average: bulletin.overall_average ?? "—" })}
+                  {t("Moyenne générale : {average}/20", { average: bulletin.overall_average ?? "-" })}
                 </div>
               </div>
             )}

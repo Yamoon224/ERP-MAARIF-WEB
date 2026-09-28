@@ -87,8 +87,8 @@ export default function SchoolClassesPage() {
     },
     { key: "level", header: "Niveau", render: (row) => row.level },
     { key: "year", header: "Année scolaire", render: (row) => row.academic_year },
-    { key: "students", header: "Effectif", render: (row) => row.students_count ?? "—" },
-    { key: "teacher", header: "Titulaire", render: (row) => row.main_teacher?.name ?? "—" },
+    { key: "students", header: "Effectif", render: (row) => row.students_count ?? "-" },
+    { key: "teacher", header: "Titulaire", render: (row) => row.main_teacher?.name ?? "-" },
     ...(canManage
       ? [
           {

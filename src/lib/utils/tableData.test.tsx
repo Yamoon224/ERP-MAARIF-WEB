@@ -67,8 +67,8 @@ describe("sortRows", () => {
   });
 
   it("always puts empty cells last, whichever the direction", () => {
-    expect(sortBy(["b", null, "a", "—", ""], "asc")).toEqual(["a", "b", null, "—", ""]);
-    expect(sortBy(["b", null, "a", "—", ""], "desc")).toEqual(["b", "a", null, "—", ""]);
+    expect(sortBy(["b", null, "a", "-", ""], "asc")).toEqual(["a", "b", null, "-", ""]);
+    expect(sortBy(["b", null, "a", "-", ""], "desc")).toEqual(["b", "a", null, "-", ""]);
   });
 
   it("does not modify the array it is given, and keeps equal rows in their original order", () => {

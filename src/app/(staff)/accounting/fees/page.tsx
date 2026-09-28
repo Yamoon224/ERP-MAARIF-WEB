@@ -79,7 +79,7 @@ export default function FeesPage() {
   const columns: DataTableColumn<SchoolClass>[] = [
     { key: "name", header: "Classe", render: (row) => <span className="font-medium">{row.name}</span> },
     { key: "level", header: "Niveau", render: (row) => row.level },
-    { key: "students", header: "Effectif", render: (row) => row.students_count ?? "—" },
+    { key: "students", header: "Effectif", render: (row) => row.students_count ?? "-" },
     {
       key: "fee",
       header: "Scolarité mensuelle",
@@ -116,7 +116,7 @@ export default function FeesPage() {
     {
       key: "year",
       header: "Sur l'année",
-      render: (row) => (row.monthly_fee > 0 ? formatMoney(row.monthly_fee * monthsInYear(years, academicYear)) : "—"),
+      render: (row) => (row.monthly_fee > 0 ? formatMoney(row.monthly_fee * monthsInYear(years, academicYear)) : "-"),
     },
     ...(canManage
       ? [

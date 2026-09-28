@@ -98,7 +98,7 @@ describe("TermDetailPage", () => {
     signInAs(["academics.view", "students.view", "grades.manage", "discipline.manage", "attendance.manage"]);
     await renderPage();
 
-    expect(screen.getByText("— 2025-2026")).toBeInTheDocument();
+    expect(screen.getByText("- 2025-2026")).toBeInTheDocument();
     expect(screen.getByText(/du 01\/10\/2025 au 31\/12\/2025/)).toBeInTheDocument();
     expect(screen.getByText("13.42/20")).toBeInTheDocument();
     expect(screen.getByText(/7 non justifiée\(s\) · 5 retard\(s\)/)).toBeInTheDocument();

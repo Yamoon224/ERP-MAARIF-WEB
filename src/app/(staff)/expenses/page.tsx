@@ -121,7 +121,7 @@ export default function ExpensesPage() {
         </div>
       ),
     },
-    { key: "category", header: "Catégorie", render: (row) => row.category?.name ?? "—" },
+    { key: "category", header: "Catégorie", render: (row) => row.category?.name ?? "-" },
     { key: "method", header: "Mode", render: (row) => row.method_label },
     { key: "amount", header: "Montant", render: (row) => <span className="font-medium">{formatMoney(row.amount)}</span> },
     {
@@ -177,7 +177,7 @@ export default function ExpensesPage() {
             />
             <StatCard
               label="Premier poste"
-              value={topCategory ? topCategory.name : "—"}
+              value={topCategory ? topCategory.name : "-"}
               hint={topCategory ? `${formatMoney(topCategory.total)} · ${topCategory.count} dépense(s)` : "Aucune dépense"}
               icon={<Trophy className="size-4" />}
               accent="academics"

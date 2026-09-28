@@ -34,7 +34,7 @@ const DECISION_VALUES = Object.keys(DECISION_LABEL) as PromotionDecisionValue[];
  * Barème de passage et d'appréciation de la classe : chaque tranche de moyenne
  * annuelle (ex. [02–09]) donne une appréciation (« Bien », « Redouble »...) et,
  * en option, une décision de passage suggérée. Sans tranche définie ici, la
- * classe garde les mentions et le seuil de passage globaux de l'école — la
+ * classe garde les mentions et le seuil de passage globaux de l'école - la
  * personnalisation est donc sans risque pour les classes déjà en place.
  */
 export function GradeScaleCard({ schoolClass, siblingClasses }: GradeScaleCardProps) {

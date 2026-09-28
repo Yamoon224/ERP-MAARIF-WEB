@@ -132,7 +132,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
 
         {isCancelled && (
           <p className="mt-4 rounded-md border border-danger/40 bg-danger/5 px-4 py-2 text-sm text-danger">
-            Reçu annulé le {formatDateTime(payment.cancelled_at)} — {payment.cancellation_reason}
+            Reçu annulé le {formatDateTime(payment.cancelled_at)} - {payment.cancellation_reason}
           </p>
         )}
 
@@ -140,7 +140,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
           <Row label="Élève">
             {payment.student?.name} <span className="font-mono text-xs text-muted">({payment.student?.matricule})</span>
           </Row>
-          <Row label="Classe">{payment.enrollment?.school_class?.name ?? "—"}</Row>
+          <Row label="Classe">{payment.enrollment?.school_class?.name ?? "-"}</Row>
           <Row label="Année scolaire">{payment.enrollment?.academic_year}</Row>
           <Row label="Formule">{payment.period_label}</Row>
           <Row label="Mois réglés">
@@ -151,7 +151,7 @@ export default function ReceiptPage({ params }: { params: Promise<{ id: string }
             {payment.reference ? ` · ${payment.reference}` : ""}
           </Row>
           {payment.note && <Row label="Note">{payment.note}</Row>}
-          <Row label="Reçu par">{payment.received_by?.name ?? "—"}</Row>
+          <Row label="Reçu par">{payment.received_by?.name ?? "-"}</Row>
         </dl>
 
         <p className="mt-6 flex items-baseline justify-between border-t border-border pt-4">

@@ -10,7 +10,7 @@ export function formatMoney(amount: number): string {
 
 /** Date `YYYY-MM-DD` (ou ISO) -> `03/11/2025`, sans décalage de fuseau horaire. */
 export function formatDate(value: string | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
 
   const [year, month, day] = value.slice(0, 10).split("-");
   return `${day}/${month}/${year}`;
@@ -18,7 +18,7 @@ export function formatDate(value: string | null | undefined): string {
 
 /** Date-heure ISO -> `03/11/2025 09:30` (heure locale). */
 export function formatDateTime(value: string | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
 
   const date = new Date(value);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -80,11 +80,11 @@ export function currentMonth(now: Date = new Date()): string {
 
 /** Moyenne sur 20, ou un tiret quand il n'y a pas encore de note. */
 export function formatAverage(average: number | null | undefined): string {
-  return average === null || average === undefined ? "—" : `${average.toFixed(2)}/20`;
+  return average === null || average === undefined ? "-" : `${average.toFixed(2)}/20`;
 }
 
 export function formatPercent(rate: number | null | undefined): string {
-  return rate === null || rate === undefined ? "—" : `${rate.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`;
+  return rate === null || rate === undefined ? "-" : `${rate.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`;
 }
 
 /** Date du jour au format `YYYY-MM-DD` (heure locale, pas UTC : le pointage se fait à l'heure de l'école). */

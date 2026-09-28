@@ -168,7 +168,7 @@ export default function ResultsPage() {
       ),
     },
     { key: "average", header: "Moyenne", render: (row) => <span className="font-medium">{formatAverage(row.average)}</span> },
-    { key: "mention", header: "Mention", render: (row) => row.mention ?? "—" },
+    { key: "mention", header: "Mention", render: (row) => row.mention ?? "-" },
     { key: "grades", header: "Notes", render: (row) => row.grades_count },
     ...(isAnnual
       ? [
@@ -178,7 +178,7 @@ export default function ResultsPage() {
             render: (row: ClassResultRow) => {
               if (!canManage) {
                 if (row.decision) return <Badge tone={DECISION_TONE[row.decision.value]}>{row.decision.label}</Badge>;
-                return row.suggested_decision ? <span className="text-muted">Suggéré : {row.suggested_decision.label}</span> : "—";
+                return row.suggested_decision ? <span className="text-muted">Suggéré : {row.suggested_decision.label}</span> : "-";
               }
 
               return (

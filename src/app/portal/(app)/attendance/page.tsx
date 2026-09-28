@@ -31,8 +31,8 @@ export default function ParentAttendancePage() {
     { key: "date", header: "Date", render: (row) => formatDate(row.date) },
     { key: "status", header: "Statut", render: (row) => <Badge tone={ATTENDANCE_TONE[row.status]}>{ATTENDANCE_LABEL[row.status]}</Badge> },
     { key: "source", header: "Origine", render: (row) => <span className="text-xs text-muted">{ATTENDANCE_SOURCE_LABEL[row.source]}</span> },
-    { key: "justified", header: "Justifiée", render: (row) => (row.status === "present" ? "—" : row.justified ? "Oui" : "Non") },
-    { key: "reason", header: "Motif", render: (row) => row.reason ?? "—" },
+    { key: "justified", header: "Justifiée", render: (row) => (row.status === "present" ? "-" : row.justified ? "Oui" : "Non") },
+    { key: "reason", header: "Motif", render: (row) => row.reason ?? "-" },
   ];
 
   return (

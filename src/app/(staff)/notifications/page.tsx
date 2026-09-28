@@ -63,7 +63,7 @@ function Concerned({ log }: { log: NotificationLog }) {
     );
   }
 
-  return <span className="text-muted">—</span>;
+  return <span className="text-muted">-</span>;
 }
 
 /**
@@ -161,7 +161,7 @@ export default function NotificationsPage() {
       className: "min-w-64",
       render: (row) => (
         <div className="space-y-1">
-          <p className="font-medium">{row.subject ?? "—"}</p>
+          <p className="font-medium">{row.subject ?? "-"}</p>
           <details className="text-xs text-muted">
             <summary className="cursor-pointer text-primary">{t("Voir le message")}</summary>
             <p className="mt-1 whitespace-pre-line">{row.body}</p>

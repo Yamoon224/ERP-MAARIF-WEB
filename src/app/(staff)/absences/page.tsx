@@ -145,7 +145,7 @@ export default function AbsencesPage() {
       header: "Justification",
       render: (row) =>
         row.status === "present" ? (
-          "—"
+          "-"
         ) : row.justified ? (
           <Badge tone="success">{t("Justifiée")}</Badge>
         ) : (
@@ -179,7 +179,7 @@ export default function AbsencesPage() {
             </Button>
           </div>
         ) : (
-          (row.reason ?? "—")
+          (row.reason ?? "-")
         ),
     },
     {
@@ -241,7 +241,7 @@ export default function AbsencesPage() {
           <StatCard label={t("Retards")} value={summary.late} accent="attendance" />
           <StatCard
             label={t("Taux de présence")}
-            value={pointed > 0 ? formatPercent((summary.present / pointed) * 100) : "—"}
+            value={pointed > 0 ? formatPercent((summary.present / pointed) * 100) : "-"}
             hint={t("{count} pointage(s) sur la période", { count: pointed })}
             accent="grades"
           />

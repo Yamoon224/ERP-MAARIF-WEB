@@ -21,7 +21,7 @@ function extractToken(decodedText: string): string {
 }
 
 /**
- * Pointage géolocalisé au portail (cahier des charges — pointage par QR
+ * Pointage géolocalisé au portail (cahier des charges - pointage par QR
  * code, option 1). Deux façons d'y arriver : l'appareil photo natif du
  * téléphone ouvre directement cette page avec `?token=...` en scannant
  * l'affiche, ou l'élève/parent scanne depuis le scanner intégré ci-dessous.

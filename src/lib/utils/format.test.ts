@@ -33,7 +33,7 @@ describe("date formatting", () => {
   it("formats an ISO date without shifting it across time zones", () => {
     expect(formatDate("2025-11-03")).toBe("03/11/2025");
     expect(formatDate("2025-11-03T23:30:00+00:00")).toBe("03/11/2025");
-    expect(formatDate(null)).toBe("—");
+    expect(formatDate(null)).toBe("-");
   });
 
   it("writes a month in French", () => {
@@ -49,8 +49,8 @@ describe("date formatting", () => {
 
 describe("indicators", () => {
   it("shows a dash when there is nothing to average", () => {
-    expect(formatAverage(null)).toBe("—");
+    expect(formatAverage(null)).toBe("-");
     expect(formatAverage(14.5)).toBe("14.50/20");
-    expect(formatPercent(null)).toBe("—");
+    expect(formatPercent(null)).toBe("-");
   });
 });

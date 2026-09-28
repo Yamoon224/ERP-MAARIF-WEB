@@ -70,7 +70,7 @@ export default function TermsPage() {
     { key: "year", header: "Année scolaire", render: (row) => row.academic_year },
     { key: "starts", header: "Début", render: (row) => row.starts_at },
     { key: "ends", header: "Fin", render: (row) => row.ends_at },
-    { key: "current", header: "Courant", render: (row) => (row.is_current ? <Badge tone="success">{t("Courant")}</Badge> : "—") },
+    { key: "current", header: "Courant", render: (row) => (row.is_current ? <Badge tone="success">{t("Courant")}</Badge> : "-") },
     {
       key: "details",
       header: "",

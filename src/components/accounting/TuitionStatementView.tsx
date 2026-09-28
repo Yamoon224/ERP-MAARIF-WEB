@@ -70,7 +70,7 @@ export function TuitionStatementView({ statement, receiptHref }: TuitionStatemen
                       <span className="font-mono text-xs">{installment.payment.receipt_number}</span>
                     )
                   ) : (
-                    "—"
+                    "-"
                   )}
                 </td>
               </tr>

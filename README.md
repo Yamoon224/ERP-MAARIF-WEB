@@ -1,4 +1,4 @@
-# ERP Maarif — Web
+# ERP Maarif - Web
 
 Interface Next.js (App Router) pour l'ERP Maarif : espace personnel (administrateurs, enseignants, comptables) et portail parent, consommant l'[API Laravel](../backend).
 
@@ -74,5 +74,5 @@ npm run lint
 npm run build            # verifie aussi le typage TypeScript
 ```
 
-Les tests d'integration (connexion, liste des eleves, appel de classe, absences, detail d'un trimestre, encaissement, filtres de periode, themes, navigation) mockent l'API via [MSW](https://mswjs.io) — voir `src/test/msw/`.
+Les tests d'integration (connexion, liste des eleves, appel de classe, absences, detail d'un trimestre, encaissement, filtres de periode, themes, navigation) mockent l'API via [MSW](https://mswjs.io) - voir `src/test/msw/`.
 # ERP-MAARIF-WEB

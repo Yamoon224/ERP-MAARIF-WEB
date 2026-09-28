@@ -39,7 +39,7 @@ describe("NewExpensePage", () => {
     const user = userEvent.setup();
     render(<NewExpensePage />);
 
-    expect(screen.getByText("Montant total").parentElement).toHaveTextContent("—");
+    expect(screen.getByText("Montant total").parentElement).toHaveTextContent("-");
 
     await user.clear(screen.getByLabelText("Quantité"));
     await user.type(screen.getByLabelText("Quantité"), "40");

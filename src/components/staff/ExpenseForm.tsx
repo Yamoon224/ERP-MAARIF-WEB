@@ -151,7 +151,7 @@ export function ExpenseForm({ defaultValues, currentCategory, submitLabel, failu
 
           <p className="flex items-baseline justify-between rounded-md border border-border bg-background px-4 py-3" aria-live="polite">
             <span className="text-sm text-muted">Montant total</span>
-            <span className="text-lg font-semibold text-foreground">{hasTotal ? formatMoney(total) : "—"}</span>
+            <span className="text-lg font-semibold text-foreground">{hasTotal ? formatMoney(total) : "-"}</span>
           </p>
 
           <div className="grid gap-4 sm:grid-cols-2">

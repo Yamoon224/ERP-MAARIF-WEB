@@ -131,21 +131,21 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ id: st
 
         {isCancelled && (
           <p className="mt-4 rounded-md border border-danger/40 bg-danger/5 px-4 py-2 text-sm text-danger">
-            Dépense annulée le {formatDateTime(expense.cancelled_at)} — {expense.cancellation_reason}
+            Dépense annulée le {formatDateTime(expense.cancelled_at)} - {expense.cancellation_reason}
           </p>
         )}
 
         <dl className="mt-4">
-          <Row label="Fournisseur">{expense.supplier_name ?? "—"}</Row>
+          <Row label="Fournisseur">{expense.supplier_name ?? "-"}</Row>
           <Row label="Quantité">
             {expense.quantity.toLocaleString("fr-FR")}
             {expense.unit ? ` ${expense.unit}` : ""}
           </Row>
           <Row label="Prix unitaire">{formatMoney(expense.unit_price)}</Row>
           <Row label="Mode de paiement">{expense.method_label}</Row>
-          <Row label="N° de facture ou de bon">{expense.invoice_reference ?? "—"}</Row>
+          <Row label="N° de facture ou de bon">{expense.invoice_reference ?? "-"}</Row>
           {expense.note && <Row label="Note">{expense.note}</Row>}
-          <Row label="Saisie par">{expense.recorded_by?.name ?? "—"}</Row>
+          <Row label="Saisie par">{expense.recorded_by?.name ?? "-"}</Row>
         </dl>
 
         <p className="mt-6 flex items-baseline justify-between border-t border-border pt-4">

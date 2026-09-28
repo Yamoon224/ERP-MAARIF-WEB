@@ -18,7 +18,7 @@ interface StudentResultsCardProps {
 
 /** Rang lisible : `1er / 24`, `3e / 24`. Vide tant que l'élève n'est pas classé. */
 export function formatRank(rank: number | null, rankedCount: number | null): string {
-  if (rank === null) return "—";
+  if (rank === null) return "-";
 
   return `${rank === 1 ? "1er" : `${rank}e`}${rankedCount ? ` / ${rankedCount}` : ""}`;
 }
@@ -135,7 +135,7 @@ export function StudentResultsCard({ source, studentId }: StudentResultsCardProp
                       </td>
                       <td className="py-2 pr-4 font-medium">{formatAverage(period.average)}</td>
                       <td className="py-2 pr-4">{formatRank(period.rank, period.ranked_count)}</td>
-                      <td className="py-2">{period.mention ?? "—"}</td>
+                      <td className="py-2">{period.mention ?? "-"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -144,7 +144,7 @@ export function StudentResultsCard({ source, studentId }: StudentResultsCardProp
 
             {selected && (
               <div>
-                <h3 className="mb-2 text-sm font-semibold text-foreground">Détail par matière — {selected.label}</h3>
+                <h3 className="mb-2 text-sm font-semibold text-foreground">Détail par matière - {selected.label}</h3>
                 {selected.subjects.length === 0 ? (
                   <p className="text-sm text-muted">Aucune note sur cette période.</p>
                 ) : (

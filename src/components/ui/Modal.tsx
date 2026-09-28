@@ -105,7 +105,7 @@ export function Modal({ open, onClose, title, description, children, size = "md"
         {/* En-tête fixe et contenu defilant separement : un contenu plus grand que l'ecran (ex. la longue
             liste de permissions d'un role) ne doit jamais rendre l'en-tete inaccessible. Un panneau centre
             (`items-center` ci-dessus) qui deborde de son conteneur ne peut pas toujours etre defile jusqu'en
-            haut par le navigateur — le plafonner ici et le faire defiler lui-meme evite ce piege. */}
+            haut par le navigateur - le plafonner ici et le faire defiler lui-meme evite ce piege. */}
         <div className="flex shrink-0 items-start justify-between gap-4 px-6 pt-5 pb-2">
           <div>
             <h2 id={titleId} className="text-base font-semibold text-foreground">

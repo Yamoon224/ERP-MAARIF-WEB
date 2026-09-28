@@ -29,7 +29,7 @@ type StatusFilter = "" | "valid" | "cancelled";
 
 /** Résumé des mois réglés : « octobre 2025 » ou « octobre 2025 → décembre 2025 ». */
 function monthsLabel(months: string[]): string {
-  if (months.length === 0) return "—";
+  if (months.length === 0) return "-";
   if (months.length === 1) return formatMonth(months[0]);
   return `${formatMonth(months[0])} → ${formatMonth(months[months.length - 1])}`;
 }
@@ -78,7 +78,7 @@ export default function PaymentsPage() {
       header: "Élève",
       render: (row) => (
         <span>
-          <span className="font-medium">{row.student?.name ?? "—"}</span>
+          <span className="font-medium">{row.student?.name ?? "-"}</span>
           <span className="ml-2 text-xs text-muted">{row.enrollment?.school_class?.name}</span>
         </span>
       ),

@@ -78,7 +78,7 @@ export function UserMenu({ variant = "topbar", collapsed = false, name, subtitle
           aria-haspopup="menu"
           aria-expanded={open}
           aria-label={`${t("Menu du profil")} : ${name}`}
-          title={collapsed ? `${name} — ${t("Menu du profil")}` : undefined}
+          title={collapsed ? `${name} - ${t("Menu du profil")}` : undefined}
           onClick={() => setOpen((current) => !current)}
           className={cn(
             "flex w-full items-center rounded-md py-2 text-left transition-colors hover:bg-foreground/5",

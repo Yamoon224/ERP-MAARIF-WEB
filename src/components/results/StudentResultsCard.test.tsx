@@ -53,7 +53,7 @@ describe("formatRank", () => {
     expect(formatRank(1, 24)).toBe("1er / 24");
     expect(formatRank(3, 24)).toBe("3e / 24");
     expect(formatRank(2, null)).toBe("2e");
-    expect(formatRank(null, 24)).toBe("—");
+    expect(formatRank(null, 24)).toBe("-");
   });
 });
 
@@ -71,10 +71,10 @@ describe("StudentResultsCard", () => {
     expect(screen.getAllByText("14.50/20")).toHaveLength(2);
     expect(screen.getByText("1er / 24")).toBeInTheDocument();
     // Par défaut, le détail suit la dernière période : l'année.
-    expect(screen.getByText(/Détail par matière — Annuel 2025-2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Détail par matière - Annuel 2025-2026/)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "1er trimestre" }));
-    expect(screen.getByText(/Détail par matière — 1er trimestre/)).toBeInTheDocument();
+    expect(screen.getByText(/Détail par matière - 1er trimestre/)).toBeInTheDocument();
     expect(screen.getByText("3e / 24")).toBeInTheDocument();
   });
 

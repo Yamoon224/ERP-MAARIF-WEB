@@ -44,7 +44,7 @@ export default function StudentsPage() {
   const columns: DataTableColumn<Student>[] = [
     { key: "matricule", header: "Matricule", render: (row) => <span className="font-mono text-xs">{row.matricule}</span> },
     { key: "name", header: "Nom", render: (row) => `${row.first_name} ${row.last_name}` },
-    { key: "class", header: "Classe", render: (row) => row.school_class?.name ?? "—" },
+    { key: "class", header: "Classe", render: (row) => row.school_class?.name ?? "-" },
     { key: "guardian", header: "Tuteur", render: (row) => row.guardian_name },
     {
       key: "status",

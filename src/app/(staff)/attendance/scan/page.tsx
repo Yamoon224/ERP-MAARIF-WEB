@@ -23,7 +23,7 @@ interface ScanEntry {
 }
 
 /**
- * Pointage par carte scolaire (cahier des charges — pointage par QR code,
+ * Pointage par carte scolaire (cahier des charges - pointage par QR code,
  * option 2) : le surveillant scanne le QR de la carte de l'élève à son
  * arrivée au portail, ce qui suffit à le pointer présent pour aujourd'hui.
  */
@@ -55,7 +55,7 @@ export default function ScanCardPage() {
         {
           key: `error-${now}`,
           name: t("Carte non reconnue"),
-          matricule: "—",
+          matricule: "-",
           time: formatDateTime(new Date().toISOString()),
           error: getErrorMessage(failure, t("Cette carte ne correspond à aucun élève actif.")),
         },
@@ -113,7 +113,7 @@ export default function ScanCardPage() {
                   <li key={entry.key} className="flex items-center justify-between gap-3 border-b border-border pb-2.5 text-sm last:border-0">
                     <span>
                       <span className="font-medium text-foreground">{entry.name}</span>
-                      {entry.matricule !== "—" && <span className="ml-2 font-mono text-xs text-muted">{entry.matricule}</span>}
+                      {entry.matricule !== "-" && <span className="ml-2 font-mono text-xs text-muted">{entry.matricule}</span>}
                       {entry.error && <Alert className="mt-1">{entry.error}</Alert>}
                     </span>
                     <span className="flex shrink-0 items-center gap-2">

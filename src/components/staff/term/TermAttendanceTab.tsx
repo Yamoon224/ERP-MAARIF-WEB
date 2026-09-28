@@ -35,9 +35,9 @@ export function TermAttendanceTab({ termId }: { termId: string }) {
     {
       key: "justified",
       header: "Justifiée",
-      render: (row) => (row.status === "present" ? "—" : row.justified ? t("Oui") : t("Non")),
+      render: (row) => (row.status === "present" ? "-" : row.justified ? t("Oui") : t("Non")),
     },
-    { key: "reason", header: "Motif", render: (row) => row.reason ?? "—" },
+    { key: "reason", header: "Motif", render: (row) => row.reason ?? "-" },
   ];
 
   return (

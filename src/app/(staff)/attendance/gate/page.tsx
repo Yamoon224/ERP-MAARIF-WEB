@@ -20,7 +20,7 @@ import { downloadBlob } from "@/lib/export/tableExport";
 import { useT } from "@/lib/i18n/store";
 
 /**
- * Pointage géolocalisé au portail (cahier des charges — pointage par QR
+ * Pointage géolocalisé au portail (cahier des charges - pointage par QR
  * code, option 1) : coordonnées et rayon de tolérance de l'établissement, et
  * export du QR à imprimer et afficher au portail.
  */

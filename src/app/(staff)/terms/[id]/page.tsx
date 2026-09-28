@@ -88,7 +88,7 @@ export default function TermDetailPage({ params }: { params: Promise<{ id: strin
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold text-foreground">
-          {term.name} <span className="font-normal text-muted">— {term.academic_year}</span>
+          {term.name} <span className="font-normal text-muted">- {term.academic_year}</span>
         </h1>
         {term.is_current && <Badge tone="success">{t("Courant")}</Badge>}
         <span className="text-sm text-muted">{t("du {from} au {to}", { from: formatDate(term.starts_at), to: formatDate(term.ends_at) })}</span>

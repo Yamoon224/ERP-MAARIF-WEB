@@ -23,7 +23,7 @@ import { emptyPage } from "@/lib/utils/emptyPage";
 import { fetchAllPages } from "@/lib/utils/fetchAllPages";
 import { formatMoney, formatMonth } from "@/lib/utils/format";
 
-/** Élèves dont au moins un mois de scolarité, déjà terminé, n'est pas réglé — les plus endettés d'abord. */
+/** Élèves dont au moins un mois de scolarité, déjà terminé, n'est pas réglé - les plus endettés d'abord. */
 export default function ArrearsPage() {
   const canManage = hasPermission(useAuthStore((state) => state.user as StaffUser | null), "accounting.manage");
   const period = usePeriodFilter();
@@ -58,7 +58,7 @@ export default function ArrearsPage() {
         </span>
       ),
     },
-    { key: "class", header: "Classe", render: (row) => `${row.school_class ?? "—"} (${row.academic_year})` },
+    { key: "class", header: "Classe", render: (row) => `${row.school_class ?? "-"} (${row.academic_year})` },
     { key: "months", header: "Mois en retard", render: (row) => <Badge tone="danger">{row.months_overdue}</Badge> },
     { key: "oldest", header: "Depuis", render: (row) => <span className="capitalize">{formatMonth(row.oldest_month)}</span> },
     { key: "amount", header: "Montant dû", render: (row) => <span className="font-semibold text-danger">{formatMoney(row.amount)}</span> },

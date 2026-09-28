@@ -27,7 +27,7 @@ export default function ParentSummonsPage() {
   const columns: DataTableColumn<Summon>[] = [
     { key: "reason", header: "Motif", render: (row) => row.reason },
     { key: "date", header: "Date prévue", render: (row) => formatDateTime(row.scheduled_at) },
-    { key: "location", header: "Lieu", render: (row) => row.location ?? "—" },
+    { key: "location", header: "Lieu", render: (row) => row.location ?? "-" },
     { key: "status", header: "Statut", render: (row) => <Badge tone={SUMMON_TONE[row.status]}>{SUMMON_LABEL[row.status]}</Badge> },
   ];
 

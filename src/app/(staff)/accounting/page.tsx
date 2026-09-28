@@ -76,18 +76,19 @@ export default function AccountingOverviewPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period.isReady, filters]);
 
   return (
     <div>
       <PageHeader
-        title="Comptabilité"
-        description="Encaissements de la scolarité, taux de recouvrement et impayés."
+        title={t("Comptabilité")}
+        description={t("Encaissements de la scolarité, taux de recouvrement et impayés.")}
         actions={
           canManage && (
             <Link href="/accounting/payments/new">
               <Button>
-                <Plus className="size-4" /> Nouveau paiement
+                <Plus className="size-4" /> {t("Nouveau paiement")}
               </Button>
             </Link>
           )
@@ -97,9 +98,9 @@ export default function AccountingOverviewPage() {
       <div className="mb-6 flex flex-wrap items-stretch gap-3">
         <PeriodFilter filter={period} className="flex-1" />
         <label className="flex flex-col justify-center rounded-md border border-border bg-surface px-4 py-3 text-xs font-medium text-muted">
-          Classe
+          {t("Classe")}
           <Select className="mt-1 h-9 w-44" value={schoolClassId} onChange={(event) => setSchoolClassId(event.target.value)}>
-            <option value="">Toutes les classes</option>
+            <option value="">{t("Toutes les classes")}</option>
             {classes
               .filter((schoolClass) => !period.year || schoolClass.academic_year === period.year.label)
               .map((schoolClass) => (
@@ -117,37 +118,40 @@ export default function AccountingOverviewPage() {
         <>
           {summary.period && (
             <p className="mb-4 text-sm text-muted">
-              Du {formatDate(summary.period.from)} au {formatDate(summary.period.to)}
+              {t("Du {from} au {to}", { from: formatDate(summary.period.from), to: formatDate(summary.period.to) })}
             </p>
           )}
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              label="Encaissé"
+              label={t("Encaissé")}
               value={formatMoney(summary.collected.total)}
-              hint={`${summary.collected.count} paiement(s)`}
+              hint={t("{count} paiement(s)", { count: summary.collected.count })}
               icon={<HandCoins className="size-4" />}
               accent="accounting"
             />
             <StatCard
-              label="Dû sur la période"
+              label={t("Dû sur la période")}
               value={formatMoney(summary.expected.total)}
-              hint={`${formatMoney(summary.expected.settled)} déjà réglé`}
+              hint={t("{amount} déjà réglé", { amount: formatMoney(summary.expected.settled) })}
               icon={<Receipt className="size-4" />}
               accent="grades"
             />
             <StatCard
-              label="Taux de recouvrement"
+              label={t("Taux de recouvrement")}
               value={formatPercent(summary.expected.rate)}
-              hint="Réglé / dû sur les mois de la période"
+              hint={t("Réglé / dû sur les mois de la période")}
               icon={<TrendingUp className="size-4" />}
               accent="accounting"
             />
             <Link href="/accounting/unpaid" className="block">
               <StatCard
-                label="Impayés"
+                label={t("Impayés")}
                 value={formatMoney(summary.arrears.amount)}
-                hint={`${summary.arrears.students} élève(s) · ${summary.arrears.months} mois en retard`}
+                hint={t("{students} élève(s) · {months} mois en retard", {
+                  students: summary.arrears.students,
+                  months: summary.arrears.months,
+                })}
                 icon={<TriangleAlert className="size-4" />}
                 accent="discipline"
                 className="h-full transition-shadow hover:shadow-md"
@@ -162,11 +166,11 @@ export default function AccountingOverviewPage() {
               </CardHeader>
               <CardContent>
                 {summary.by_month.length === 0 ? (
-                  <p className="text-sm text-muted">Aucun encaissement.</p>
+                  <p className="text-sm text-muted">{t("Aucun encaissement.")}</p>
                 ) : (
                   <ColumnChart
-                    ariaLabel="Encaissements par mois"
-                    series={[{ key: "collected", label: "Encaissements", color: seriesColor(0) }]}
+                    ariaLabel={t("Encaissements par mois")}
+                    series={[{ key: "collected", label: t("Encaissements"), color: seriesColor(0) }]}
                     data={summary.by_month.map((entry, index) => ({
                       label: formatMonthAxis(entry.month, index),
                       fullLabel: formatMonth(entry.month),

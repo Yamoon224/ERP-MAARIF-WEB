@@ -134,7 +134,7 @@ export function StudentEnrollments({ studentId, onEnrolled }: StudentEnrollments
                         enrollment.academic_year
                       )}
                     </td>
-                    <td className="px-4 py-2.5">{enrollment.school_class?.name ?? "—"}</td>
+                    <td className="px-4 py-2.5">{enrollment.school_class?.name ?? "-"}</td>
                     <td className="px-4 py-2.5">{formatDate(enrollment.enrolled_on)}</td>
                     {canSeeTuition && (
                       <td className="px-4 py-2.5">
