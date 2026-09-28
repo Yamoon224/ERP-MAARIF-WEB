@@ -141,6 +141,8 @@ export interface Grade {
 
 export type AttendanceStatus = "present" | "absent" | "retard";
 
+export type AttendanceSource = "manual" | "self_service" | "card_scan";
+
 export interface AttendanceRecord {
   id: string;
   student: { id: string; name: string; matricule: string };
@@ -148,6 +150,18 @@ export interface AttendanceRecord {
   status: AttendanceStatus;
   justified: boolean;
   reason: string | null;
+  source: AttendanceSource;
+  checked_in_at: string | null;
+}
+
+/** Réglage du pointage géolocalisé au portail (pointage par QR code, option 1). */
+export interface GateSettings {
+  latitude: number | null;
+  longitude: number | null;
+  radius_meters: number;
+  is_enabled: boolean;
+  gate_token: string;
+  updated_at: string | null;
 }
 
 export type SummonStatus = "pending" | "done" | "cancelled";

@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { KeyRound } from "lucide-react";
+import { IdCard, KeyRound, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -11,9 +11,10 @@ import { StudentEnrollments } from "@/components/staff/StudentEnrollments";
 import { StudentResultsCard } from "@/components/results/StudentResultsCard";
 import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
-import { getStudent, resetStudentPassword } from "@/lib/api/students";
+import { getStudent, getStudentCardBlob, regenerateStudentCardToken, resetStudentPassword } from "@/lib/api/students";
+import { getErrorMessage } from "@/lib/api/error";
 import { downloadStudentBulletin, getStudentBulletin } from "@/lib/api/grades";
-import { slugify } from "@/lib/export/tableExport";
+import { downloadBlob, slugify } from "@/lib/export/tableExport";
 import { listAllTerms } from "@/lib/api/academics";
 import type { Bulletin, StaffUser, Student, Term } from "@/lib/api/types";
 
@@ -26,6 +27,9 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
   const [selectedTermId, setSelectedTermId] = useState<string>("");
   const [bulletin, setBulletin] = useState<Bulletin | null>(null);
   const [resetPassword, setResetPassword] = useState<string | null>(null);
+  const [isDownloadingCard, setIsDownloadingCard] = useState(false);
+  const [isRegeneratingCard, setIsRegeneratingCard] = useState(false);
+  const [cardError, setCardError] = useState<string | null>(null);
 
   useEffect(() => {
     getStudent(id).then(setStudent);
@@ -46,6 +50,34 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
   async function handleResetPassword() {
     const result = await resetStudentPassword(id);
     setResetPassword(result.initial_password);
+  }
+
+  async function handleDownloadCard() {
+    setIsDownloadingCard(true);
+    setCardError(null);
+
+    try {
+      downloadBlob(await getStudentCardBlob(id), `${slugify(`carte ${student?.matricule ?? id}`)}.pdf`);
+    } catch (failure) {
+      setCardError(getErrorMessage(failure, "Impossible de télécharger la carte."));
+    } finally {
+      setIsDownloadingCard(false);
+    }
+  }
+
+  async function handleRegenerateCard() {
+    if (!window.confirm("Régénérer le QR invalide la carte déjà imprimée : il faudra la réimprimer. Continuer ?")) return;
+
+    setIsRegeneratingCard(true);
+    setCardError(null);
+
+    try {
+      await regenerateStudentCardToken(id);
+    } catch (failure) {
+      setCardError(getErrorMessage(failure, "Impossible de régénérer le QR."));
+    } finally {
+      setIsRegeneratingCard(false);
+    }
   }
 
   if (!student) {
@@ -91,15 +123,24 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
               {student.guardian_email ?? "—"}
             </p>
 
-            <div className="pt-3">
+            <div className="flex flex-wrap gap-2 pt-3">
               <Button variant="secondary" size="sm" onClick={handleResetPassword}>
                 <KeyRound className="size-4" />
                 Reinitialiser le mot de passe
               </Button>
-              {resetPassword && (
-                <p className="mt-2 rounded-md bg-background p-2 font-mono text-xs">Nouveau mot de passe : {resetPassword}</p>
-              )}
+              <Button variant="secondary" size="sm" loading={isDownloadingCard} onClick={handleDownloadCard}>
+                <IdCard className="size-4" />
+                Carte élève (PDF)
+              </Button>
+              <Button variant="secondary" size="sm" loading={isRegeneratingCard} onClick={handleRegenerateCard}>
+                <RefreshCw className="size-4" />
+                Régénérer le QR
+              </Button>
             </div>
+            {resetPassword && (
+              <p className="mt-2 rounded-md bg-background p-2 font-mono text-xs">Nouveau mot de passe : {resetPassword}</p>
+            )}
+            {cardError && <p className="mt-2 text-xs text-danger">{cardError}</p>}
           </CardContent>
         </Card>
 

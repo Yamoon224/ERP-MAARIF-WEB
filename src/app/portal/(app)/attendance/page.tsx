@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
+import { ScanLine } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
@@ -10,7 +13,7 @@ import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { listMyAttendance } from "@/lib/api/attendance";
 import type { AttendanceRecord } from "@/lib/api/types";
-import { ATTENDANCE_LABEL, ATTENDANCE_TONE } from "@/lib/labels";
+import { ATTENDANCE_LABEL, ATTENDANCE_SOURCE_LABEL, ATTENDANCE_TONE } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
 import { formatDate } from "@/lib/utils/format";
@@ -27,13 +30,24 @@ export default function ParentAttendancePage() {
   const columns: DataTableColumn<AttendanceRecord>[] = [
     { key: "date", header: "Date", render: (row) => formatDate(row.date) },
     { key: "status", header: "Statut", render: (row) => <Badge tone={ATTENDANCE_TONE[row.status]}>{ATTENDANCE_LABEL[row.status]}</Badge> },
+    { key: "source", header: "Origine", render: (row) => <span className="text-xs text-muted">{ATTENDANCE_SOURCE_LABEL[row.source]}</span> },
     { key: "justified", header: "Justifiée", render: (row) => (row.status === "present" ? "—" : row.justified ? "Oui" : "Non") },
     { key: "reason", header: "Motif", render: (row) => row.reason ?? "—" },
   ];
 
   return (
     <div>
-      <PageHeader title="Présences" description="Historique des présences, absences et retards de votre enfant." />
+      <PageHeader
+        title="Présences"
+        description="Historique des présences, absences et retards de votre enfant."
+        actions={
+          <Link href="/portal/checkin">
+            <Button variant="secondary">
+              <ScanLine className="size-4" /> Pointer mon arrivée
+            </Button>
+          </Link>
+        }
+      />
       <PeriodFilter filter={period} className="mb-4" />
       <DataTable exportName="Présences" columns={columns} rows={data} rowKey={(row) => row.id} isLoading={isLoading} emptyMessage="Aucun enregistrement sur cette période." />
       {meta && <Pagination meta={meta} onPageChange={setPage} onPerPageChange={setPerPage} />}

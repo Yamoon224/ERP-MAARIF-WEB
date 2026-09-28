@@ -2,8 +2,9 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, IdCard } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Label, Select } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -12,6 +13,8 @@ import { hasPermission } from "@/lib/auth/permissions";
 import { useAuthStore } from "@/lib/auth/store";
 import { getSchoolClass, updateSchoolClass } from "@/lib/api/academics";
 import { getErrorMessage } from "@/lib/api/error";
+import { getClassCardsBlob } from "@/lib/api/students";
+import { downloadBlob, slugify } from "@/lib/export/tableExport";
 import { listUsers } from "@/lib/api/users";
 import type { SchoolClass, StaffUser } from "@/lib/api/types";
 
@@ -19,11 +22,13 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
   const { id } = use(params);
   const user = useAuthStore((state) => state.user as StaffUser | null);
   const canManage = hasPermission(user, "academics.manage");
+  const canPrintCards = hasPermission(user, "students.manage");
 
   const [schoolClass, setSchoolClass] = useState<SchoolClass | null>(null);
   const [teachers, setTeachers] = useState<StaffUser[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDownloadingCards, setIsDownloadingCards] = useState(false);
 
   useEffect(() => {
     getSchoolClass(id)
@@ -53,6 +58,19 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
     }
   }
 
+  async function handleDownloadCards() {
+    setIsDownloadingCards(true);
+    setError(null);
+
+    try {
+      downloadBlob(await getClassCardsBlob(id), `${slugify(`cartes ${schoolClass?.name ?? id}`)}.pdf`);
+    } catch (downloadError) {
+      setError(getErrorMessage(downloadError, "Impossible de télécharger les cartes."));
+    } finally {
+      setIsDownloadingCards(false);
+    }
+  }
+
   if (!schoolClass) {
     return error ? <Alert>{error}</Alert> : <p className="text-sm text-muted">Chargement...</p>;
   }
@@ -65,7 +83,17 @@ export default function SchoolClassDetailPage({ params }: { params: Promise<{ id
         <Link href="/classes" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground">
           <ArrowLeft className="size-4" aria-hidden="true" /> Classes
         </Link>
-        <PageHeader title={schoolClass.name} description={`${schoolClass.level} · année scolaire ${schoolClass.academic_year}`} />
+        <PageHeader
+          title={schoolClass.name}
+          description={`${schoolClass.level} · année scolaire ${schoolClass.academic_year}`}
+          actions={
+            canPrintCards && (
+              <Button variant="secondary" loading={isDownloadingCards} onClick={handleDownloadCards}>
+                <IdCard className="size-4" /> Cartes élèves (PDF)
+              </Button>
+            )
+          }
+        />
       </div>
 
       {error && <Alert>{error}</Alert>}

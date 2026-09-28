@@ -1,5 +1,6 @@
 import type {
   AdmissionStatus,
+  AttendanceSource,
   AttendanceStatus,
   InstallmentStatus,
   NotificationLog,
@@ -21,6 +22,12 @@ export const ATTENDANCE_TONE: Record<AttendanceStatus, Tone> = {
   present: "success",
   absent: "danger",
   retard: "warning",
+};
+
+export const ATTENDANCE_SOURCE_LABEL: Record<AttendanceSource, string> = {
+  manual: "Saisie manuelle",
+  self_service: "QR du portail",
+  card_scan: "Carte scannée",
 };
 
 export const SUMMON_LABEL: Record<SummonStatus, string> = {

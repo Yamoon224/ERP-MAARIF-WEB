@@ -65,3 +65,20 @@ export async function enrollStudent(studentId: string, schoolClassId: string) {
   });
   return data.data;
 }
+
+// --- Carte scolaire (QR code de pointage — option 2) ----------------------------
+
+export async function getStudentCardBlob(studentId: string) {
+  const { data } = await apiClient.get<Blob>(`/students/${studentId}/card`, { responseType: "blob" });
+  return data;
+}
+
+/** Régénère le jeton de la carte : l'ancienne carte imprimée cesse aussitôt de fonctionner. */
+export async function regenerateStudentCardToken(studentId: string) {
+  await apiClient.post(`/students/${studentId}/card/regenerate-token`);
+}
+
+export async function getClassCardsBlob(schoolClassId: string) {
+  const { data } = await apiClient.get<Blob>(`/classes/${schoolClassId}/students/cards`, { responseType: "blob" });
+  return data;
+}

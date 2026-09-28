@@ -26,7 +26,7 @@ import type { AttendanceRecord, AttendanceStatus, AttendanceSummary, Student } f
 import { useSchoolClassOptions } from "@/lib/hooks/useSchoolClassOptions";
 import { usePaginatedResource } from "@/lib/hooks/usePaginatedResource";
 import { usePagination } from "@/lib/hooks/usePagination";
-import { ATTENDANCE_LABEL, ATTENDANCE_TONE } from "@/lib/labels";
+import { ATTENDANCE_LABEL, ATTENDANCE_SOURCE_LABEL, ATTENDANCE_TONE } from "@/lib/labels";
 import { usePeriodFilter } from "@/lib/period/usePeriodFilter";
 import { emptyPage } from "@/lib/utils/emptyPage";
 import { formatDate, formatPercent, today } from "@/lib/utils/format";
@@ -137,6 +137,7 @@ export default function AbsencesPage() {
       ),
     },
     { key: "status", header: "Statut", render: (row) => <Badge tone={ATTENDANCE_TONE[row.status]}>{ATTENDANCE_LABEL[row.status]}</Badge> },
+    { key: "source", header: "Origine", render: (row) => <span className="text-xs text-muted">{ATTENDANCE_SOURCE_LABEL[row.source]}</span> },
     {
       key: "justified",
       header: "Justification",

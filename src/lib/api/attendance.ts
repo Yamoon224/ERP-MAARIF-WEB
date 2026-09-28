@@ -3,6 +3,7 @@ import type {
   AttendanceRecord,
   AttendanceStatus,
   AttendanceSummary,
+  GateSettings,
   PaginatedResponse,
   PeriodParams,
   RollCallRow,
@@ -78,4 +79,43 @@ export interface ClassAttendancePayload {
 export async function recordClassAttendance(payload: ClassAttendancePayload) {
   const { data } = await apiClient.post<{ data: AttendanceRecord[] }>("/attendance-records/bulk", payload);
   return data.data;
+}
+
+// --- Pointage par QR code -------------------------------------------------------
+
+/** Pointage par carte scolaire (option 2) : le surveillant scanne le QR de la carte de l'élève. */
+export async function scanStudentCard(qrToken: string) {
+  const { data } = await apiClient.post<{ data: AttendanceRecord }>("/attendance-records/scan-card", { qr_token: qrToken });
+  return data.data;
+}
+
+/** Pointage géolocalisé au portail (option 1), depuis le portail parent/élève. */
+export async function checkInAtGate(payload: { token: string; latitude: number; longitude: number }) {
+  const { data } = await apiClient.post<{ data: AttendanceRecord }>("/parent/attendance/check-in", payload);
+  return data.data;
+}
+
+export async function getGateSettings() {
+  const { data } = await apiClient.get<{ data: GateSettings }>("/attendance/gate-settings");
+  return data.data;
+}
+
+export async function updateGateSettings(payload: Pick<GateSettings, "latitude" | "longitude" | "radius_meters" | "is_enabled">) {
+  const { data } = await apiClient.put<{ data: GateSettings }>("/attendance/gate-settings", payload);
+  return data.data;
+}
+
+export async function regenerateGateToken() {
+  const { data } = await apiClient.post<{ data: GateSettings }>("/attendance/gate-settings/regenerate-token");
+  return data.data;
+}
+
+export async function getGateQrBlob() {
+  const { data } = await apiClient.get<Blob>("/attendance/gate-settings/qr", { responseType: "blob" });
+  return data;
+}
+
+export async function getGatePosterBlob() {
+  const { data } = await apiClient.get<Blob>("/attendance/gate-settings/poster", { responseType: "blob" });
+  return data;
 }
