@@ -238,4 +238,20 @@ export const EN_MESSAGES: Readonly<Record<string, string>> = {
   "Ces préférences sont enregistrées sur cet appareil.": "These preferences are saved on this device.",
   "Réduire la barre latérale à ses icônes": "Collapse the sidebar to icons",
   "Vous pouvez aussi la réduire à tout moment avec le bouton à gauche de la barre du haut.": "You can also collapse it at any time with the button on the left of the top bar.",
+
+  // Import en masse d'élèves
+  "Importer des élèves": "Import students",
+  "Migrez les élèves d'un système existant (ex. un tableau Excel) sans les ressaisir un par un.":
+    "Migrate students from an existing system (e.g. a spreadsheet) without re-entering them one by one.",
+  "Fichier à importer": "File to import",
+  "Aperçu de l'import": "Import preview",
+  "Import terminé": "Import complete",
+  "Ligne": "Row",
+  "Erreur": "Error",
+  "Matricule": "Student ID",
+  "Aucun élève importé.": "No students imported.",
+  "Aucune erreur.": "No errors.",
+
+  // Barème de passage et d'appréciation
+  "Barème de passage et d'appréciation": "Promotion and grading scale",
 };

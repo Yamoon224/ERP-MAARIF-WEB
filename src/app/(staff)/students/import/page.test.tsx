@@ -17,6 +17,13 @@ async function chooseFile(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("StudentImportPage", () => {
+  it("accepts CSV, Excel and SQL exports", () => {
+    render(<StudentImportPage />);
+
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input.accept).toBe(".csv,.txt,.xlsx,.xls,.sql");
+  });
+
   it("analyzes the file first, without importing anything", async () => {
     let dryRun: string | null = null;
     server.use(

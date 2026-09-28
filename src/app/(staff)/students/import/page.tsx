@@ -165,18 +165,21 @@ export default function StudentImportPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted">
-                Formats acceptés : CSV ou Excel (.xlsx, .xls), 5 Mo maximum. La première ligne doit contenir les en-têtes de
-                colonnes ; l&apos;ordre des colonnes n&apos;a pas d&apos;importance.
+                Formats acceptés : CSV, Excel (.xlsx, .xls) ou export SQL (.sql), 5 Mo maximum. Pour un tableur, la première
+                ligne doit contenir les en-têtes de colonnes ; l&apos;ordre des colonnes n&apos;a pas d&apos;importance. Pour un
+                fichier SQL, seules les instructions <code className="font-mono">INSERT INTO</code> dont les colonnes sont
+                reconnues sont lues — le fichier n&apos;est jamais exécuté, ses autres tables (paiements, classes...) sont
+                simplement ignorées.
               </p>
 
               <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed border-border bg-background px-4 py-8 text-center hover:border-primary">
                 <UploadCloud className="size-6 text-muted" aria-hidden="true" />
                 <span className="text-sm font-medium text-foreground">{file ? file.name : "Choisir un fichier"}</span>
-                <span className="text-xs text-muted">CSV, XLSX ou XLS</span>
+                <span className="text-xs text-muted">CSV, XLSX, XLS ou SQL</span>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".csv,.txt,.xlsx,.xls"
+                  accept=".csv,.txt,.xlsx,.xls,.sql"
                   className="sr-only"
                   onChange={(event) => {
                     setFile(event.target.files?.[0] ?? null);
