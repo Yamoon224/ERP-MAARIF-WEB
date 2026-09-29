@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppearanceSync } from "@/components/theme/AppearanceSync";
 import { ThemeSync } from "@/components/theme/ThemeSync";
+import { ServiceWorkerRegistration } from "@/components/theme/ServiceWorkerRegistration";
 import { APPEARANCE_SCRIPT } from "@/lib/appearance/palettes";
 import { NO_FLASH_SCRIPT } from "@/lib/theme/theme";
 import "./globals.css";
@@ -19,6 +20,21 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: "ERP Maarif", template: "%s · ERP Maarif" },
   description: "Suivi scolaire des élèves : notes, présences, convocations, sanctions et scolarité.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ERP Maarif",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a1224" },
+  ],
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -32,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeSync />
         <AppearanceSync />
+        <ServiceWorkerRegistration />
         {children}
       </body>
     </html>
